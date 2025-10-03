@@ -148,7 +148,9 @@ const Map = () => {
                     if (dist < 50) {
                         alert(`You interacted with ${poi.name}! 🎉`);
                     }
-                        marker.openPopup();
+                    marker.openPopup();
+                    document.addEventListener('click', ()=> marker.closePopup(), { once: true })
+                    document.addEventListener('touchstart', ()=> marker.closePopup(), { once: true })
 
                 }
             });
