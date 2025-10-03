@@ -1,101 +1,160 @@
-import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import L, { Map as LeafletMap, Marker } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./map.css"
 
 // Helper: calculate distance in meters between two lat/lng pairs
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
-  const R = 6371e3; // earth radius in meters
-  const φ1 = (lat1 * Math.PI) / 180;
-  const φ2 = (lat2 * Math.PI) / 180;
-  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+    const R = 6371e3; // earth radius in meters
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-  const a =
-    Math.sin(Δφ / 2) ** 2 +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const a =
+        Math.sin(Δφ / 2) ** 2 +
+        Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 const Map = () => {
-  let map: LeafletMap;
-  const [mapElement, setMapElement] = createSignal<HTMLElement>()
-  let userMarker: Marker;
+    let map: LeafletMap;
+    const [mapElement, setMapElement] = createSignal<HTMLElement>()
+    let userMarker: Marker;
 
-  // Example markers (normally you’d fetch from OSM/DB)
-  const poiMarkers = [
-    { id: 1, name: "Fountain", lat: 52.3702, lng: 4.8952 }, // Amsterdam coords
-    { id: 2, name: "Statue", lat: 52.3728, lng: 4.9000 },
-  ];
+    // Example markers (normally you’d fetch from OSM/DB)
+    const poiMarkers = [
+        { id: 1, name: "Fountain", lat: 52.3702, lng: 4.8952 }, // Amsterdam coords
+        { id: 2, name: "Statue", lat: 52.3728, lng: 4.9000 },
+    ];
 
-  createEffect(() => {
-    const element = mapElement();
-    if (!element) return;
-    // Setup map
-    map = L.map(element).setView([52.3702, 4.8952], 15, {
-        animate: false
-    });
-
-    map.setZoom(map.getMaxZoom(), {
-        animate: true
-    });
-
-    // Tile layer (MapTiler with env key OR fallback to OSM)
-    const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-
-    L.tileLayer(tileUrl, {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
-    }).addTo(map);
-
-    // Create markers for POIs
-    poiMarkers.forEach((poi) => {
-      const marker = L.marker([poi.lat, poi.lng]).addTo(map);
-      marker.bindPopup(`${poi.name}<br><i>Get closer to interact!</i>`);
-      marker.on("click", () => {
-        if (userMarker) {
-          const userLatLng = userMarker.getLatLng();
-          const dist = haversine(
-            userLatLng.lat,
-            userLatLng.lng,
-            poi.lat,
-            poi.lng
-          );
-
-          if (dist < 50) {
-            alert(`You interacted with ${poi.name}! 🎉`);
-          } else {
-            alert(`Too far away! You’re ${Math.round(dist)}m away.`);
-          }
-        }
-      });
-    });
-
-    // Track user location
-    userMarker = L.marker([0, 0], {
-      icon: L.icon({
-        iconUrl:
-          "https://cdn-icons-png.flaticon.com/512/149/149060.png", // simple icon
-        iconSize: [32, 32],
-      }),
-    }).addTo(map);
-
-    if ("geolocation" in navigator) {
-      const watchId = navigator.geolocation.watchPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords;
-          userMarker.setLatLng([latitude, longitude]);
-          map.setView([latitude, longitude], map.getMaxZoom());
-        },
-        (err) => console.error("Geolocation error:", err),
-        { enableHighAccuracy: true }
-      );
-
-      onCleanup(() => navigator.geolocation.clearWatch(watchId));
+    const [manual, setManual] = createSignal(false);
+    const nonManual = createMemo(() => !manual(), [manual]);
+    
+    function resetView() {
+        disableMap();
+        setManual(false);
+        const latLong = userMarker.getLatLng();
+        map.setView(latLong, map.getMaxZoom(), {
+            animate: true
+        });
+        enableMap();
     }
-  }, [mapElement]);
 
-  return <div id="map" ref={setMapElement} style={{ height: "100vh", width: "100%" }} />;
+    function disableMap() {
+        map.dragging.disable();
+        map.touchZoom.disable();
+        map.doubleClickZoom.disable();
+        map.scrollWheelZoom.disable();
+        map.boxZoom.disable();
+        map.keyboard.disable();
+        // if (map.tap) map.tap.disable();
+        mapElement()!.style.cursor='default';
+    }
+    function enableMap() {
+        map.dragging.enable();
+        map.touchZoom.enable();
+        map.doubleClickZoom.enable();
+        map.scrollWheelZoom.enable();
+        map.boxZoom.enable();
+        map.keyboard.enable();
+        // if (map.tap) map.tap.disable();
+        mapElement()!.style.cursor='grab';
+    }
+
+
+        const ctrllr = new AbortController();
+        onCleanup(() => ctrllr.abort());
+    createEffect(() => {
+        
+        const element = mapElement();
+        if (!element) return;
+
+        // Setup map
+        map = L.map(element).setView([52.3702, 4.8952], 10, {
+            animate: false
+        });
+
+        disableMap();
+
+        map.setMinZoom(15);
+        map.setMaxZoom(18);
+
+        // Tile layer (MapTiler with env key OR fallback to OSM)
+        const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+
+        L.tileLayer(tileUrl, {
+            attribution:
+                '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+        }).addTo(map);
+
+        // Create markers for POIs
+        poiMarkers.forEach((poi) => {
+            const marker = L.marker([poi.lat, poi.lng]).addTo(map);
+            marker.bindPopup(`${poi.name}<br><i>Get closer to interact!</i>`);
+            marker.on("click", () => {
+                if (userMarker) {
+                    const userLatLng = userMarker.getLatLng();
+                    const dist = haversine(
+                        userLatLng.lat,
+                        userLatLng.lng,
+                        poi.lat,
+                        poi.lng
+                    );
+
+                    if (dist < 50) {
+                        alert(`You interacted with ${poi.name}! 🎉`);
+                    } else {
+                        alert(`Too far away! You’re ${Math.round(dist)}m away.`);
+                    }
+                }
+            });
+        });
+
+        // Track user location
+        userMarker = L.marker([0, 0], {
+            icon: L.icon({
+                iconUrl:
+                    "https://cdn-icons-png.flaticon.com/512/149/149060.png", // simple icon
+                iconSize: [32, 32],
+            }),
+        }).addTo(map);
+
+        if ("geolocation" in navigator) {
+            const watchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    userMarker.setLatLng([latitude, longitude]);
+                    if (!manual()) {
+                        map.setView([latitude, longitude], map.getMaxZoom(), {
+                            animate: true,
+                            noMoveStart: true
+                        });
+                        enableMap();
+                    }
+                },
+                (err) => console.error("Geolocation error:", err),
+                { enableHighAccuracy: true }
+            );
+
+            onCleanup(() => navigator.geolocation.clearWatch(watchId));
+        }
+
+
+        const moveByUser = () => setManual(true)
+        mapElement()!.addEventListener('mousedown', moveByUser, ctrllr)
+        mapElement()!.addEventListener('touchstart', moveByUser, ctrllr)
+        mapElement()!.addEventListener('dragstart', moveByUser, ctrllr)
+        mapElement()!.addEventListener('dblclick', moveByUser,ctrllr)
+        document.addEventListener('scroll', moveByUser, ctrllr)
+        document.addEventListener('keydown', moveByUser, ctrllr)
+        
+    }, [mapElement]);
+
+    return <>
+        <button id="recenter" disabled={nonManual()} onClick={resetView}>Centreren</button>
+        <div id="map" ref={setMapElement} style={{ height: "100vh", width: "100%" }} />;
+    </>
 };
 
 export default Map;
