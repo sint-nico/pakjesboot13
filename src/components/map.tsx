@@ -137,6 +137,7 @@ const Map = () => {
                     await new Promise<void>(res => {
                         const interval = setInterval(() => {
                             console.log(Math.floor(map.getCenter().distanceTo(marker.getLatLng())));
+                            marker.setPopupContent(`dist: ${Math.floor(map.getCenter().distanceTo(marker.getLatLng()))}`)
                             if (!!Math.floor(map.getCenter().distanceTo(marker.getLatLng()))) return
                             clearInterval(interval)
                             res()
