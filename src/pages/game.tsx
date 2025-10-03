@@ -18,16 +18,30 @@ export const Scanner: Component = () => {
 
 	let wakeLock: WakeLockSentinel | undefined | void = undefined;
 	const ii = setInterval(async () => {
-		if (wakeLock) return;
-  		wakeLock = await navigator.wakeLock.request("screen").catch(console.error);
-		console.log('wakelock enabled')
+		if (!wakeLock) {
+			wakeLock = await navigator.wakeLock.request("screen").catch(console.error);
+			console.log('wakelock enabled')
+		}
+		if (import.meta.env.PROD && !document.fullscreenElement) {
+			await document.body.requestFullscreen({
+				navigationUI: 'hide'
+			}).catch(console.error)
+			console.log('fullscreen enabled')
+			document.addEventListener('fullscreenchange', (e) => {
+				if(document.fullscreenElement) return;
+				// TODO back to home
+				window.location.reload();
+			}, { once: true })
+		}
 	}, 300);
 
 	onCleanup(async () => {
 		clearInterval(ii);
-		if (wakeLock) await wakeLock.release()
+		if (wakeLock) await wakeLock.release().catch(console.error)
 			wakeLock = undefined;
 		console.log('wakelock disabled')
+		await document.exitFullscreen?.().catch(console.error);
+		console.log('fullscreen disabled')
 	});
 
 	return <>
