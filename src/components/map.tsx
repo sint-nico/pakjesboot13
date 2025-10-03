@@ -106,16 +106,18 @@ const Map = () => {
                 iconUrl: 'https://cdn1.iconfinder.com/data/icons/icons-for-a-site-1/64/advantage_gift-64.png',
                 iconSize: [32, 32]
             }))
-            marker.bindPopup(`${poi.name}<br><i>Kom dichtbij om te zoeken!</i>`);
-            marker.on("click", () => {
+            marker.bindPopup(`${poi.name}<br><i>Kom dichtbij om te zoeken!</i>`, {
+                autoPan: false
+            });
+            marker.on("click", async () => {
                 if (userMarker) {
                     const userLatLng = userMarker.getLatLng();
 
-                    
-                    map.setView(poi, map.getMaxZoom(), {
+                    disableMap();
+                    setManual(true)
+                    map.setView(marker.getLatLng(), map.getMaxZoom(), {
                         animate: true
                     });
-
                     const dist = haversine(
                         userLatLng.lat,
                         userLatLng.lng,
@@ -125,10 +127,25 @@ const Map = () => {
 
                     if (dist < 50) {
                         marker.setPopupContent(`${poi.name}`);
-                        alert(`You interacted with ${poi.name}! 🎉`);
                     } else {
                         marker.setPopupContent(`${poi.name}<br><i>Kom dichtbij om te zoeken!</i>`);
                     }
+                    
+
+                    await new Promise<void>(res => {
+                        const interval = setInterval(() => {
+                            if (!!map.getCenter().distanceTo(poi)) return
+                            clearInterval(interval)
+                            res()
+                        }, 100)
+                    })
+                    enableMap();
+
+                    
+                    if (dist < 50) {
+                        alert(`You interacted with ${poi.name}! 🎉`);
+                    }
+
                 }
             });
         });
@@ -150,7 +167,7 @@ const Map = () => {
                     if (!manual()) {
                         map.setView([latitude, longitude], map.getMaxZoom(), {
                             animate: true,
-                            noMoveStart: true
+                            noMoveStart: true,
                         });
                         enableMap();
                     }
