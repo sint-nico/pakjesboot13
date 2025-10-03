@@ -32,7 +32,13 @@ const Map = () => {
     const element = mapElement();
     if (!element) return;
     // Setup map
-    map = L.map(element).setView([52.3702, 4.8952], 15);
+    map = L.map(element).setView([52.3702, 4.8952], 15, {
+        animate: false
+    });
+
+    map.setZoom(map.getMaxZoom(), {
+        animate: true
+    });
 
     // Tile layer (MapTiler with env key OR fallback to OSM)
     const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -79,7 +85,7 @@ const Map = () => {
         (pos) => {
           const { latitude, longitude } = pos.coords;
           userMarker.setLatLng([latitude, longitude]);
-          map.setView([latitude, longitude]);
+          map.setView([latitude, longitude], map.getMaxZoom());
         },
         (err) => console.error("Geolocation error:", err),
         { enableHighAccuracy: true }
