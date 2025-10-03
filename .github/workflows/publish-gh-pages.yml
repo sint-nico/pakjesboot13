@@ -44,19 +44,16 @@ jobs:
           check-latest: true
       - name: Install dependencies
         run: pnpm install
-      - name: Build lib
-        run: pnpm run -r build
+      - name: Build application
+        run: pnpm run build
         working-directory: '.'
-      - name: Build example
-        run: pnpm build
-        working-directory: './demo'
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./demo/dist  
+          path: ./dist  
   deploy:
     permissions:
       pages: write
