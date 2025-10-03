@@ -1,4 +1,4 @@
-import { Component } from "solid-js";
+import { Component, onCleanup } from "solid-js";
 import Map from '../components/map';
 
 
@@ -15,6 +15,20 @@ export const Scanner: Component = () => {
 	// TODO: track position
 	// TODO: markers on map
 	// TODO: mini-games
+
+	let wakeLock: WakeLockSentinel | undefined | void = undefined;
+	const ii = setInterval(async () => {
+		if (wakeLock) return;
+  		wakeLock = await navigator.wakeLock.request("screen").catch(console.error);
+		console.log('wakelock enabled')
+	}, 300);
+
+	onCleanup(async () => {
+		clearInterval(ii);
+		if (wakeLock) await wakeLock.release()
+			wakeLock = undefined;
+		console.log('wakelock disabled')
+	});
 
 	return <>
 		<style>{style}</style>
