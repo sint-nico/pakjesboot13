@@ -106,8 +106,10 @@ const Map = () => {
                 iconUrl: 'https://cdn1.iconfinder.com/data/icons/icons-for-a-site-1/64/advantage_gift-64.png',
                 iconSize: [32, 32]
             }))
-            const popup = marker.bindPopup(`${poi.name}<br><i>Kom dichtbij om te zoeken!</i>`, {
+
+            marker.bindPopup(`${poi.name}<br><i>Kom dichtbij om te zoeken!</i>`, {
                 autoPan: false,
+                autoClose: false
             });
 
             marker.on("click", async () => {
@@ -128,9 +130,10 @@ const Map = () => {
                     );
 
                     if (dist < 50) {
-                        marker.setPopupContent(`${poi.name}`);
+                        marker.setPopupContent(`<h3>${poi.name}</h3><p><hr/><b>Hier kom een knop <br/> naar een spelletje</b></p>`);
+
                     } else {
-                        marker.setPopupContent(`${poi.name}<br><i>Kom dichtbij om te zoeken!</i>`);
+                        marker.setPopupContent(`<h3>${poi.name}</h3><br><i>Kom dichtbij om te zoeken!</i>`);
                     }
                     
 
@@ -143,11 +146,6 @@ const Map = () => {
                         }, 100)
                     })
                     enableMap();
-
-                    
-                    if (dist < 50) {
-                        alert(`You interacted with ${poi.name}! 🎉`);
-                    }
                     marker.openPopup();
                     document.addEventListener('click', ()=> marker.closePopup(), { once: true })
                     document.addEventListener('touchstart', ()=> marker.closePopup(), { once: true })
@@ -164,6 +162,7 @@ const Map = () => {
                 iconSize: [32, 32],
             }),
         }).addTo(map);
+        userMarker.on('click', resetView)
 
         if ("geolocation" in navigator) {
             const watchId = navigator.geolocation.watchPosition(
