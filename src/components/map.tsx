@@ -110,6 +110,12 @@ const Map = () => {
             marker.on("click", () => {
                 if (userMarker) {
                     const userLatLng = userMarker.getLatLng();
+
+                    
+                    map.setView(poi, map.getMaxZoom(), {
+                        animate: true
+                    });
+
                     const dist = haversine(
                         userLatLng.lat,
                         userLatLng.lng,
