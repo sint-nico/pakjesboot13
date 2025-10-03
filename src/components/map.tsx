@@ -35,7 +35,7 @@ const Map = () => {
     // Example markers (normally you’d fetch from OSM/DB)
     const poiMarkers = [
         { id: 1, name: "Partou", ...fromGoogle("https://www.google.nl/maps/place/Pleiadenplantsoen+63,+1973+BS+IJmuiden/@52.4534869,4.5959365,20.87z/data=!4m6!3m5!1s0x47c5f1dcb553ac83:0x52f05d604188f66c!8m2!3d52.4533326!4d4.5961647!16s%2Fg%2F11bw3x8w9x?entry=ttu&g_ep=EgoyMDI1MDkzMC4wIKXMDSoASAFQAw%3D%3D") }, // Amsterdam coords
-        { id: 2, name: "De Tiemenlaan", ...fromGoogle('https://www.google.nl/maps/@52.4507088,4.5931367,19.87z?entry=ttu&g_ep=EgoyMDI1MDkzMC4wIKXMDSoASAFQAw%3D%3D') },
+        { id: 2, name: "De Tiemenlaan", ...fromGoogle('https://www.google.nl/maps/place/De+Tiemenlaan+12,+1974+RE+IJmuiden/@52.4507088,4.5931367,19.87z/data=!4m6!3m5!1s0x47c5f1ddaa52c2c9:0xbe170bdd92759054!8m2!3d52.4506715!4d4.5936671!16s%2Fg%2F11crt_lrpc?entry=ttu&g_ep=EgoyMDI1MDkzMC4wIKXMDSoASAFQAw%3D%3D') },
     ];
 
     const [manual, setManual] = createSignal(false);
@@ -101,7 +101,11 @@ const Map = () => {
         // Create markers for POIs
         poiMarkers.forEach((poi) => {
             const marker = L.marker([poi.lat, poi.lng]).addTo(map);
-            marker.bindPopup(`${poi.name}<br><i>Get closer to interact!</i>`);
+            marker.setIcon(L.icon({
+                iconUrl: 'https://cdn1.iconfinder.com/data/icons/icons-for-a-site-1/64/advantage_gift-64.png',
+                iconSize: [32, 32]
+            }))
+            marker.bindPopup(`${poi.name}<br><i>Kom dichtbij om te zoeken!</i>`);
             marker.on("click", () => {
                 if (userMarker) {
                     const userLatLng = userMarker.getLatLng();
