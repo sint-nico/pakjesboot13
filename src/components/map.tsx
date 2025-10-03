@@ -106,11 +106,13 @@ const Map = () => {
                 iconUrl: 'https://cdn1.iconfinder.com/data/icons/icons-for-a-site-1/64/advantage_gift-64.png',
                 iconSize: [32, 32]
             }))
-            marker.bindPopup(`${poi.name}<br><i>Kom dichtbij om te zoeken!</i>`, {
-                autoPan: false
+            const popup = marker.bindPopup(`${poi.name}<br><i>Kom dichtbij om te zoeken!</i>`, {
+                autoPan: false,
             });
+
             marker.on("click", async () => {
                 if (userMarker) {
+                    marker.closePopup();
                     const userLatLng = userMarker.getLatLng();
 
                     disableMap();
@@ -134,7 +136,8 @@ const Map = () => {
 
                     await new Promise<void>(res => {
                         const interval = setInterval(() => {
-                            if (!!map.getCenter().distanceTo(poi)) return
+                            console.log(Math.floor(map.getCenter().distanceTo(marker.getLatLng())));
+                            if (!!Math.floor(map.getCenter().distanceTo(marker.getLatLng()))) return
                             clearInterval(interval)
                             res()
                         }, 100)
@@ -145,6 +148,7 @@ const Map = () => {
                     if (dist < 50) {
                         alert(`You interacted with ${poi.name}! 🎉`);
                     }
+                        marker.openPopup();
 
                 }
             });
