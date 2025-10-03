@@ -139,8 +139,8 @@ const Map = () => {
 
                     await new Promise<void>(res => {
                         const interval = setInterval(() => {
-                            console.log(Math.floor(map.getCenter().distanceTo(marker.getLatLng())));
-                            if (Math.floor(map.getCenter().distanceTo(marker.getLatLng())) < 1) return
+                            console.log(Math.floor(map.getCenter().distanceTo(marker.getLatLng()) * 10)/10);
+                            if (map.getCenter().distanceTo(marker.getLatLng()) > .5) return
                             clearInterval(interval)
                             res()
                         }, 100)
