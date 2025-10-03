@@ -1,4 +1,5 @@
 import { Component } from "solid-js";
+import Map from '../components/map';
 
 
 const style = `
@@ -14,10 +15,10 @@ export const Scanner: Component = () => {
 	// TODO: track position
 	// TODO: markers on map
 	// TODO: mini-games
-	
+
 	return <>
 		<style>{style}</style>
 		<h2>Game</h2>
-		<p>&nbsp;</p>
+		<Map />
 	</>
 }
