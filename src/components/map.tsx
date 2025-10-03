@@ -17,6 +17,16 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function fromGoogle(url: string) {
+    const [lat, lng] = url
+        .split('/')
+        .find(part => part.includes('@'))!
+        .replace('@', '')
+        .split(',')
+
+    return { lat: +lat, lng: +lng }
+}
+
 const Map = () => {
     let map: LeafletMap;
     const [mapElement, setMapElement] = createSignal<HTMLElement>()
@@ -24,8 +34,8 @@ const Map = () => {
 
     // Example markers (normally you’d fetch from OSM/DB)
     const poiMarkers = [
-        { id: 1, name: "Fountain", lat: 52.3702, lng: 4.8952 }, // Amsterdam coords
-        { id: 2, name: "Statue", lat: 52.3728, lng: 4.9000 },
+        { id: 1, name: "Partou", ...fromGoogle("https://www.google.nl/maps/place/Pleiadenplantsoen+63,+1973+BS+IJmuiden/@52.4534869,4.5959365,20.87z/data=!4m6!3m5!1s0x47c5f1dcb553ac83:0x52f05d604188f66c!8m2!3d52.4533326!4d4.5961647!16s%2Fg%2F11bw3x8w9x?entry=ttu&g_ep=EgoyMDI1MDkzMC4wIKXMDSoASAFQAw%3D%3D") }, // Amsterdam coords
+        { id: 2, name: "De Tiemenlaan", ...fromGoogle('https://www.google.nl/maps/@52.4507088,4.5931367,19.87z?entry=ttu&g_ep=EgoyMDI1MDkzMC4wIKXMDSoASAFQAw%3D%3D') },
     ];
 
     const [manual, setManual] = createSignal(false);
@@ -105,7 +115,7 @@ const Map = () => {
                     if (dist < 50) {
                         alert(`You interacted with ${poi.name}! 🎉`);
                     } else {
-                        alert(`Too far away! You’re ${Math.round(dist)}m away.`);
+                        // alert(`Too far away! You’re ${Math.round(dist)}m away.`);
                     }
                 }
             });
@@ -115,7 +125,7 @@ const Map = () => {
         userMarker = L.marker([0, 0], {
             icon: L.icon({
                 iconUrl:
-                    "https://cdn-icons-png.flaticon.com/512/149/149060.png", // simple icon
+                    "https://cdn0.iconfinder.com/data/icons/phosphor-fill-vol-3/256/map-pin-fill-512.png", // simple icon
                 iconSize: [32, 32],
             }),
         }).addTo(map);
