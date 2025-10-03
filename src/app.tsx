@@ -9,7 +9,9 @@ export const AppRoot: Component<RouteSectionProps> = (props) => {
     const [hasPosition, setHasPosition] = createSignal(false);
 
     if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(() => { setHasPosition(true) }, () => setHasPosition(false));
+        navigator.geolocation.getCurrentPosition(() => { 
+            setHasPosition(true);
+        }, () => setHasPosition(false));
     }
     return <div>
         <h1>Pakjesboot 13</h1>
