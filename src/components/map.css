@@ -8,11 +8,37 @@
     bottom: 0;
     z-index: 1;
 }
-#recenter {
-    position: absolute;
-    width: 100%;
-    left: 0;
-    right: 0;
-    bottom: 0;
+#recenter {    
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    background-clip: padding-box;
+    position: fixed;
+    top: 90px;
+    left: 10px;
     z-index: 2;
+    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    line-height: 30px;
+    background-color: #fff;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+
+}
+#recenter img {
+    width: 20px;
+    height: 20px;
+    margin-left: 1px;
+}
+#recenter[disabled] {
+    
+    cursor: default;
+    background-color: #f4f4f4;
+    color: #bbb;
+}
+#recenter[disabled] img {
+    opacity: .5
 }

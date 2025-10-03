@@ -30,7 +30,7 @@ const Map = () => {
 
     const [manual, setManual] = createSignal(false);
     const nonManual = createMemo(() => !manual(), [manual]);
-    
+
     function resetView() {
         disableMap();
         setManual(false);
@@ -49,7 +49,7 @@ const Map = () => {
         map.boxZoom.disable();
         map.keyboard.disable();
         // if (map.tap) map.tap.disable();
-        mapElement()!.style.cursor='default';
+        mapElement()!.style.cursor = 'default';
     }
     function enableMap() {
         map.dragging.enable();
@@ -59,14 +59,14 @@ const Map = () => {
         map.boxZoom.enable();
         map.keyboard.enable();
         // if (map.tap) map.tap.disable();
-        mapElement()!.style.cursor='grab';
+        mapElement()!.style.cursor = 'grab';
     }
 
 
-        const ctrllr = new AbortController();
-        onCleanup(() => ctrllr.abort());
+    const ctrllr = new AbortController();
+    onCleanup(() => ctrllr.abort());
     createEffect(() => {
-        
+
         const element = mapElement();
         if (!element) return;
 
@@ -141,18 +141,37 @@ const Map = () => {
         }
 
 
+        let lastPos = map.getCenter();
+        let lastZoom = map.getZoom();
         const moveByUser = () => setManual(true)
-        mapElement()!.addEventListener('mousedown', moveByUser, ctrllr)
-        mapElement()!.addEventListener('touchstart', moveByUser, ctrllr)
-        mapElement()!.addEventListener('dragstart', moveByUser, ctrllr)
-        mapElement()!.addEventListener('dblclick', moveByUser,ctrllr)
+        // window.addEventListener('click', moveByUser, ctrllr)
+        window.addEventListener('mousedown', () => {
+            lastPos = map.getCenter();
+            lastZoom = map.getZoom();
+        }, ctrllr)
+        window.addEventListener('touchstart', () => {
+            lastPos = map.getCenter();
+            lastZoom = map.getZoom();
+        }, ctrllr)
+        window.addEventListener('mouseup', () => {
+            if (map.getCenter().distanceTo(lastPos)) moveByUser()
+            if (lastZoom !== map.getZoom()) moveByUser()
+        }, ctrllr)
+        window.addEventListener('touchend', () => {
+            if (map.getCenter().distanceTo(lastPos)) moveByUser()
+            if (lastZoom !== map.getZoom()) moveByUser()
+        }, ctrllr)
+        document.addEventListener('dragstart', moveByUser, ctrllr)
+        document.addEventListener('dblclick', moveByUser, ctrllr)
         document.addEventListener('scroll', moveByUser, ctrllr)
         document.addEventListener('keydown', moveByUser, ctrllr)
-        
+
     }, [mapElement]);
 
     return <>
-        <button id="recenter" disabled={nonManual()} onClick={resetView}>Centreren</button>
+        <button id="recenter" class="leaflet-control-zoom-out" disabled={nonManual()} onClick={resetView}>
+            <img src="https://cdn2.iconfinder.com/data/icons/boxicons-regular-vol-3/24/bx-target-lock-64.png" />
+        </button>
         <div id="map" ref={setMapElement} style={{ height: "100vh", width: "100%" }} />;
     </>
 };
