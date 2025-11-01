@@ -16,6 +16,7 @@
   "dependencies": {
     "@quick-vite/gh-pages-spa": "^7.0.0",
     "@solidjs/router": "^0.15.3",
+    "@supabase/supabase-js": "^2.78.0",
     "leaflet": "^1.9.4",
     "solid-js": "^1.9.5"
   },
