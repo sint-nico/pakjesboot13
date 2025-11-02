@@ -1,4 +1,4 @@
-import { Component, createEffect, createMemo, createRenderEffect, createRoot, createSignal, onCleanup, onMount } from "solid-js";
+import { Component, createEffect, createMemo, createRenderEffect, createRoot, createSignal, getOwner, onCleanup, onMount } from "solid-js";
 import L, { Map as LeafletMap, Marker } from "leaflet";
 import "./map.css"
 import { getLocationsList, Location } from '../supabase';
@@ -28,6 +28,7 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
 
 const Map = () => {
     const locationContext = useLocation();
+    const renderOwner = getOwner();
 
     onMount(() => {
         if (locationContext.access() === "idle") {
@@ -196,10 +197,10 @@ const Map = () => {
         const target = marker.getPopup()?.getContent() as HTMLElement;
         const dispose = createRoot(disposeRoot => {
             // Solid will render into the wrapper.
-            render(() => <MarkerFrame location={location} locationContext={locationContext} />, target);
+            render(() => <MarkerFrame location={location} />, target);
             // Return the disposer for the caller.
             return disposeRoot;
-        });
+        }, renderOwner);
         abortController.signal.addEventListener('abort', dispose, { once: true });
         return Object.assign(marker, { location }) as L.Marker & { location: Location };
     }
@@ -228,10 +229,11 @@ const Map = () => {
 export default Map;
 
 type MarkerFrameProps = {
-    locationContext: LocationContext
     location: Location
 }
-const MarkerFrame: Component<MarkerFrameProps> = ({ location, locationContext }) => {
+const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
+
+    const locationContext = useLocation();
 
     const distanceFromUser = createMemo(() => {
         const userLocation = locationContext.location()
