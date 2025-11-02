@@ -19,25 +19,47 @@ const LocationMatch: ParentComponent = (props) => {
 
 	const locationContext = useLocation();
 
-	return <> {
-		createMemo(() => {
-			if (locationContext.access() === 'allowed') return children(() => props.children)()
-			if (locationContext.access() === 'unsupported') return <>
-				<h3>Helaas, geen ondersteuning</h3>
-				<p>Helaas is jouw apparaat niet ondersteund, zonder locatievoorziening kunnen we je niet helpen.</p>
-				<p>Vraag iemand anders om hulp.</p>
-			</>
-			if (locationContext.access() === 'denied') return <>
-				<h3>Helaas, geen locatie</h3>
-				<p>Oeps! Je hebt de locatievoorziening afgewezen. <br/> dat is niet zo handig.</p>
-				<p>AUB reset je browser permissies.</p>
-			</>
+	return <>
+		<p>
+			De pieten willen proberen je te lokaliseren, <br />
+			daarvoor moet je eerst de locatie‑toestemming activeren.
+		</p>
+		<p>
+			Zonder hun kompas blijven ze zoeken in de koude nacht, <br />
+			dus klik snel, dan weten ze precies waar je wacht!
+		</p>
+		{
+			createMemo(() => {
+				if (locationContext.access() === 'allowed') return <>
 
-			return <>
-				<p>{locationContext.access()}</p>
-				<p>{locationContext.location().toJSON()}</p>
-				<button onClick={locationContext.requestAccess}>Access</button>
-			</>
-		}, [locationContext.access])()
-	}</>;
+					<p>De bel galmt luid, de Sint lacht: “Ja, ik zie je daar!” <br />
+						Met een vrolijk “ja” staat jouw plek nu helder en klaar.</p>
+					<p>Nu de locatie bekend is, gaan we vol vertrouwen eropuit, <br />
+						de Pieten scheuren door de nacht, telefoon in de hand, op zoek naar de buit.</p>
+					{children(() => props.children)()}
+				</>
+				if (locationContext.access() === 'unsupported') return <>
+					<p>De Wegwijspiet zoekt, maar jouw toestel kent de kaart niet,<br />
+						het mist de GPS‑kracht, benadrukt Piet.</p>
+					<p>Pak daarom een ander mobieltje of een browser die wel kan doen, <br />
+						zodat de Pieten jouw kunnen volgen van pleintje tot plantsoen.</p>
+				</>
+				if (locationContext.access() === 'denied') return <>
+					<p>De Wegwijspiet zegt: “We horen niets, het blijft stil!” <br />
+						Je drukte ons weg, keerde je schouder, het is kil. </p>
+					<p>Ga naar de privacy‑opties, zet de locatie-toestemming weer terug, <br />
+						reset de rechten, dan kunnen we weer verder, vlug!</p>
+				</>
+
+				return <>
+					<p>“Klik hier, lieve kind, op de magische knop,” roept de Sint zacht. <br />
+						<button onClick={locationContext.requestAccess}>Deel mijn locatie</button> – een sprankelend gebaar, heel onverwacht.
+					</p>
+					<p>Een venster verschijnt, vraagt: "Wil ik je de locatie ontbinden?” <br />
+						Zeg "ja" en de Pieten kunnen je vinden!
+					</p>
+
+				</>
+			}, [locationContext.access])()
+		}</>;
 }
