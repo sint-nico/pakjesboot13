@@ -1,21 +1,14 @@
 
 import { RouteSectionProps } from '@solidjs/router'
-import { children, Component, createSignal } from 'solid-js'
+import { children, Component } from 'solid-js'
 
 import './app.css'
+import { LocationProvider } from './components/location-context'
 
-export const AppRoot: Component<RouteSectionProps> = (props) => {
-
-    const [hasPosition, setHasPosition] = createSignal(false);
-
-    if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(() => { 
-            setHasPosition(true);
-        }, () => setHasPosition(false));
-    }
-    return <div>
+export const AppRoot: Component<RouteSectionProps> = (props) => <div>
+    <LocationProvider>
         <h1>Pakjesboot 13</h1>
-	    <p>Dit is een privé applicatie.</p>
-        {hasPosition() ? children(() => props.children)() : <p>Accepteer de geolocatie aub</p>}
-    </div>
-}
+        <p>Dit is een privé applicatie.</p>
+        {children(() => props.children)()}
+    </LocationProvider>
+</div>

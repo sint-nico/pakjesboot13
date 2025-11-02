@@ -1,8 +1,9 @@
-import { createEffect, createMemo, createSignal, onCleanup } from "solid-js";
+import { createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import L, { Map as LeafletMap, Marker } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./map.css"
 import { getLocationsList } from "../supabase";
+import { useLocation } from "./location-context";
 
 
 const [finalVisible, setFinalVisible] = createSignal(false);
@@ -23,10 +24,15 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
 }
 
 const Map = () => {
+    const locationContext = useLocation();
+
+    onMount(() => {
+        if(locationContext.access() !== "allowed") history.back();
+    })
+    
     let map: LeafletMap;
     const [mapElement, setMapElement] = createSignal<HTMLElement>()
     let userMarker: Marker;
-
 
     const [manual, setManual] = createSignal(false);
     const nonManual = createMemo(() => !manual(), [manual]);
@@ -162,26 +168,16 @@ const Map = () => {
         }).addTo(map);
         userMarker.on('click', resetView)
 
-        if ("geolocation" in navigator) {
-            const watchId = navigator.geolocation.watchPosition(
-                (pos) => {
-                    const { latitude, longitude } = pos.coords;
-                    userMarker.setLatLng([latitude, longitude]);
-                    if (!manual()) {
-                        map.setView([latitude, longitude], map.getMaxZoom(), {
-                            animate: true,
-                            noMoveStart: true,
-                        });
-                        enableMap();
-                    }
-                },
-                (err) => console.error("Geolocation error:", err),
-                { enableHighAccuracy: true }
-            );
-
-            onCleanup(() => navigator.geolocation.clearWatch(watchId));
-        }
-
+        createEffect(() => {const { latitude, longitude } = locationContext.location();
+            userMarker.setLatLng([latitude, longitude]);
+            if (!manual()) {
+                map.setView([latitude, longitude], map.getMaxZoom(), {
+                    animate: true,
+                    noMoveStart: true,
+                });
+                enableMap();
+            }
+        }, [locationContext.location])
 
         let lastPos = map.getCenter();
         let lastZoom = map.getZoom();

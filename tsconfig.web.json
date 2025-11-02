@@ -8,7 +8,7 @@
     "isolatedModules": true,
     "allowJs": true,
     "lib": ["ES2024.ArrayBuffer", "ES2017.TypedArrays", "ES2024", "DOM"],
-    "types": ["vite/client"],
+    "types": ["vite/client", "solid-js/jsx-runtime"],
 	  "jsx": "preserve",
 	  "jsxImportSource": "solid-js",
 
