@@ -80,7 +80,8 @@ const Map = () => {
         if (!element) return;
 
         // Setup map
-        map = L.map(element).setView([52.3702, 4.8952], 10, {
+        const initialLocation = locationContext.location();
+        map = L.map(element).setView([initialLocation.latitude, initialLocation.longitude], 10, {
             animate: false
         });
 
