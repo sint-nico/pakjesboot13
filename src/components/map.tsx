@@ -5,9 +5,11 @@ import "./map.css"
 import { getLocationsList } from "../supabase";
 import { useLocation } from "./location-context";
 
-
-const [finalVisible, setFinalVisible] = createSignal(false);
-
+/**
+ * This file has nested createEffects, this causes memory leaks.
+ * However, when done we redirect and this is just a joke app anyways.
+ * Don't treat this as a good example.
+ */
 
 // Helper: calculate distance in meters between two lat/lng pairs
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -34,6 +36,7 @@ const Map = () => {
     const [mapElement, setMapElement] = createSignal<HTMLElement>()
     let userMarker: Marker;
 
+    const [finalVisible, setFinalVisible] = createSignal(false);
     const [manual, setManual] = createSignal(false);
     const nonManual = createMemo(() => !manual(), [manual]);
 
@@ -204,7 +207,7 @@ const Map = () => {
         document.addEventListener('scroll', moveByUser, ctrllr)
         document.addEventListener('keydown', moveByUser, ctrllr)
 
-    }, [mapElement]);
+    }, [mapElement, locationContext.location]);
 
     return <>
         <button id="recenter" class="leaflet-control-zoom-out" disabled={nonManual()} onClick={resetView}>
