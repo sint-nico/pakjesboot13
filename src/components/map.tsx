@@ -1,8 +1,8 @@
-import { Component, createEffect, createMemo, createRenderEffect, createRoot, createSignal, getOwner, onCleanup, onMount } from "solid-js";
+import { Component, createEffect, createMemo, createRoot, createSignal, getOwner, onCleanup, onMount } from "solid-js";
 import L, { Map as LeafletMap, Marker } from "leaflet";
 import "./map.css"
 import { getLocationsList, Location } from '../supabase';
-import { LocationContext, useLocation } from "./location-context";
+import { useLocation } from "./location-context";
 import { LeafletMapWrapper } from "./leaflet-wrapper";
 import { render } from "solid-js/web";
 
@@ -11,6 +11,8 @@ import { render } from "solid-js/web";
  * However, when done we redirect and this is just a joke app anyways.
  * Don't treat this as a good example.
  */
+
+const TARGET_DISTANCE_METERS = 50; // <-- change this to your “points”
 
 // Helper: calculate distance in meters between two lat/lng pairs
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -184,16 +186,42 @@ const Map = () => {
     function mapMarker(location: Location) {
         const marker = L.marker([location.lat, location.lng])
 
-        marker.setIcon(L.icon({
-            iconUrl: 'https://cdn1.iconfinder.com/data/icons/icons-for-a-site-1/64/advantage_gift-64.png',
-            iconSize: [32, 32]
-        }))
+        const applyPixelRadius = () => {
+            // +32 to fit icon
+            const radiusPx = getPixelRadius(leafletMap()!, marker.getLatLng(), TARGET_DISTANCE_METERS + 32);
+            // Grab the underlying DIV that Leaflet created for the marker
+            const el = marker.getElement();
+            if (el) {
+                // The pseudo‑elements inherit from the root element, so we set a CSS custom property.
+                el.style.setProperty("--pulse-radius", `${radiusPx}px`);
+            }
+        }
+
+        // TODO color gift when close
+        // TODO Solid Component here
+        marker.setIcon(L.divIcon({
+            html: <div class="custom-div-icon">
+                <img
+                    style={{ width: `32px`, height: `32px` }}
+                    class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive pin-img"
+                    src="https://cdn1.iconfinder.com/data/icons/icons-for-a-site-1/64/advantage_gift-64.png" />
+            </div>,
+            // iconUrl: "https://cdn0.iconfinder.com/data/icons/phosphor-fill-vol-3/256/map-pin-fill-512.png", // simple icon
+            iconSize: [32, 32],
+        }));
+
+
+        // Initial sizing
+        applyPixelRadius();
+
+        // Re‑compute on every zoom/pan (any view change)
+        leafletMap()?.on("zoom viewreset moveend", applyPixelRadius);
 
         marker.bindPopup(document.createElement('div'), {
             autoPan: false,
             autoClose: false
         });
-        
+
         const target = marker.getPopup()?.getContent() as HTMLElement;
         const dispose = createRoot(disposeRoot => {
             // Solid will render into the wrapper.
@@ -248,7 +276,7 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
         return dist;
     }, [locationContext.location, location])
 
-    const closeEnough = createMemo(() => distanceFromUser() < 50, [distanceFromUser])
+    const closeEnough = createMemo(() => distanceFromUser() < TARGET_DISTANCE_METERS, [distanceFromUser])
 
     return <div>
         <h3>{location.name}</h3>
@@ -259,4 +287,21 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
             <b>Hier kom een knop <br /> naar een spelletje</b>
         </>}
     </div>
+}
+
+/**
+ * Helper – converts a real‑world distance (metres) to pixel radius.
+ * Copied from the previous code block.
+ */
+function getPixelRadius(
+    map: L.Map,
+    centerLL: L.LatLng,
+    distMeters: number
+): number {
+    const earthRadius = 6378137; // metres (WGS‑84)
+    const dLat = (distMeters / earthRadius) * (180 / Math.PI);
+    const northLL = L.latLng(centerLL.lat + dLat, centerLL.lng);
+    const pCenter = map.latLngToLayerPoint(centerLL);
+    const pNorth = map.latLngToLayerPoint(northLL);
+    return Math.round(pCenter.distanceTo(pNorth));
 }
