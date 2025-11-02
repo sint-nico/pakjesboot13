@@ -1,5 +1,5 @@
 import { Component, createEffect, createMemo, createRoot, createSignal, getOwner, onCleanup, onMount } from "solid-js";
-import L, { Map as LeafletMap, Marker } from "leaflet";
+import L, { DivIconOptions, Map as LeafletMap, Marker } from "leaflet";
 import "./map.css"
 import { getLocationsList, Location } from '../supabase';
 import { useLocation } from "./location-context";
@@ -101,7 +101,7 @@ const Map = () => {
     createEffect(async () => {
         const initialLocation = locationContext.location();
         const map = leafletMap();
-        if (!map) return;
+        if (!map || markers().length) return;
 
         map.setMinZoom(15);
         map.setMaxZoom(18);
@@ -199,6 +199,7 @@ const Map = () => {
 
         // TODO color gift when close
         // TODO Solid Component here?
+        if(!(marker.getIcon()?.options as DivIconOptions).html)
         marker.setIcon(L.divIcon({
             html: `<div class="custom-div-icon">
                 <img
@@ -294,10 +295,12 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
  * Copied from the previous code block.
  */
 function getPixelRadius(
-    map: L.Map,
-    centerLL: L.LatLng,
+    map: L.Map | undefined,
+    centerLL: L.LatLng | undefined,
     distMeters: number
 ): number {
+    if (!map) return TARGET_DISTANCE_METERS;
+    if (!centerLL) return TARGET_DISTANCE_METERS;
     const earthRadius = 6378137; // metres (WGS‑84)
     const dLat = (distMeters / earthRadius) * (180 / Math.PI);
     const northLL = L.latLng(centerLL.lat + dLat, centerLL.lng);
