@@ -45,6 +45,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Build application
+        env: 
+          VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
+          VITE_LISTNAME: ${{ vars.VITE_LISTNAME }}
         run: pnpm run build
         working-directory: '.'
       - name: Setup Pages
