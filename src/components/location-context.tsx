@@ -2,7 +2,7 @@ import { Accessor, createContext, createSignal, onCleanup, onMount, ParentProps,
 
 export type Coordinates = Pick<GeolocationCoordinates, 'latitude' | 'longitude' | 'accuracy' | 'altitude' | 'toJSON'>
 type AccessState = 'idle' | 'requesting' | 'allowed' | 'denied' | 'unsupported';
-type LocationContext = {
+export type LocationContext = {
     location: Accessor<Coordinates>
     requestAccess(): void;
     access: Accessor<AccessState>

@@ -2,7 +2,7 @@ import { Component, createEffect, createMemo, createRenderEffect, createRoot, cr
 import L, { Map as LeafletMap, Marker } from "leaflet";
 import "./map.css"
 import { getLocationsList, Location } from '../supabase';
-import { useLocation } from "./location-context";
+import { LocationContext, useLocation } from "./location-context";
 import { LeafletMapWrapper } from "./leaflet-wrapper";
 import { render } from "solid-js/web";
 
@@ -196,7 +196,7 @@ const Map = () => {
         const target = marker.getPopup()?.getContent() as HTMLElement;
         const dispose = createRoot(disposeRoot => {
             // Solid will render into the wrapper.
-            render(() => <MarkerFrame marker={marker} location={location} close={false} userMarker={userMarker} />, target);
+            render(() => <MarkerFrame location={location} locationContext={locationContext} />, target);
             // Return the disposer for the caller.
             return disposeRoot;
         });
@@ -228,23 +228,22 @@ const Map = () => {
 export default Map;
 
 type MarkerFrameProps = {
-    marker: Marker
+    locationContext: LocationContext
     location: Location
-    userMarker: Marker
-    close: boolean
 }
-const MarkerFrame: Component<MarkerFrameProps> = ({ location, userMarker }) => {
+const MarkerFrame: Component<MarkerFrameProps> = ({ location, locationContext }) => {
 
     const distanceFromUser = createMemo(() => {
-        const userLatLng = userMarker.getLatLng();
+        const userLocation = locationContext.location()
 
-        return haversine(
-            userLatLng.lat,
-            userLatLng.lng,
+        const dist = haversine(
+            userLocation.latitude,
+            userLocation.longitude,
             location.lat,
             location.lng
         );
-    }, [userMarker.getLatLng])
+        return dist;
+    }, [locationContext.location, location])
 
     const closeEnough = createMemo(() => distanceFromUser() < 50, [distanceFromUser])
 
