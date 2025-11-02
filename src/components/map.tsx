@@ -54,6 +54,8 @@ const Map = () => {
         icon: L.icon({
             iconUrl: "https://cdn0.iconfinder.com/data/icons/phosphor-fill-vol-3/256/map-pin-fill-512.png", // simple icon
             iconSize: [32, 32],
+            // 👉 Move the anchor to the centre (half width, half height)
+            iconAnchor: [16, 16],
         }),
     });
 
@@ -199,17 +201,19 @@ const Map = () => {
 
         // TODO color gift when close
         // TODO Solid Component here?
-        if(!(marker.getIcon()?.options as DivIconOptions).html)
-        marker.setIcon(L.divIcon({
-            html: `<div class="custom-div-icon">
+        if (!(marker.getIcon()?.options as DivIconOptions).html)
+            marker.setIcon(L.divIcon({
+                html: `<div class="custom-div-icon">
                 <img
                     width="32" height="32"
                     class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive pin-img"
                     src="https://cdn1.iconfinder.com/data/icons/icons-for-a-site-1/64/advantage_gift-64.png" />
             </div>`,
-            // iconUrl: "https://cdn0.iconfinder.com/data/icons/phosphor-fill-vol-3/256/map-pin-fill-512.png", // simple icon
-            iconSize: [32, 32],
-        }));
+                // iconUrl: "https://cdn0.iconfinder.com/data/icons/phosphor-fill-vol-3/256/map-pin-fill-512.png", // simple icon
+                iconSize: [32, 32],
+                // 👉 Move the anchor to the centre (half width, half height)
+                iconAnchor: [16, 16],
+            }));
 
 
         // Initial sizing
