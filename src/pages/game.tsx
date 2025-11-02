@@ -27,9 +27,10 @@ export const Scanner: Component = () => {
 				navigationUI: 'hide'
 			}).catch(console.error)
 			console.log('fullscreen enabled')
-			document.addEventListener('fullscreenchange', (e) => {
+			document.addEventListener('fullscreenchange', (_e) => {
 				if(document.fullscreenElement) return;
-				// TODO back to home
+				// Reloading goes back to the landing page because of the location request.
+				// TODO: pause lightbox might be nicer?
 				window.location.reload();
 			}, { once: true })
 		}

@@ -8,6 +8,10 @@
     bottom: 0;
     z-index: 1;
 }
+#map-container {
+    height: 100%;
+    position: absolute !important;
+}
 #recenter {    
     border: 2px solid rgba(0, 0, 0, 0.2);
     background-clip: padding-box;

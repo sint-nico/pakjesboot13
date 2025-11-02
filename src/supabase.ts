@@ -20,7 +20,7 @@ export async function getLocationsList() {
         }
 
     return (data! as Location[])
-    .map(loc => ({ ...loc, ...fromGoogle(loc.coords) }) )
+        .map(loc => ({ ...loc, ...fromGoogle(loc.coords) }) )
 }
 
 export type Location = {

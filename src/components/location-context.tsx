@@ -1,6 +1,6 @@
 import { Accessor, createContext, createSignal, onCleanup, onMount, ParentProps, useContext } from "solid-js";
 
-type Coordinates = Pick<GeolocationCoordinates, 'latitude' | 'longitude' | 'accuracy' | 'altitude' | 'toJSON'>
+export type Coordinates = Pick<GeolocationCoordinates, 'latitude' | 'longitude' | 'accuracy' | 'altitude' | 'toJSON'>
 type AccessState = 'idle' | 'requesting' | 'allowed' | 'denied' | 'unsupported';
 type LocationContext = {
     location: Accessor<Coordinates>
