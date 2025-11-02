@@ -200,6 +200,7 @@ const Map = () => {
             render(() => <MarkerFrame location={location} />, target);
             // Return the disposer for the caller.
             return disposeRoot;
+            // Use the component's owner to allow access to contexts
         }, renderOwner);
         abortController.signal.addEventListener('abort', dispose, { once: true });
         return Object.assign(marker, { location }) as L.Marker & { location: Location };
