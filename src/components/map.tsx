@@ -1,8 +1,8 @@
-import { Component, createEffect, createMemo, createRoot, createSignal, getOwner, onCleanup, onMount, ParentComponent } from "solid-js";
-import L, { DivIconOptions, Map as LeafletMap, Marker } from "leaflet";
+import { Accessor, Component, createEffect, createMemo, createRoot, createSignal, getOwner, onCleanup, onMount, ParentComponent } from "solid-js";
+import L, { DivIconOptions, LatLng, Map as LeafletMap, Marker } from "leaflet";
 import "./map.css"
 import { getLocationsList, Location } from '../supabase';
-import { useLocation, LocationContext } from './location-context';
+import { useLocation } from './location-context';
 import { LeafletMapWrapper } from "./leaflet-wrapper";
 import { render } from "solid-js/web";
 
@@ -52,8 +52,9 @@ const Map = () => {
     const nonManual = createMemo(() => !manual(), [manual]);
 
     const [leafletMap, setMap] = createSignal<LeafletMap>();
+    const [mapLocation, setMapLocation] = createSignal<LatLng>(new LatLng(9,9,0));
     const [markers, setMarkers] = createSignal<(Marker & { location: Location })[]>([]);
-    const userMarker = L.marker([0, 0], {
+    const userMarker = L.marker(mapLocation(), {
         icon: L.icon({
             iconUrl: "https://cdn0.iconfinder.com/data/icons/phosphor-fill-vol-3/256/map-pin-fill-512.png", // simple icon
             iconSize: [32, 32],
@@ -67,9 +68,12 @@ const Map = () => {
         disableMap();
         setManual(false);
         const latLong = userMarker.getLatLng();
-        leafletMap()?.setView(latLong, leafletMap()?.getMaxZoom(), {
-            animate: true
-        });
+        if (latLong.lat !== 0 && latLong.lng !== 0) {
+            leafletMap()?.setView(latLong, leafletMap()?.getMaxZoom(), {
+                animate: true
+            });
+            setMapLocation(latLong);
+        }
         enableMap();
     }
 
@@ -131,9 +135,13 @@ const Map = () => {
 
                     disableMap();
                     setManual(true)
-                    map.setView(marker.getLatLng(), map.getMaxZoom(), {
-                        animate: true
-                    });
+                    const markerPos = marker.getLatLng();
+                    if(markerPos.lat !== 0 && markerPos.lng !== 0) {
+                        map.setView(markerPos, map.getMaxZoom(), {
+                            animate: true
+                        });
+                        setMapLocation(markerPos);
+                    }
 
                     // Wait for animation to finish before showing the popup
                     await new Promise<void>(res => {
@@ -154,16 +162,22 @@ const Map = () => {
                 });
             });
 
-        if (!manual())
-            map.setView([initialLocation.latitude, initialLocation.longitude], map.getMaxZoom(), {
+        const initialLatLong = new LatLng(initialLocation.latitude, initialLocation.longitude)
+        if (!manual() && map && initialLatLong.lat !==0  && initialLatLong.lng !== 0) {
+            map.setView(initialLatLong, map.getMaxZoom(), {
                 animate: true,
                 noMoveStart: true,
             });
+            setMapLocation(initialLatLong)
+        }
 
 
         let lastPos = map.getCenter();
         let lastZoom = map.getZoom();
-        const moveByUser = () => setManual(true)
+        const moveByUser = () => {
+            setMapLocation(map.getCenter())
+            setManual(true)
+        }
         window.addEventListener('mousedown', () => {
             lastPos = map.getCenter();
             lastZoom = map.getZoom();
@@ -246,18 +260,23 @@ const Map = () => {
     createEffect(() => {
         if (!leafletMap()?.dragging.enabled) return;
         const { latitude, longitude } = locationContext.location();
-        userMarker.setLatLng([latitude, longitude]);
+        if (latitude === 0 && longitude === 0 ) return
+        const contextLatLng = new LatLng(latitude, longitude);
+            
+        userMarker.setLatLng(contextLatLng);
+
         if (!manual()) {
-            leafletMap()?.setView([latitude, longitude], leafletMap()?.getMaxZoom(), {
+            leafletMap()?.setView(contextLatLng, leafletMap()?.getMaxZoom(), {
                 animate: true,
                 noMoveStart: true,
             });
+            setMapLocation(contextLatLng)
             enableMap();
         }
     }, [locationContext.location, () => leafletMap()?.dragging.enabled, manual])
 
     return <>
-        <MapOverlay>
+        <MapOverlay leafletMap={leafletMap} markers={markers} mapLocation={mapLocation}>
             <button id="recenter" class="leaflet-control-zoom-out" disabled={nonManual()} onClick={resetView}>
                 <img src="https://cdn2.iconfinder.com/data/icons/boxicons-regular-vol-3/24/bx-target-lock-64.png" />
             </button>
@@ -319,16 +338,36 @@ function getPixelRadius(
     return Math.round(pCenter.distanceTo(pNorth));
 }
 
-const MapOverlay: ParentComponent = ({ children }) => {
+const MapOverlay: ParentComponent<{
+    leafletMap: Accessor<LeafletMap | undefined>
+    markers: Accessor<Marker[]>
+    mapLocation: Accessor<LatLng>
+}> = ({ children, leafletMap, markers, mapLocation }) => {
 
     const locationContext = useLocation();
+    const status = createMemo(() => {
+        if (locationContext.access() !== "allowed") return "WAITING"
+        if (locationContext.location().toJSON() === "NO_DATA") return "NO_DATA"
+        if (locationContext.location().latitude === 0 
+         && locationContext.location().longitude) return "NO_COORDS"
+
+        return "LISTENING"
+    },[locationContext.access, locationContext.location])
+
+    const mapInitialized = createMemo(() => {
+        if (!leafletMap()) return 'pending'
+        return mapLocation().lat !== 0 && mapLocation().lng !== 0
+            ? 'initialized'
+            : 'pending'
+    }, [mapLocation, leafletMap]);
+
 
     return <>
         <div class="map-overlay">
             {/* <div class="notifications">oops</div> */}
             {SHOW_COORDS && <pre class="debug">
-                ({locationContext.location().latitude},{locationContext.location().longitude}) 
-                {locationContext.location().toJSON() === "NO_DATA" ? 'NO_DATA' : ''}
+                ({locationContext.location().latitude},{locationContext.location().longitude}) {status()} <br />
+                markers: {markers().length} map: {mapInitialized()}
             </pre>}
         </div>
         {children}
