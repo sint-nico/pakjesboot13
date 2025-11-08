@@ -321,13 +321,14 @@ function getPixelRadius(
 
 const MapOverlay: ParentComponent = ({ children }) => {
 
-    const LocationContext = useLocation();
+    const locationContext = useLocation();
 
     return <>
         <div class="map-overlay">
             {/* <div class="notifications">oops</div> */}
             {SHOW_COORDS && <pre class="debug">
-                ({LocationContext.location()?.latitude},{LocationContext.location()?.longitude})
+                ({locationContext.location().latitude},{locationContext.location().longitude}) 
+                {locationContext.location().toJSON() === "NO_DATA" ? 'NO_DATA' : ''}
             </pre>}
         </div>
         {children}
