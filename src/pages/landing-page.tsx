@@ -1,5 +1,5 @@
 import { A } from "@solidjs/router";
-import { Accessor, Component, JSX, ParentComponent, children, createEffect, createMemo, createSignal } from 'solid-js';
+import { Accessor, Component, JSX, ParentComponent, children, createEffect, createMemo, createSignal, onMount } from 'solid-js';
 import { useLocation, LocationContext } from '../components/location-context';
 import { fetchLocationsList, Location } from "../supabase";
 
@@ -44,15 +44,15 @@ const LocationMatch: ParentComponent = (props) => {
 				dus klik snel, dan weten ze precies waar je wacht!
 			</p>
 		</div>
-			<p>“Klik hier, lieve kind, op de magische knop,” roept de Sint zacht. <br />
-				<LocationButton onClick={() => {
-					locationContext.requestAccess();
-					// TODO on status change
-					document.getElementById('after-location')?.scrollIntoView({
-						behavior: 'smooth'
-					})
-				}} /> – een sprankelend gebaar, heel onverwacht.
-			</p>
+		<p>“Klik hier, lieve kind, op de magische knop,” roept de Sint zacht. <br />
+			<LocationButton onClick={() => {
+				locationContext.requestAccess();
+				// TODO on status change
+				document.getElementById('after-location')?.scrollIntoView({
+					behavior: 'smooth'
+				})
+			}} /> – een sprankelend gebaar, heel onverwacht.
+		</p>
 		<p>
 			Een venster zal je vragen: "Wil ik je de locatie ontbinden?” <br />
 			Accepteer het verzoek en de Pieten kunnen je vinden!
@@ -66,18 +66,21 @@ const LocationMatch: ParentComponent = (props) => {
 					<p>Nu de locatie bekend is, gaan we vol vertrouwen eropuit, <br />
 						de Pieten scheuren door de nacht, telefoon in de hand, op zoek naar de buit.</p>
 					{children(() => props.children)()}
+					<ScrollHere />
 				</>
 				if (locationContext.access() === 'unsupported') return <>
 					<p>De Wegwijspiet zoekt, maar jouw toestel kent de kaart niet,<br />
 						het mist de GPS‑kracht, benadrukt Piet.</p>
 					<p>Pak daarom een ander mobieltje of een browser die wel kan doen, <br />
 						zodat de Pieten jouw kunnen volgen van pleintje tot plantsoen.</p>
+					<ScrollHere />
 				</>
 				if (locationContext.access() === 'denied') return <>
 					<p>De Wegwijspiet zegt: “We horen niets, het blijft stil!” <br />
 						Je drukte ons weg, keerde je schouder, het is kil. </p>
 					<p>Ga naar de privacy‑opties, zet de locatie-toestemming weer terug, <br />
 						reset de rechten, dan kunnen we weer verder, vlug!</p>
+					<ScrollHere />
 				</>
 
 				return <p>
@@ -102,4 +105,17 @@ const LocationButton: Component<LocationButtonProps> = ({ onClick }) => {
 
 		<span class="label">Deel mijn locatie</span>
 	</button>
+}
+
+const ScrollHere: Component = () => {
+
+	const [ref, setRef] = createSignal<HTMLAnchorElement>();
+
+	onMount(() => {
+		ref()?.scrollIntoView({
+			behavior: 'smooth'
+		})
+	})
+
+	return <a ref={setRef} />
 }
