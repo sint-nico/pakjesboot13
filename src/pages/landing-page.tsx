@@ -1,7 +1,10 @@
 import { A } from "@solidjs/router";
-import { Component, ParentComponent, children, createEffect, createMemo, createSignal } from 'solid-js';
-import { useLocation } from "../components/location-context";
+import { Accessor, Component, JSX, ParentComponent, children, createEffect, createMemo, createSignal } from 'solid-js';
+import { useLocation, LocationContext } from '../components/location-context';
 import { fetchLocationsList, Location } from "../supabase";
+
+import './landing-page.css';
+import kaartImage from './kaart.png?no-inline'
 
 export const LandingPage: Component = () => {
 
@@ -18,7 +21,7 @@ export const LandingPage: Component = () => {
 
 const LocationMatch: ParentComponent = (props) => {
 
-	const [locations, setLocations] = createSignal<Location[]>() 
+	const [locations, setLocations] = createSignal<Location[]>()
 	const locationContext = useLocation();
 
 	createEffect(async () => {
@@ -34,9 +37,18 @@ const LocationMatch: ParentComponent = (props) => {
 			De pieten willen proberen je te lokaliseren, <br />
 			daarvoor moet je eerst de locatie‑toestemming activeren.
 		</p>
+		<div class="map" style={{ 'background-image': `url("${kaartImage}")` }}>
+			<p>
+				Zonder hun kompas blijven ze zoeken in de koude nacht, <br />
+				dus klik snel, dan weten ze precies waar je wacht!
+			</p>
+		</div>
+			<p>“Klik hier, lieve kind, op de magische knop,” roept de Sint zacht. <br />
+				<LocationButton onClick={locationContext.requestAccess} /> – een sprankelend gebaar, heel onverwacht.
+			</p>
 		<p>
-			Zonder hun kompas blijven ze zoeken in de koude nacht, <br />
-			dus klik snel, dan weten ze precies waar je wacht!
+			Een venster zal je vragen: "Wil ik je de locatie ontbinden?” <br />
+			Accepteer het verzoek en de Pieten kunnen je vinden!
 		</p>
 		{
 			createMemo(() => {
@@ -61,15 +73,24 @@ const LocationMatch: ParentComponent = (props) => {
 						reset de rechten, dan kunnen we weer verder, vlug!</p>
 				</>
 
-				return <>
-					<p>“Klik hier, lieve kind, op de magische knop,” roept de Sint zacht. <br />
-						<button onClick={locationContext.requestAccess} disabled={locations() === undefined || locationContext.access() === 'requesting'}>Deel mijn locatie</button> – een sprankelend gebaar, heel onverwacht.
-					</p>
-					<p>Een venster verschijnt, vraagt: "Wil ik je de locatie ontbinden?” <br />
-						Zeg "ja" en de Pieten kunnen je vinden!
-					</p>
-
-				</>
+				return undefined
 			}, [locationContext.access])()
 		}</>;
+}
+
+type LocationButtonProps = {
+	onClick: JSX.CustomEventHandlersCamelCase<HTMLButtonElement>['onClick']
+}
+const LocationButton: Component<LocationButtonProps> = ({ onClick }) => {
+
+	const locationContext = useLocation();
+	const disabled = createMemo(() => {
+		if (locationContext.access() === 'idle') return false;
+		return true;
+	})
+
+	return <button onClick={onClick} class="location-button" disabled={disabled()}>
+
+		<span class="label">Deel mijn locatie</span>
+	</button>
 }
