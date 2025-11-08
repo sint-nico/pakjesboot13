@@ -1,14 +1,9 @@
 import { Component, onCleanup } from "solid-js";
 import Map from '../components/map';
 
+const LOG_WAKE_LOCK_ISSUES = false;
+const LOG_FULL_SCREEN_ISSUES = false;
 
-const style = `
-.data {
-	display: block;
-	width: 300px;
-	overflow-wrap: break-word;
-}
-`
 export const Scanner: Component = () => {
 
 	// TODO: map
@@ -19,13 +14,13 @@ export const Scanner: Component = () => {
 	let wakeLock: WakeLockSentinel | undefined | void = undefined;
 	const ii = setInterval(async () => {
 		if (!wakeLock) {
-			wakeLock = await navigator.wakeLock.request("screen").catch(console.error);
+			wakeLock = await navigator.wakeLock.request("screen").catch(LOG_WAKE_LOCK_ISSUES ? console.debug : () => {});
 			console.log('wakelock enabled')
 		}
 		if (import.meta.env.PROD && !document.fullscreenElement) {
 			await document.body.requestFullscreen({
 				navigationUI: 'hide'
-			}).catch(console.error)
+			}).catch(console.debug)
 			console.log('fullscreen enabled')
 			document.addEventListener('fullscreenchange', (_e) => {
 				if(document.fullscreenElement) return;
@@ -38,15 +33,14 @@ export const Scanner: Component = () => {
 
 	onCleanup(async () => {
 		clearInterval(ii);
-		if (wakeLock) await wakeLock.release().catch(console.error)
+		if (wakeLock) await wakeLock.release().catch(LOG_WAKE_LOCK_ISSUES ? console.debug : () => {})
 			wakeLock = undefined;
 		console.log('wakelock disabled')
-		await document.exitFullscreen?.().catch(console.error);
+		await document.exitFullscreen?.().catch(LOG_FULL_SCREEN_ISSUES ? console.debug : () => {});
 		console.log('fullscreen disabled')
 	});
 
 	return <>
-		<style>{style}</style>
 		<h2>Game</h2>
 		<Map />
 	</>

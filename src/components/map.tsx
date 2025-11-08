@@ -1,8 +1,8 @@
-import { Component, createEffect, createMemo, createRoot, createSignal, getOwner, onCleanup, onMount } from "solid-js";
+import { Component, createEffect, createMemo, createRoot, createSignal, getOwner, onCleanup, onMount, ParentComponent } from "solid-js";
 import L, { DivIconOptions, Map as LeafletMap, Marker } from "leaflet";
 import "./map.css"
 import { getLocationsList, Location } from '../supabase';
-import { useLocation } from "./location-context";
+import { useLocation, LocationContext } from './location-context';
 import { LeafletMapWrapper } from "./leaflet-wrapper";
 import { render } from "solid-js/web";
 
@@ -13,6 +13,7 @@ import { render } from "solid-js/web";
  */
 
 const TARGET_DISTANCE_METERS = 50; // <-- change this to your “points”
+const SHOW_COORDS = true; 
 
 // Helper: calculate distance in meters between two lat/lng pairs
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -256,10 +257,12 @@ const Map = () => {
     }, [locationContext.location, () => leafletMap()?.dragging.enabled, manual])
 
     return <>
-        <button id="recenter" class="leaflet-control-zoom-out" disabled={nonManual()} onClick={resetView}>
-            <img src="https://cdn2.iconfinder.com/data/icons/boxicons-regular-vol-3/24/bx-target-lock-64.png" />
-        </button>
-        <LeafletMapWrapper mapRef={setMap} />
+        <MapOverlay>
+            <button id="recenter" class="leaflet-control-zoom-out" disabled={nonManual()} onClick={resetView}>
+                <img src="https://cdn2.iconfinder.com/data/icons/boxicons-regular-vol-3/24/bx-target-lock-64.png" />
+            </button>
+            <LeafletMapWrapper mapRef={setMap} />
+        </MapOverlay>
     </>
 };
 
@@ -314,4 +317,19 @@ function getPixelRadius(
     const pCenter = map.latLngToLayerPoint(centerLL);
     const pNorth = map.latLngToLayerPoint(northLL);
     return Math.round(pCenter.distanceTo(pNorth));
+}
+
+const MapOverlay: ParentComponent = ({ children }) => {
+
+    const LocationContext = useLocation();
+
+    return <>
+        <div class="map-overlay">
+            {/* <div class="notifications">oops</div> */}
+            {SHOW_COORDS && <pre class="debug">
+                ({LocationContext.location()?.latitude},{LocationContext.location()?.longitude})
+            </pre>}
+        </div>
+        {children}
+    </>
 }

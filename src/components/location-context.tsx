@@ -43,7 +43,7 @@ export function LocationProvider(props: ParentProps) {
         setLocation({ ...coords, toJSON() {
           return access() !== 'allowed' 
             ? locationContext.defaultValue.location().toJSON() 
-            : JSON.stringify(coords)
+            : JSON.stringify(coords, undefined, 2)
         } });
       }, async (err) => {
         if (err.code === err.POSITION_UNAVAILABLE) return setAccess('unsupported')
