@@ -30,11 +30,12 @@ export const Scanner: Component = () => {
 			locationContext.requestAccess();
 			createEffect(() => {
 				if (locationContext.access() === "requesting") return;
-				if (locationContext.access() !== "allowed") return errorRedirect();
+				if (locationContext.access() === "idle") return;
+				if (locationContext.access() !== "allowed") return errorRedirect(`location: ${locationContext.access()}`);
 			}, [locationContext.access])
 			return;
 		}
-		if (locationContext.access() !== "allowed") return errorRedirect();
+		if (locationContext.access() !== "allowed") return errorRedirect(`location: ${locationContext.access()}`);
 	})
 
 	onCleanup(async () => {
@@ -48,7 +49,7 @@ export const Scanner: Component = () => {
 
 
 	const locations = getLocationsFromCache();
-	if (!locations) errorRedirect();
+	if (!locations) errorRedirect('no markers loaded');
 
 	return <>
 		<h2>Game</h2>

@@ -51,7 +51,9 @@ const Map: Component<MapProps> = ({ locations }) => {
             iconSize: [32, 32],
             // 👉 Move the anchor to the centre (half width, half height)
             iconAnchor: [16, 16],
+            className: 'user-marker',
         }),
+        zIndexOffset: 80
     });
 
 
@@ -100,7 +102,6 @@ const Map: Component<MapProps> = ({ locations }) => {
     const mapLoad = () => {
 
         const map = leafletMap()!;
-        alert('mapload')
 
         markers().forEach(marker => marker.remove());
         setMarkers(locations!.map(mapMarker))
@@ -195,10 +196,11 @@ const Map: Component<MapProps> = ({ locations }) => {
             setMapLocation(initialLatLong)
         }
 
-        try{ 
+        try { 
             map.getCenter();
             mapLoad()
-        } finally{
+        } 
+        finally{
             //
         }
 
@@ -363,13 +365,21 @@ const MapOverlay: ParentComponent<{
     }, [mapLocation, leafletMap]);
 
     const stylePortal: (x: HTMLElement) => void = x => x.className = "debug";
+    const locationLost = () => {
+        if (status() !== "LISTENING") return true;
+        if (mapInitialized() === 'pending') return true;
+        if (mapLocation().lat === 0 && mapLocation().lng === 0) return true;
+        if (!markers().length) return true;
+
+        return false;
+    }
 
     return <>
         <div class="map-overlay">
-            {/* <div class="notifications">oops</div> */}
+            {locationLost() && <div class="notifications">Oeps we zijn je even kwijt...</div>}
         </div>
         {SHOW_COORDS && <Portal ref={stylePortal} mount={document.body}>
-            <button onClick={() => { resetCache(); errorRedirect(); }}>Clear cache</button>
+            <button onClick={() => { resetCache(); errorRedirect('cache emptied'); }}>Clear cache</button>
             <pre>
                 ({locationContext.location().latitude},{locationContext.location().longitude}) {status()} <br />
                 markers: {markers().length} map: {mapInitialized()}

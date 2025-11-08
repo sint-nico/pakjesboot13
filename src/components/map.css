@@ -135,6 +135,7 @@
   align-content: center;
   justify-content: center;
   align-items: center;
+  touch-action: none;
   pointer-events: none;
 }
 
@@ -143,10 +144,12 @@
   display: block;
   position: absolute;
   top: 10ex;
-  margin: 0;
-  padding: 0.3ex;
-  width: min-content;
-  border-radius: 25%;
+  margin: 5ex;
+  padding: 1ex;
+  width: fit-content;
+  border-radius: 2ex;
+  touch-action: none;
+  pointer-events: none;
 }
 
 .debug {
@@ -166,7 +169,6 @@
   overflow: hidden;
 }
 
-
 div.debug button {
   margin-top: 1ex;
 }
@@ -178,8 +180,8 @@ div.debug pre {
   display: block;
   pointer-events: none;
   text-align: center;
-  margin:0;
-  padding:0;
+  margin: 0;
+  padding: 0;
   margin-top: -3ex;
   padding-top: 7ex;
   box-sizing: border-box;
