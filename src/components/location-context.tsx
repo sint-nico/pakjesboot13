@@ -3,12 +3,12 @@ import { Accessor, createContext, createSignal, onCleanup, onMount, ParentProps,
 export type Coordinates = Pick<GeolocationCoordinates, 'latitude' | 'longitude' | 'accuracy' | 'altitude' | 'toJSON'>
 type AccessState = 'idle' | 'requesting' | 'allowed' | 'denied' | 'unsupported';
 export type LocationContext = {
-    location: Accessor<Coordinates>
-    requestAccess(): void;
-    access: Accessor<AccessState>
+  location: Accessor<Coordinates>
+  requestAccess(): void;
+  access: Accessor<AccessState>
 }
 
-const permissionEvent = (ev: Event) => ev as Event & { currentTarget: PermissionStatus } 
+const permissionEvent = (ev: Event) => ev as Event & { currentTarget: PermissionStatus }
 
 function getLocationPermissions() {
   if (!navigator.permissions) return Promise.resolve(undefined)
@@ -17,11 +17,13 @@ function getLocationPermissions() {
 
 const locationContext = createContext<LocationContext>({
   access: () => "geolocation" in navigator
-      ? 'idle'
-      : 'unsupported' as AccessState,
-  location: () => ({ latitude: 0, longitude: 0, accuracy: -1, altitude: 0, toJSON() {
-    return 'NO_DATA'
-  }, } as Coordinates),
+    ? 'idle'
+    : 'unsupported' as AccessState,
+  location: () => ({
+    latitude: 0, longitude: 0, accuracy: -1, altitude: 0, toJSON() {
+      return 'NO_DATA'
+    },
+  } as Coordinates),
   requestAccess(): void { throw new Error('Context not initialized') }
 })
 
@@ -29,6 +31,7 @@ export function LocationProvider(props: ParentProps) {
   let watchId: number | undefined = undefined;
   const abortController = new AbortController();
 
+  const [positionAttempts, setPositionAttempts] = createSignal(0);
   const [location, setLocation] = createSignal(locationContext.defaultValue.location());
   const [access, setAccess] = createSignal<AccessState>(locationContext.defaultValue.access());
   const [listeningRequested, setListeningRequested] = createSignal(false);
@@ -40,13 +43,25 @@ export function LocationProvider(props: ParentProps) {
         const { accuracy, altitude, latitude, longitude } = pos.coords
         setAccess('allowed');
         const coords = { accuracy, altitude, latitude, longitude }
-        setLocation({ ...coords, toJSON() {
-          return access() !== 'allowed' 
-            ? locationContext.defaultValue.location().toJSON() 
-            : JSON.stringify(coords, undefined, 2)
-        } });
+        setLocation({
+          ...coords, toJSON() {
+            return access() !== 'allowed'
+              ? locationContext.defaultValue.location().toJSON()
+              : JSON.stringify(coords, undefined, 2)
+          }
+        });
+        setPositionAttempts(0)
       }, async (err) => {
-        if (err.code === err.POSITION_UNAVAILABLE) return setAccess('unsupported')
+        // This retry mechanism is mostly to facilitate debugging issues
+        if (err.code === err.POSITION_UNAVAILABLE) {
+          setPositionAttempts(count => count++);
+          if (positionAttempts() > 3) return setAccess('unsupported')
+
+          setLocation(locationContext.defaultValue.location());
+          console.warn(err)
+          return;
+        } 
+        setPositionAttempts(0)
         if (err.code === err.TIMEOUT) return;
         if (err.code === err.PERMISSION_DENIED) {
           const permissions = await getLocationPermissions()
@@ -55,7 +70,7 @@ export function LocationProvider(props: ParentProps) {
         }
       }, { enableHighAccuracy: true })
     }
-    catch(err) {
+    catch (err) {
       console.error('An unhandled error occurred while requesting location data', err)
       setAccess('idle');
     }
@@ -64,9 +79,9 @@ export function LocationProvider(props: ParentProps) {
   }
 
   function stopListening() {
-      if (!watchId) return;
-      navigator.geolocation.clearWatch(watchId);
-      watchId = undefined;
+    if (!watchId) return;
+    navigator.geolocation.clearWatch(watchId);
+    watchId = undefined;
   }
 
   onCleanup(() => abortController.abort('cleanup'));
@@ -77,7 +92,7 @@ export function LocationProvider(props: ParentProps) {
     if (permissions === undefined) return;
 
     function setPermissions(state: PermissionState, initial: boolean = false) {
-      switch(state) {
+      switch (state) {
         case "denied": {
           if (!initial) stopListening();
           return setAccess('denied')
@@ -98,7 +113,7 @@ export function LocationProvider(props: ParentProps) {
     permissions.addEventListener(
       'change',
       (ev) => {
-        if (access() === "denied" && permissionEvent(ev).currentTarget.state !== 'denied') 
+        if (access() === "denied" && permissionEvent(ev).currentTarget.state !== 'denied')
           return setPermissions('prompt')
 
         if (!listeningRequested()) return;
@@ -108,7 +123,7 @@ export function LocationProvider(props: ParentProps) {
       { signal: abortController.signal }
     )
   })
- 
+
   function requestAccess() {
     setListeningRequested(true)
     if (!!watchId) return;
