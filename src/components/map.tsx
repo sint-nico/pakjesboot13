@@ -4,7 +4,7 @@ import "./map.css"
 import { getLocationsList, Location, resetCache } from '../supabase';
 import { useLocation } from './location-context';
 import { LeafletMapWrapper } from "./leaflet-wrapper";
-import { render } from "solid-js/web";
+import { Portal, render } from "solid-js/web";
 
 /**
  * This file has nested createEffects, this causes memory leaks.
@@ -13,7 +13,7 @@ import { render } from "solid-js/web";
  */
 
 const TARGET_DISTANCE_METERS = 50; // <-- change this to your “points”
-const SHOW_COORDS = true; 
+const SHOW_COORDS = true;
 
 // Helper: calculate distance in meters between two lat/lng pairs
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -51,7 +51,7 @@ const Map = () => {
     const nonManual = createMemo(() => !manual(), [manual]);
 
     const [leafletMap, setMap] = createSignal<LeafletMap>();
-    const [mapLocation, setMapLocation] = createSignal<LatLng>(new LatLng(9,9,0));
+    const [mapLocation, setMapLocation] = createSignal<LatLng>(new LatLng(9, 9, 0));
     const [markers, setMarkers] = createSignal<(Marker & { location: Location })[]>([]);
     const userMarker = L.marker(mapLocation(), {
         icon: L.icon({
@@ -122,7 +122,7 @@ const Map = () => {
         abortController.signal.addEventListener('abort', () => userMarker.off('click', resetView), { once: true })
 
         const initialLatLong = new LatLng(initialLocation.latitude, initialLocation.longitude)
-        if (!manual() && map && initialLatLong.lat !==0  && initialLatLong.lng !== 0) {
+        if (!manual() && map && initialLatLong.lat !== 0 && initialLatLong.lng !== 0) {
             map.setView(initialLatLong, map.getMaxZoom(), {
                 animate: true,
                 noMoveStart: true,
@@ -132,6 +132,8 @@ const Map = () => {
 
         const loadMarkers = async () => {
             const locationMarkers = await locationMarkerPromise;
+            // This is a stupid check, however for this app I only care if it changed
+            if (locationMarkers.length === markers().length) return;
             markers().forEach(marker => marker.remove());
             setMarkers(locationMarkers.map(mapMarker))
                 .forEach(marker => {
@@ -145,7 +147,7 @@ const Map = () => {
                         disableMap();
                         setManual(true)
                         const markerPos = marker.getLatLng();
-                        if(markerPos.lat !== 0 && markerPos.lng !== 0) {
+                        if (markerPos.lat !== 0 && markerPos.lng !== 0) {
                             map.setView(markerPos, map.getMaxZoom(), {
                                 animate: true
                             });
@@ -170,10 +172,10 @@ const Map = () => {
                     });
                 });
         }
-        try{
+        try {
             await loadMarkers();
         }
-        catch{
+        finally {
             map.on('load', loadMarkers);
         }
 
@@ -266,9 +268,9 @@ const Map = () => {
     createEffect(() => {
         if (!leafletMap()?.dragging.enabled) return;
         const { latitude, longitude } = locationContext.location();
-        if (latitude === 0 && longitude === 0 ) return
+        if (latitude === 0 && longitude === 0) return
         const contextLatLng = new LatLng(latitude, longitude);
-            
+
         userMarker.setLatLng(contextLatLng);
 
         if (!manual()) {
@@ -354,11 +356,11 @@ const MapOverlay: ParentComponent<{
     const status = createMemo(() => {
         if (locationContext.access() !== "allowed") return "WAITING"
         if (locationContext.location().toJSON() === "NO_DATA") return "NO_DATA"
-        if (locationContext.location().latitude === 0 
-         && locationContext.location().longitude) return "NO_COORDS"
+        if (locationContext.location().latitude === 0
+            && locationContext.location().longitude) return "NO_COORDS"
 
         return "LISTENING"
-    },[locationContext.access, locationContext.location])
+    }, [locationContext.access, locationContext.location])
 
     const mapInitialized = createMemo(() => {
         if (!leafletMap()) return 'pending'
@@ -367,16 +369,19 @@ const MapOverlay: ParentComponent<{
             : 'pending'
     }, [mapLocation, leafletMap]);
 
+    const stylePortal: (x: HTMLElement) => void = x => x.className = "debug";
 
     return <>
         <div class="map-overlay">
             {/* <div class="notifications">oops</div> */}
-            {SHOW_COORDS && <pre class="debug">
-                ({locationContext.location().latitude},{locationContext.location().longitude}) {status()} <br />
-                markers: {markers().length} map: {mapInitialized()} <br />
-                <button onClick={resetCache}>Clear cache</button>
-            </pre>}
         </div>
+        {SHOW_COORDS && <Portal ref={stylePortal} mount={document.body}>
+            <button onClick={resetCache}>Clear cache</button>
+            <pre>
+                ({locationContext.location().latitude},{locationContext.location().longitude}) {status()} <br />
+                markers: {markers().length} map: {mapInitialized()}
+            </pre>
+        </Portal>}
         {children}
     </>
 }

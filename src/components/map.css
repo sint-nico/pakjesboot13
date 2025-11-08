@@ -127,7 +127,6 @@
   bottom: 0;
   z-index: 80;
   opacity: 0.9;
-  pointer-events: none;
 
   text-align: center;
   display: flex;
@@ -136,6 +135,7 @@
   align-content: center;
   justify-content: center;
   align-items: center;
+  pointer-events: none;
 }
 
 .notifications {
@@ -149,12 +149,41 @@
   border-radius: 25%;
 }
 
-.map-overlay pre {
-  background: white;
-  display: block;
+.debug {
+  display: flex;
   position: absolute;
-  bottom: 0px;
+  top: calc(100% - 10ex);
+  height: 10ex;
   margin: 0;
-  padding: 0.3ex;
+  padding: 0;
   width: 100%;
+  z-index: 999;
+  flex-direction: column;
+  align-content: center;
+  justify-content: flex-start;
+  align-items: center;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+
+div.debug button {
+  margin-top: 1ex;
+}
+div.debug pre {
+  background: white;
+  position: absolute;
+  width: 100%;
+  height: 20ex;
+  display: block;
+  pointer-events: none;
+  text-align: center;
+  margin:0;
+  padding:0;
+  margin-top: -3ex;
+  padding-top: 7ex;
+  box-sizing: border-box;
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: -1;
 }

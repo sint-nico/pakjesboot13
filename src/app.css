@@ -1,6 +1,7 @@
 html {
   margin:0;
   padding: 0;
+    height: 100%;
 }
 
 body {
@@ -13,6 +14,7 @@ body {
   /* TODO: White */
   background-color: #fcfcfc;
   min-height: 100vh;
+    height: 100%;
   display: flex;
   flex-direction: column;
   align-items: stretch;

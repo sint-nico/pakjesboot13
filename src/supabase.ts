@@ -16,7 +16,7 @@ type LocationCache = undefined | {
 
 export async function getLocationsList() {
 
-    const cacheRecord = localStorage[CACHE_KEY];
+    const cacheRecord = localStorage.getItem(CACHE_KEY);
     const cachedValue = cacheRecord ? JSON.parse(cacheRecord) as LocationCache : undefined
     if (cachedValue?.[BUILD_NUMBER]) {
         return cachedValue[BUILD_NUMBER]!
@@ -29,16 +29,16 @@ export async function getLocationsList() {
 
     if (error) {
         console.error(error)
-        localStorage[CACHE_KEY] = undefined
+        localStorage.removeItem(CACHE_KEY)
         return [];
     }
 
     const result = (data! as Location[])
         .map(loc => ({ ...loc, ...fromGoogle(loc.coords) }))
 
-    localStorage[CACHE_KEY] = JSON.stringify({
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
         [BUILD_NUMBER]: result
-    } as LocationCache)
+    } as LocationCache))
 
     return result;
 }
@@ -64,7 +64,7 @@ function fromGoogle(url: string) {
 }
 
 export function resetCache() {
-    localStorage[CACHE_KEY] = undefined
+    localStorage.removeItem(CACHE_KEY)
 }
 
 if (import.meta.env.DEV) {
