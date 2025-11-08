@@ -195,7 +195,12 @@ const Map: Component<MapProps> = ({ locations }) => {
             setMapLocation(initialLatLong)
         }
 
-        map.once('load', mapLoad)
+        try{ 
+            map.getCenter();
+            mapLoad()
+        } finally{
+            //
+        }
 
     }, [leafletMap])
 

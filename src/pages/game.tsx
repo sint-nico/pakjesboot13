@@ -2,6 +2,7 @@ import { Component, createEffect, onCleanup, onMount } from "solid-js";
 import Map from '../components/map';
 import { getLocationsFromCache } from "../supabase";
 import { useLocation } from "../components/location-context";
+import { errorRedirect } from "../helpers";
 
 const LOG_WAKE_LOCK_ISSUES = false;
 const LOG_FULL_SCREEN_ISSUES = false;
@@ -29,11 +30,11 @@ export const Scanner: Component = () => {
 			locationContext.requestAccess();
 			createEffect(() => {
 				if (locationContext.access() === "requesting") return;
-				if (locationContext.access() !== "allowed") return history.back();
+				if (locationContext.access() !== "allowed") return errorRedirect();
 			}, [locationContext.access])
 			return;
 		}
-		if (locationContext.access() !== "allowed") return history.back();
+		if (locationContext.access() !== "allowed") return errorRedirect();
 	})
 
 	onCleanup(async () => {
@@ -47,7 +48,7 @@ export const Scanner: Component = () => {
 
 
 	const locations = getLocationsFromCache();
-	if (!locations) history.go(-1);
+	if (!locations) errorRedirect();
 
 	return <>
 		<h2>Game</h2>
