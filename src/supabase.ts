@@ -63,9 +63,10 @@ function fromGoogle(url: string) {
     return { lat: +lat, lng: +lng }
 }
 
+export function resetCache() {
+    localStorage[CACHE_KEY] = undefined
+}
 
 if (import.meta.env.DEV) {
-    (window as any).resetCache = () => {
-        localStorage[CACHE_KEY] = undefined
-    }
+    (window as any).resetCache = resetCache
 }

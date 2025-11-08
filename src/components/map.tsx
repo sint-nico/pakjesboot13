@@ -1,7 +1,7 @@
 import { Accessor, Component, createEffect, createMemo, createRoot, createSignal, getOwner, onCleanup, onMount, ParentComponent } from "solid-js";
 import L, { DivIconOptions, LatLng, Map as LeafletMap, Marker } from "leaflet";
 import "./map.css"
-import { getLocationsList, Location } from '../supabase';
+import { getLocationsList, Location, resetCache } from '../supabase';
 import { useLocation } from './location-context';
 import { LeafletMapWrapper } from "./leaflet-wrapper";
 import { render } from "solid-js/web";
@@ -130,7 +130,7 @@ const Map = () => {
             setMapLocation(initialLatLong)
         }
 
-        map.on('load', async () => {
+        const loadMarkers = async () => {
             const locationMarkers = await locationMarkerPromise;
             markers().forEach(marker => marker.remove());
             setMarkers(locationMarkers.map(mapMarker))
@@ -169,7 +169,13 @@ const Map = () => {
                         document.addEventListener('touchstart', () => marker.closePopup(), { once: true, signal: abortController.signal })
                     });
                 });
-        });
+        }
+        try{
+            await loadMarkers();
+        }
+        catch{
+            map.on('load', loadMarkers);
+        }
 
 
         let lastPos = map.getCenter();
@@ -367,7 +373,8 @@ const MapOverlay: ParentComponent<{
             {/* <div class="notifications">oops</div> */}
             {SHOW_COORDS && <pre class="debug">
                 ({locationContext.location().latitude},{locationContext.location().longitude}) {status()} <br />
-                markers: {markers().length} map: {mapInitialized()}
+                markers: {markers().length} map: {mapInitialized()} <br />
+                <button onClick={resetCache}>Clear cache</button>
             </pre>}
         </div>
         {children}
