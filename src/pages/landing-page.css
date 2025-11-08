@@ -2,10 +2,10 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  margin: 0 -7ex;
-  padding: 3ex 7ex;
-  filter: sepia(0.2) saturate(0.7) brightness(1.5);
+  margin: 0 -4ex;
+  padding: 3.5ex 5ex;
+  filter: sepia(0.2) saturate(0.8) brightness(1.1);
   color: white;
-  text-shadow: 0 0 1px aqua,  0 0 2px aqua, 0 0 3em black, 0 0 3px black, 0 0 3px black,
+  text-shadow: 0 0 1px aqua,  0 0 3em black, 0 0 3px black, 0 0 3px black,
     0 0 3px black;
 }

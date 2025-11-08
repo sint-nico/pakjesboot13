@@ -16,6 +16,7 @@ export const LandingPage: Component = () => {
 		<LocationMatch>
 			<p><A href="/zoeken/">Start</A></p>
 		</LocationMatch>
+		<a id="after-location" />
 	</>
 }
 
@@ -44,7 +45,13 @@ const LocationMatch: ParentComponent = (props) => {
 			</p>
 		</div>
 			<p>“Klik hier, lieve kind, op de magische knop,” roept de Sint zacht. <br />
-				<LocationButton onClick={locationContext.requestAccess} /> – een sprankelend gebaar, heel onverwacht.
+				<LocationButton onClick={() => {
+					locationContext.requestAccess();
+					// TODO on status change
+					document.getElementById('after-location')?.scrollIntoView({
+						behavior: 'smooth'
+					})
+				}} /> – een sprankelend gebaar, heel onverwacht.
 			</p>
 		<p>
 			Een venster zal je vragen: "Wil ik je de locatie ontbinden?” <br />
@@ -73,9 +80,11 @@ const LocationMatch: ParentComponent = (props) => {
 						reset de rechten, dan kunnen we weer verder, vlug!</p>
 				</>
 
-				return undefined
+				return <p>
+					[Plaatje van een piet of een compas ofzo. Iets om aan te geven dat er nog iets moet gebeuren]
+				</p>
 			}, [locationContext.access])()
-		}</>;
+		}</>
 }
 
 type LocationButtonProps = {

@@ -19,7 +19,7 @@ body {
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-  font-size: calc(12px + 2vmin);
+  font-size: calc(13px + 2vmin);
   color: black;
   overflow-x: hidden;
   overflow-y:auto;
@@ -32,7 +32,7 @@ code {
 
 #root {
   background-color: white;
-  margin: .5ex 4ex .5ex 4ex ;
+  margin: .5ex 2ex ;
 }
 
 .logo {
