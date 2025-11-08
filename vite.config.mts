@@ -7,6 +7,9 @@ export default gitHubSpaConfig(packageJson, {
     plugins: [
         solid() as any
     ],
+    define: {
+        'import.meta.env.VITE_BUILD_DATE': JSON.stringify(Date.now())
+    },
     optimizeDeps: {
         esbuildOptions: {
             target: 'esnext'

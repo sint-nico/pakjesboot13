@@ -14,7 +14,7 @@
   "license": "ISC",
   "packageManager": "pnpm@10.17.1",
   "dependencies": {
-    "@quick-vite/gh-pages-spa": "^7.0.0",
+    "@quick-vite/gh-pages-spa": "^7.0.1",
     "@solidjs/router": "^0.15.3",
     "@supabase/supabase-js": "^2.78.0",
     "leaflet": "^1.9.4",

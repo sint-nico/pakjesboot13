@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@quick-vite/gh-pages-spa':
-        specifier: ^7.0.0
-        version: 7.0.0(@types/node@24.9.2)(rollup@4.52.4)
+        specifier: ^7.0.1
+        version: 7.0.1(@types/node@24.9.2)(rollup@4.52.4)
       '@solidjs/router':
         specifier: ^0.15.3
         version: 0.15.3(solid-js@1.9.9)
@@ -424,8 +424,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@quick-vite/gh-pages-spa@7.0.0':
-    resolution: {integrity: sha512-8BvHW2xr2pN/gfdNOL4Bk03baaYp3CiY9dDGKAkpe5x21oFsU40Y27jnc02h5pnEcyyvSL80vvsFIy2gEYXUiw==}
+  '@quick-vite/gh-pages-spa@7.0.1':
+    resolution: {integrity: sha512-xuE6+05DZ7ztK0pE1iry0CBieuDlGrf4r9Q0OsYU8cRj1sRP8YMUiIk6kqNFWReXTOqG9ZQXOVDyL18awKfTig==}
 
   '@rollup/plugin-virtual@3.0.2':
     resolution: {integrity: sha512-10monEYsBp3scM4/ND4LNH5Rxvh3e/cVeL3jWTgZ2SrQ+BmUoQcopVQvnaMcOnykb1VkxUFuDAN+0FnpTFRy2A==}
@@ -1357,7 +1357,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@quick-vite/gh-pages-spa@7.0.0(@types/node@24.9.2)(rollup@4.52.4)':
+  '@quick-vite/gh-pages-spa@7.0.1(@types/node@24.9.2)(rollup@4.52.4)':
     dependencies:
       vite: 7.1.9(@types/node@24.9.2)
       vite-plugin-html-config: 2.0.2(vite@7.1.9(@types/node@24.9.2))

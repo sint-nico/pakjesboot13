@@ -6,22 +6,41 @@ const supabaseKey = import.meta.env["VITE_API_KEY"]
 
 export const supabase = createClient(supabaseUrl, supabaseKey)
 
+const BUILD_NUMBER: number = import.meta.env.VITE_BUILD_DATE;
+const LIST_GROUP = import.meta.env["VITE_LISTNAME"];
+const CACHE_KEY = `coodinates-${LIST_GROUP}`;
+
+type LocationCache = undefined | {
+    [BUILD_NUMBER]: Location[] | undefined
+}
+
 export async function getLocationsList() {
-    const list = import.meta.env["VITE_LISTNAME"];
+
+    const cacheRecord = localStorage[CACHE_KEY];
+    const cachedValue = cacheRecord ? JSON.parse(cacheRecord) as LocationCache : undefined
+    if (cachedValue?.[BUILD_NUMBER]) {
+        return cachedValue[BUILD_NUMBER]!
+    }
 
     const { data, error } = await supabase
         .from('coordinates')
         .select('*')
-        .eq('group', list)
+        .eq('group', LIST_GROUP)
 
-        if (error) {
-            console.error(error)
-            alert(error.toString());
-            return [];
-        }
+    if (error) {
+        console.error(error)
+        localStorage[CACHE_KEY] = undefined
+        return [];
+    }
 
-    return (data! as Location[])
-        .map(loc => ({ ...loc, ...fromGoogle(loc.coords) }) )
+    const result = (data! as Location[])
+        .map(loc => ({ ...loc, ...fromGoogle(loc.coords) }))
+
+    localStorage[CACHE_KEY] = JSON.stringify({
+        [BUILD_NUMBER]: result
+    } as LocationCache)
+
+    return result;
 }
 
 export type Location = {
@@ -42,4 +61,11 @@ function fromGoogle(url: string) {
         .split(',')
 
     return { lat: +lat, lng: +lng }
+}
+
+
+if (import.meta.env.DEV) {
+    (window as any).resetCache = () => {
+        localStorage[CACHE_KEY] = undefined
+    }
 }

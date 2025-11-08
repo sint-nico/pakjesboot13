@@ -32,8 +32,7 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
 const Map = () => {
     const locationContext = useLocation();
     const renderOwner = getOwner();
-    // something is wrong with how this updates, markers are getting duplicated on zoom.
-    let initialized = false;
+    const locationMarkerPromise = getLocationsList();
 
     onMount(() => {
         if (locationContext.access() === "idle") {
@@ -110,8 +109,7 @@ const Map = () => {
     createEffect(async () => {
         const initialLocation = locationContext.location();
         const map = leafletMap();
-        if (!map || markers().length || initialized) return;
-        initialized = true;
+        if (!map) return;
 
         map.setMinZoom(15);
         map.setMaxZoom(18);
@@ -123,44 +121,6 @@ const Map = () => {
         userMarker.on('click', resetView);
         abortController.signal.addEventListener('abort', () => userMarker.off('click', resetView), { once: true })
 
-        const locationMarkers = await getLocationsList();
-        setMarkers(locationMarkers.map(mapMarker))
-            .forEach(marker => {
-                if (!marker.location.final || finalVisible()) {
-                    marker.addTo(map)
-                }
-
-                marker.on("click", async () => {
-                    marker.closePopup();
-
-                    disableMap();
-                    setManual(true)
-                    const markerPos = marker.getLatLng();
-                    if(markerPos.lat !== 0 && markerPos.lng !== 0) {
-                        map.setView(markerPos, map.getMaxZoom(), {
-                            animate: true
-                        });
-                        setMapLocation(markerPos);
-                    }
-
-                    // Wait for animation to finish before showing the popup
-                    await new Promise<void>(res => {
-                        const interval = setInterval(() => {
-                            if (map.getCenter().distanceTo(marker.getLatLng()) > .5) return
-                            if (map.getZoom() !== map.getMaxZoom()) return;
-                            clearInterval(interval)
-                            res()
-                        }, 100)
-                    })
-                    await new Promise<void>(res => setTimeout(res, 100));
-
-                    marker.openPopup();
-                    enableMap();
-                    document.addEventListener('click', () => marker.closePopup(), { once: true, signal: abortController.signal })
-                    document.addEventListener('touchstart', () => marker.closePopup(), { once: true, signal: abortController.signal })
-                });
-            });
-
         const initialLatLong = new LatLng(initialLocation.latitude, initialLocation.longitude)
         if (!manual() && map && initialLatLong.lat !==0  && initialLatLong.lng !== 0) {
             map.setView(initialLatLong, map.getMaxZoom(), {
@@ -169,6 +129,47 @@ const Map = () => {
             });
             setMapLocation(initialLatLong)
         }
+
+        map.once('load', async () => {
+            const locationMarkers = await locationMarkerPromise;
+            markers().forEach(marker => marker.remove());
+            setMarkers(locationMarkers.map(mapMarker))
+                .forEach(marker => {
+                    if (!marker.location.final || finalVisible()) {
+                        marker.addTo(map)
+                    }
+
+                    marker.on("click", async () => {
+                        marker.closePopup();
+
+                        disableMap();
+                        setManual(true)
+                        const markerPos = marker.getLatLng();
+                        if(markerPos.lat !== 0 && markerPos.lng !== 0) {
+                            map.setView(markerPos, map.getMaxZoom(), {
+                                animate: true
+                            });
+                            setMapLocation(markerPos);
+                        }
+
+                        // Wait for animation to finish before showing the popup
+                        await new Promise<void>(res => {
+                            const interval = setInterval(() => {
+                                if (map.getCenter().distanceTo(marker.getLatLng()) > .5) return
+                                if (map.getZoom() !== map.getMaxZoom()) return;
+                                clearInterval(interval)
+                                res()
+                            }, 100)
+                        })
+                        await new Promise<void>(res => setTimeout(res, 100));
+
+                        marker.openPopup();
+                        enableMap();
+                        document.addEventListener('click', () => marker.closePopup(), { once: true, signal: abortController.signal })
+                        document.addEventListener('touchstart', () => marker.closePopup(), { once: true, signal: abortController.signal })
+                    });
+                });
+        });
 
 
         let lastPos = map.getCenter();
