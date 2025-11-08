@@ -31,6 +31,8 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
 const Map = () => {
     const locationContext = useLocation();
     const renderOwner = getOwner();
+    // something is wrong with how this updates, markers are getting duplicated on zoom.
+    let initialized = false;
 
     onMount(() => {
         if (locationContext.access() === "idle") {
@@ -103,7 +105,8 @@ const Map = () => {
     createEffect(async () => {
         const initialLocation = locationContext.location();
         const map = leafletMap();
-        if (!map || markers().length) return;
+        if (!map || markers().length || initialized) return;
+        initialized = true;
 
         map.setMinZoom(15);
         map.setMaxZoom(18);
