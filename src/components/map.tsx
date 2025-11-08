@@ -146,7 +146,6 @@ const Map = () => {
                     // Wait for animation to finish before showing the popup
                     await new Promise<void>(res => {
                         const interval = setInterval(() => {
-                            console.log(Math.floor(map.getCenter().distanceTo(marker.getLatLng()) * 10) / 10);
                             if (map.getCenter().distanceTo(marker.getLatLng()) > .5) return
                             if (map.getZoom() !== map.getMaxZoom()) return;
                             clearInterval(interval)

@@ -53,7 +53,7 @@ const LocationMatch: ParentComponent = (props) => {
 
 				return <>
 					<p>“Klik hier, lieve kind, op de magische knop,” roept de Sint zacht. <br />
-						<button onClick={locationContext.requestAccess}>Deel mijn locatie</button> – een sprankelend gebaar, heel onverwacht.
+						<button onClick={locationContext.requestAccess} disabled={locationContext.access() === 'requesting'}>Deel mijn locatie</button> – een sprankelend gebaar, heel onverwacht.
 					</p>
 					<p>Een venster verschijnt, vraagt: "Wil ik je de locatie ontbinden?” <br />
 						Zeg "ja" en de Pieten kunnen je vinden!

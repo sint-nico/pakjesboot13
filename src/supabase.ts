@@ -16,6 +16,7 @@ export async function getLocationsList() {
 
         if (error) {
             console.error(error)
+            alert(error.toString());
             return [];
         }
 
