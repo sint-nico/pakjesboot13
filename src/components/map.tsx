@@ -33,6 +33,7 @@ const Map = () => {
     const locationContext = useLocation();
     const renderOwner = getOwner();
     const locationMarkerPromise = getLocationsList();
+    let markersLoaded = false;
 
     onMount(() => {
         if (locationContext.access() === "idle") {
@@ -131,9 +132,10 @@ const Map = () => {
         }
 
         const loadMarkers = async () => {
+            if (markersLoaded) return;
+
             const locationMarkers = await locationMarkerPromise;
-            // This is a stupid check, however for this app I only care if it changed
-            if (locationMarkers.length === markers().length) return;
+            markersLoaded = true;
             markers().forEach(marker => marker.remove());
             setMarkers(locationMarkers.map(mapMarker))
                 .forEach(marker => {
@@ -172,12 +174,16 @@ const Map = () => {
                     });
                 });
         }
+
         try {
-            await loadMarkers();
+            // try to see if map is loaded
+            map.getCenter();
         }
-        finally {
-            map.on('load', loadMarkers);
+        catch {
+            return;
         }
+
+        await loadMarkers();
 
 
         let lastPos = map.getCenter();
