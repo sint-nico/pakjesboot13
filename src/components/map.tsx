@@ -130,7 +130,7 @@ const Map = () => {
             setMapLocation(initialLatLong)
         }
 
-        map.once('load', async () => {
+        map.on('load', async () => {
             const locationMarkers = await locationMarkerPromise;
             markers().forEach(marker => marker.remove());
             setMarkers(locationMarkers.map(mapMarker))
