@@ -1,6 +1,7 @@
 import { A } from "@solidjs/router";
-import { Component, ParentComponent, children, createMemo } from 'solid-js';
+import { Component, ParentComponent, children, createEffect, createMemo, createSignal } from 'solid-js';
 import { useLocation } from "../components/location-context";
+import { fetchLocationsList, Location } from "../supabase";
 
 export const LandingPage: Component = () => {
 
@@ -17,7 +18,16 @@ export const LandingPage: Component = () => {
 
 const LocationMatch: ParentComponent = (props) => {
 
+	const [locations, setLocations] = createSignal<Location[]>() 
 	const locationContext = useLocation();
+
+	createEffect(async () => {
+		if (locations() != undefined) return;
+
+		const fetchedLocations = await fetchLocationsList();
+		setLocations(fetchedLocations)
+
+	}, [locations])
 
 	return <>
 		<p>
@@ -53,7 +63,7 @@ const LocationMatch: ParentComponent = (props) => {
 
 				return <>
 					<p>“Klik hier, lieve kind, op de magische knop,” roept de Sint zacht. <br />
-						<button onClick={locationContext.requestAccess} disabled={locationContext.access() === 'requesting'}>Deel mijn locatie</button> – een sprankelend gebaar, heel onverwacht.
+						<button onClick={locationContext.requestAccess} disabled={locations() === undefined || locationContext.access() === 'requesting'}>Deel mijn locatie</button> – een sprankelend gebaar, heel onverwacht.
 					</p>
 					<p>Een venster verschijnt, vraagt: "Wil ik je de locatie ontbinden?” <br />
 						Zeg "ja" en de Pieten kunnen je vinden!

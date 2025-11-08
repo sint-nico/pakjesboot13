@@ -1,10 +1,11 @@
-import { Accessor, Component, createEffect, createMemo, createRoot, createSignal, getOwner, onCleanup, onMount, ParentComponent } from "solid-js";
+import { Accessor, Component, createEffect, createMemo, createRoot, createSignal, getOwner, onCleanup, ParentComponent } from "solid-js";
 import L, { DivIconOptions, LatLng, Map as LeafletMap, Marker } from "leaflet";
 import "./map.css"
-import { getLocationsList, Location, resetCache } from '../supabase';
+import { Location, resetCache } from '../supabase';
 import { useLocation } from './location-context';
 import { LeafletMapWrapper } from "./leaflet-wrapper";
 import { Portal, render } from "solid-js/web";
+import { errorRedirect } from "../helpers";
 
 /**
  * This file has nested createEffects, this causes memory leaks.
@@ -29,23 +30,13 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-const Map = () => {
+export type MapProps = {
+    locations: Location[]
+}
+const Map: Component<MapProps> = ({ locations }) => {
     const locationContext = useLocation();
     const renderOwner = getOwner();
-    const locationMarkerPromise = getLocationsList();
-    let markersLoaded = false;
-
-    onMount(() => {
-        if (locationContext.access() === "idle") {
-            locationContext.requestAccess();
-            createEffect(() => {
-                if (locationContext.access() === "requesting") return;
-                if (locationContext.access() !== "allowed") history.back();
-            }, [locationContext.access])
-            return;
-        }
-        if (locationContext.access() !== "allowed") history.back();
-    })
+    let initialized = false;
 
     const [finalVisible, setFinalVisible] = createSignal(false);
     const [manual, setManual] = createSignal(false);
@@ -106,85 +97,48 @@ const Map = () => {
     const abortController = new AbortController();
     onCleanup(() => abortController.abort());
 
+    const mapLoad = () => {
 
-    createEffect(async () => {
-        const initialLocation = locationContext.location();
-        const map = leafletMap();
-        if (!map) return;
+        const map = leafletMap()!;
+        alert('mapload')
 
-        map.setMinZoom(15);
-        map.setMaxZoom(18);
+        markers().forEach(marker => marker.remove());
+        setMarkers(locations!.map(mapMarker))
+            .forEach(marker => {
+                if (!marker.location.final || finalVisible()) {
+                    marker.addTo(map)
+                }
 
-        disableMap()
+                marker.on("click", async () => {
+                    marker.closePopup();
 
-        userMarker.setLatLng([initialLocation.latitude, initialLocation.longitude])
-        userMarker.addTo(map);
-        userMarker.on('click', resetView);
-        abortController.signal.addEventListener('abort', () => userMarker.off('click', resetView), { once: true })
-
-        const initialLatLong = new LatLng(initialLocation.latitude, initialLocation.longitude)
-        if (!manual() && map && initialLatLong.lat !== 0 && initialLatLong.lng !== 0) {
-            map.setView(initialLatLong, map.getMaxZoom(), {
-                animate: true,
-                noMoveStart: true,
-            });
-            setMapLocation(initialLatLong)
-        }
-
-        const loadMarkers = async () => {
-            if (markersLoaded) return;
-
-            const locationMarkers = await locationMarkerPromise;
-            markersLoaded = true;
-            markers().forEach(marker => marker.remove());
-            setMarkers(locationMarkers.map(mapMarker))
-                .forEach(marker => {
-                    if (!marker.location.final || finalVisible()) {
-                        marker.addTo(map)
+                    disableMap();
+                    setManual(true)
+                    const markerPos = marker.getLatLng();
+                    if (markerPos.lat !== 0 && markerPos.lng !== 0) {
+                        map.setView(markerPos, map.getMaxZoom(), {
+                            animate: true
+                        });
+                        setMapLocation(markerPos);
                     }
 
-                    marker.on("click", async () => {
-                        marker.closePopup();
+                    // Wait for animation to finish before showing the popup
+                    await new Promise<void>(res => {
+                        const interval = setInterval(() => {
+                            if (map.getCenter().distanceTo(marker.getLatLng()) > .5) return
+                            if (map.getZoom() !== map.getMaxZoom()) return;
+                            clearInterval(interval)
+                            res()
+                        }, 100)
+                    })
+                    await new Promise<void>(res => setTimeout(res, 100));
 
-                        disableMap();
-                        setManual(true)
-                        const markerPos = marker.getLatLng();
-                        if (markerPos.lat !== 0 && markerPos.lng !== 0) {
-                            map.setView(markerPos, map.getMaxZoom(), {
-                                animate: true
-                            });
-                            setMapLocation(markerPos);
-                        }
-
-                        // Wait for animation to finish before showing the popup
-                        await new Promise<void>(res => {
-                            const interval = setInterval(() => {
-                                if (map.getCenter().distanceTo(marker.getLatLng()) > .5) return
-                                if (map.getZoom() !== map.getMaxZoom()) return;
-                                clearInterval(interval)
-                                res()
-                            }, 100)
-                        })
-                        await new Promise<void>(res => setTimeout(res, 100));
-
-                        marker.openPopup();
-                        enableMap();
-                        document.addEventListener('click', () => marker.closePopup(), { once: true, signal: abortController.signal })
-                        document.addEventListener('touchstart', () => marker.closePopup(), { once: true, signal: abortController.signal })
-                    });
+                    marker.openPopup();
+                    enableMap();
+                    document.addEventListener('click', () => marker.closePopup(), { once: true, signal: abortController.signal })
+                    document.addEventListener('touchstart', () => marker.closePopup(), { once: true, signal: abortController.signal })
                 });
-        }
-
-        try {
-            // try to see if map is loaded
-            map.getCenter();
-        }
-        catch {
-            return;
-        }
-
-        await loadMarkers();
-
+            });
 
         let lastPos = map.getCenter();
         let lastZoom = map.getZoom();
@@ -213,7 +167,35 @@ const Map = () => {
         document.addEventListener('scroll', moveByUser, abortController)
         document.addEventListener('keydown', moveByUser, abortController)
 
+        initialized = true;
         enableMap();
+    }
+
+    createEffect(async () => {
+        const initialLocation = locationContext.location();
+        const map = leafletMap();
+        if (!map || initialized) return;
+
+        map.setMinZoom(15);
+        map.setMaxZoom(18);
+
+        disableMap()
+
+        userMarker.setLatLng([initialLocation.latitude, initialLocation.longitude])
+        userMarker.addTo(map);
+        userMarker.on('click', resetView);
+        abortController.signal.addEventListener('abort', () => userMarker.off('click', resetView), { once: true })
+
+        const initialLatLong = new LatLng(initialLocation.latitude, initialLocation.longitude)
+        if (!manual() && map && initialLatLong.lat !== 0 && initialLatLong.lng !== 0) {
+            map.setView(initialLatLong, map.getMaxZoom(), {
+                animate: true,
+                noMoveStart: true,
+            });
+            setMapLocation(initialLatLong)
+        }
+
+        map.once('load', mapLoad)
 
     }, [leafletMap])
 
@@ -382,7 +364,7 @@ const MapOverlay: ParentComponent<{
             {/* <div class="notifications">oops</div> */}
         </div>
         {SHOW_COORDS && <Portal ref={stylePortal} mount={document.body}>
-            <button onClick={resetCache}>Clear cache</button>
+            <button onClick={() => { resetCache(); errorRedirect(); }}>Clear cache</button>
             <pre>
                 ({locationContext.location().latitude},{locationContext.location().longitude}) {status()} <br />
                 markers: {markers().length} map: {mapInitialized()}

@@ -14,13 +14,19 @@ type LocationCache = undefined | {
     [BUILD_NUMBER]: Location[] | undefined
 }
 
-export async function getLocationsList() {
-
+export function getLocationsFromCache() {
     const cacheRecord = localStorage.getItem(CACHE_KEY);
     const cachedValue = cacheRecord ? JSON.parse(cacheRecord) as LocationCache : undefined
     if (cachedValue?.[BUILD_NUMBER]) {
         return cachedValue[BUILD_NUMBER]!
     }
+    return undefined;
+}
+
+export async function fetchLocationsList() {
+
+    const cachedLocations = getLocationsFromCache()
+    if (cachedLocations) return cachedLocations
 
     const { data, error } = await supabase
         .from('coordinates')
