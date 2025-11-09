@@ -155,6 +155,8 @@ const Map: Component<MapProps> = ({ locations }) => {
                     enableMap();
                     document.addEventListener('click', () => marker.closePopup(), { once: true, signal: abortController.signal })
                     document.addEventListener('touchstart', () => marker.closePopup(), { once: true, signal: abortController.signal })
+                    // Zoomstart has already happened, so this should work
+                    map.on('zoomstart', () => marker.closePopup(), { once: true, signal: abortController.signal })
                 });
             });
 
@@ -271,7 +273,7 @@ const Map: Component<MapProps> = ({ locations }) => {
         leafletMap()?.on("zoom viewreset moveend", applyPixelRadius);
 
         if (!locationDone) {
-            const target = Object.assign(document.createElement('div'),{
+            const target = Object.assign(document.createElement('div'), {
                 className: 'location-frame'
             })
             marker.bindPopup(target, {
@@ -343,13 +345,15 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
     const closeEnough = createMemo(() => distanceFromUser() < TARGET_DISTANCE_METERS, [distanceFromUser])
 
     return <>
-        <img class="location-frame-image" src={location.imageUrl} width="300" />
-        <div class="location-frame-content">
-        <h3>{location.name}</h3>
+        <div><img class="location-frame-image" src={location.imageUrl} width="300" />
+            <div class="location-frame-content">
+                <h3>{location.name}</h3>
+            </div>
         </div>
-        {!closeEnough() && <><br /><i>Kom dichtbij om te zoeken!</i></>}
+        {!closeEnough() && <>
+            <i>Kom dichtbij om te zoeken!</i>
+        </>}
         {closeEnough() && <>
-            <hr />
             <b>Hier kom een knop <br /> naar een spelletje</b>
         </>}
     </>
