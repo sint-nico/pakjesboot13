@@ -1,6 +1,6 @@
 import { A } from "@solidjs/router";
-import { Accessor, Component, JSX, ParentComponent, children, createEffect, createMemo, createSignal, onMount } from 'solid-js';
-import { useLocation, LocationContext } from '../components/location-context';
+import { Component, JSX, ParentComponent, children, createEffect, createMemo, createSignal, onMount } from 'solid-js';
+import { useLocation } from '../components/location-context';
 import { fetchLocationsList, Location } from "../supabase";
 
 import './landing-page.css';
@@ -19,6 +19,23 @@ import moreContentImage from './more-to-come.svg?no-inline'
 import endOfPageImage from './end-of-page.svg?no-inline'
 
 export const LandingPage: Component = () => {
+
+	const [locations, setLocations] = createSignal<Location[]>()
+
+	createEffect(async () => {
+		if (locations() != undefined) return;
+
+		const fetchedLocations = await fetchLocationsList();
+		setLocations(fetchedLocations)
+
+	}, [locations])
+
+	const locationsLoading = createMemo(() => {
+		if (!locations()) return true;
+		if(locations()?.length === 0) return true;
+
+		return false;
+	}, [locations])
 
 	return <>
 		<h2>Gevonden!</h2>
@@ -63,7 +80,22 @@ export const LandingPage: Component = () => {
 				Hier komt nog meer gedichtje... <br />
 				Maar nu nog even niet
 			</p>
-			<p><A href="/zoeken/">Start</A></p>
+			<p>
+				<A 
+					href="/zoeken/" 
+					class="button start-button" 
+					aria-disabled={locationsLoading() ? 'true' : 'false'}
+					onClick={(e) => {
+						if (locationsLoading()) {
+							e.preventDefault();
+							e.stopPropagation();
+							return false;
+						}
+					}}
+				>
+					<span class="text">Start</span>
+				</A>
+			</p>
 			<EndOfPage />
 		</LocationMatch>
 		<a id="after-location" />
@@ -72,16 +104,7 @@ export const LandingPage: Component = () => {
 
 const LocationMatch: ParentComponent = (props) => {
 
-	const [locations, setLocations] = createSignal<Location[]>()
 	const locationContext = useLocation();
-
-	createEffect(async () => {
-		if (locations() != undefined) return;
-
-		const fetchedLocations = await fetchLocationsList();
-		setLocations(fetchedLocations)
-
-	}, [locations])
 
 	return <>
 		<p>
@@ -117,15 +140,14 @@ const LocationMatch: ParentComponent = (props) => {
 						Met een vrolijk “ja” staat jouw plek nu helder en klaar.</p>
 					<p>Nu de locatie bekend is, gaan we vol vertrouwen eropuit, <br />
 						de Pieten scheuren door de nacht, telefoon in de hand, op zoek naar de buit.</p>
-					{children(() => props.children)()}
 					<ScrollHere />
+					{children(() => props.children)()}
 				</>
 				if (locationContext.access() === 'unsupported') return <>
 					<p>De Wegwijspiet zoekt, maar jouw toestel kent de kaart niet,<br />
 						het mist de GPS‑kracht, benadrukt Piet.</p>
 					<p>Pak daarom een ander mobieltje of een browser die wel kan doen, <br />
 						zodat de Pieten jouw kunnen volgen van pleintje tot plantsoen.</p>
-					<ScrollHere />
 				</>
 				if (locationContext.access() === 'denied') return <>
 					<p>De Wegwijspiet zegt: “We horen niets, het blijft stil!” <br />
@@ -159,7 +181,7 @@ const LocationButton: Component<LocationButtonProps> = ({ onClick }) => {
 		return undefined
 	})
 
-	return <button onClick={onClick} class="location-button" disabled={disabled()}>
+	return <button onClick={onClick} class="button location-button" disabled={disabled()}>
 
 		<span class="label">Deel mijn locatie</span>
 		<img class="icon" src={compasIcon} />
