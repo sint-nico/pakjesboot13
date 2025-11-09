@@ -4,5 +4,36 @@
   right: 0;
   top: 0;
   bottom: 0;
-  margin: 0.5ex 2.4ex 0 2.4ex;
+  margin: -1ex 2.4ex 0 2.4ex;
+}
+
+.mini-game h3 {
+    text-align: center;
+}
+
+.mini-game .back-button {
+    position: absolute;
+    top: 3ex;
+    display: grid;
+    align-content: center;
+    justify-content: center;
+    align-items: end;
+    justify-items: center;
+    margin-left: -2ex;
+    margin-right: 1ex;
+}
+.mini-game .back-button .icon {
+    display: grid;
+    align-content: center;
+    justify-content: center;
+    justify-items: center;
+    font-size: 2em;
+    font-weight: bolder;
+    margin-bottom: -1ex;
+}
+.mini-game .back-button .text {
+    text-align: center;
+    font-size: .8em;
+    font-style: italic;
+    margin-bottom: 1ex;
 }

@@ -1,9 +1,13 @@
 import { useParams } from "@solidjs/router";
-import { Component, createMemo } from "solid-js";
+import { Component, createMemo, JSX } from "solid-js";
 import { FullScreenState, WakeLock } from "../components/screen-control";
 import { DiffGame } from '../components/mini-games/diff';
 
 import "./mini-game.css"
+
+export type MiniGame = {
+	backButton: JSX.Element
+}
 
 export const MiniGame: Component = () => {
 
@@ -18,16 +22,22 @@ export const MiniGame: Component = () => {
 		back();
 	}
 
+	const backButton = <button class="back-button" onClick={back}>
+		<span class="icon">&leftharpoonup;</span>
+		<span class="text">terug</span>
+	</button>;
+
 	const game = createMemo(() => {
-		if (gameName === 'diff') return <DiffGame />
+		if (gameName === 'diff') return <DiffGame backButton={backButton} />
 		return gameName +  " NOT YET IMPLEMENTED"
 	}, [gameName])
 
 	return <div class="mini-game">
-		<button onClick={back}>Back</button>
-		<button onClick={finish}>Skip</button>
+		
 		{game()}
 		<WakeLock />
 		<FullScreenState mode="full" />
+		
+		{/* <button onClick={finish}>Skip</button> */}
 	</div>
 }
