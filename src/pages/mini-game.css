@@ -4,7 +4,5 @@
   right: 0;
   top: 0;
   bottom: 0;
-  min-height: 100vh;
-  height: 100%;
-  margin: 0.5ex 2.4ex;
+  margin: 0.5ex 2.4ex 0 2.4ex;
 }
