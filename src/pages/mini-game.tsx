@@ -1,5 +1,6 @@
 import { useParams } from "@solidjs/router";
 import { Component } from "solid-js";
+import { FullScreenState, WakeLock } from "../components/screen-control";
 
 export const MiniGame: Component = () => {
 
@@ -19,5 +20,7 @@ export const MiniGame: Component = () => {
 		<p>{}</p>
 		<button onClick={back}>Back</button>
 		<button onClick={finish}>Finish</button>
+				<WakeLock />
+				<FullScreenState mode="full" />
 	</>
 }

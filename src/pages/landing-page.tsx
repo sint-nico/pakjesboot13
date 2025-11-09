@@ -17,6 +17,7 @@ import successIcon from './illustrations/done-round-svgrepo-com.svg'
 
 import moreContentImage from './illustrations/more-to-come.svg' 
 import endOfPageImage from './illustrations/end-of-page.svg' 
+import { FullScreenState } from "../components/screen-control";
 
 export const LandingPage: Component = () => {
 
@@ -99,6 +100,7 @@ export const LandingPage: Component = () => {
 			<EndOfPage />
 		</LocationMatch>
 		<a id="after-location" />
+		<FullScreenState mode="normal" />
 	</>
 }
 
