@@ -37,7 +37,8 @@
 .button:active {
   background: #daa400ff;
 }
-.button[disabled], .button[aria-disabled="true"]  {
+.button[disabled],
+.button[aria-disabled="true"] {
   background: #949494ff !important;
   color: #404040ff !important;
 }
@@ -106,8 +107,16 @@
   width: calc(100% + 2ex);
   margin: 0 -1ex 0 -1ex;
   border-radius: 1.2ex 1.2ex 1.2ex 1.2ex;
-  border: 1px solid #949494ff;
+  border: 2px solid #747474ff;
   background: #bdbdbdff;
+  overflow: hidden;
+}
+.illustration img {
+  width: calc(100% + 2px);
+  background: #bdbdbdff;
+  padding: 0;
+  margin: -2px;
+  margin-bottom: -1ex;
 }
 
 .phone-guy {

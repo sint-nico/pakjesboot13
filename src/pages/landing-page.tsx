@@ -212,5 +212,5 @@ const EndOfPage: Component = () => {
 }
 const PhoneIllustration: Component = () => {
 
-	return <img class="illustration" src={phoneImage} />
+	return <div class="illustration" ><img src={phoneImage} /></div>
 }
