@@ -97,3 +97,15 @@
   width: calc(100% + 4ex);
   margin: 0 -2ex 0 -3ex;
 }
+.illustration {
+  width: calc(100% + 2ex);
+  margin: 0 -1ex 0 -1ex;
+  border-radius: 1.2ex 1.2ex 1.2ex 1.2ex;
+  border: 1px solid #949494ff;
+  background: #bdbdbdff;
+}
+
+.phone-guy {
+  float: right;
+  width: 25%;
+}

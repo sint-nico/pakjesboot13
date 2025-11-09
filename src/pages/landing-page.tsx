@@ -4,7 +4,10 @@ import { useLocation, LocationContext } from '../components/location-context';
 import { fetchLocationsList, Location } from "../supabase";
 
 import './landing-page.css';
+
+import phoneGuyImage from './telefoon-piet.svg?no-inline'
 import mapImage from './kaart.png?no-inline'
+import phoneImage from './phone-illustration.png?no-inline'
 
 import compasIcon from './kompas.svg?no-inline'
 import loaderIcon from './setting-line-svgrepo-com.svg?no-inline'
@@ -19,11 +22,47 @@ export const LandingPage: Component = () => {
 
 	return <>
 		<h2>Gevonden!</h2>
+		<img src={phoneGuyImage} class='phone-guy' />
 
-		<p>TODO gedichtje met instructies</p>
+		<p>
+			TODO gedichtje met instructies<br />
+			Maar nu nog even niet
+		</p>
+		<p>
+			Hier komt nog meer gedichtje... <br />
+			Maar nu nog even niet
+		</p>
+		<p>
+			Hier komt nog meer gedichtje... <br />
+			Maar nu nog even niet
+		</p>
+		<p>
+			Hier komt nog meer gedichtje... <br />
+			Maar nu nog even niet
+		</p>
 
 		<LocationMatch>
-			<p>Hier komt nog meer gedichtje...</p>
+			<p>
+				Hier komt nog meer gedichtje... <br />
+				Maar nu nog even niet
+			</p>
+			<p>
+				Hier komt nog meer gedichtje... <br />
+				Maar nu nog even niet
+			</p>
+			<p>
+				Hier komt nog meer gedichtje... <br />
+				Maar nu nog even niet
+			</p>
+			<PhoneIllustration />
+			<p>
+				Hier komt nog meer gedichtje... <br />
+				Maar nu nog even niet
+			</p>
+			<p>
+				Hier komt nog meer gedichtje... <br />
+				Maar nu nog even niet
+			</p>
 			<p><A href="/zoeken/">Start</A></p>
 			<EndOfPage />
 		</LocationMatch>
@@ -64,7 +103,7 @@ const LocationMatch: ParentComponent = (props) => {
 				})
 			}} /> <span class="after-button">– een mooi gebaar,</span>
 			<br style="clear: both;" />
-			 en niet geheel onverwacht.
+			en niet geheel onverwacht.
 		</p>
 		<p>
 			Een venster zal je vragen: "Wil ik je de locatie ontbinden?” <br />
@@ -148,4 +187,8 @@ const MoreContent: Component = () => {
 const EndOfPage: Component = () => {
 
 	return <img class="foot-illustration" src={endOfPageImage} />
+}
+const PhoneIllustration: Component = () => {
+
+	return <img class="illustration" src={phoneImage} />
 }
