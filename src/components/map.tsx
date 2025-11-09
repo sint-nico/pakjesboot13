@@ -7,6 +7,23 @@ import { LeafletMapWrapper } from "./leaflet-wrapper";
 import { Portal, render } from "solid-js/web";
 import { errorRedirect } from "../helpers";
 
+import redGiftIcon from './markers/gift-red.svg?no-inline'
+import redWrapperIcon from './markers/wrapper-red.svg?no-inline'
+import blueGiftIcon from './markers/gift-blue.svg?no-inline'
+import blueWrapperIcon from './markers/wrapper-blue.svg?no-inline'
+import greenGiftIcon from './markers/gift-green.svg?no-inline'
+import greenWrapperIcon from './markers/wrapper-green.svg?no-inline'
+import endMarkerIcon from './markers/end.svg?no-inline'
+
+
+function getGiftIcon(name: string | undefined, done: boolean) {
+    if (name === 'slider') return !done ? redGiftIcon : redWrapperIcon
+    if (name === 'lockpick') return !done ? blueGiftIcon : blueWrapperIcon
+    if (name === 'diff') return !done ? greenGiftIcon : greenWrapperIcon
+    if (name === undefined) return endMarkerIcon
+
+    return name
+}
 /**
  * This file has nested createEffects, this causes memory leaks.
  * However, when done we redirect and this is just a joke app anyways.
@@ -222,19 +239,22 @@ const Map: Component<MapProps> = ({ locations }) => {
 
         // TODO color gift when close
         // TODO Solid Component here?
-        if (!(marker.getIcon()?.options as DivIconOptions).html)
+
+        if (!(marker.getIcon()?.options as DivIconOptions).html){
+            const iconUrl = getGiftIcon(location.game, false)
             marker.setIcon(L.divIcon({
                 html: `<div class="custom-div-icon">
                 <img
                     width="32" height="32"
                     class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive pin-img"
-                    src="https://cdn1.iconfinder.com/data/icons/icons-for-a-site-1/64/advantage_gift-64.png" />
+                    src="${iconUrl}" />
             </div>`,
                 // iconUrl: "https://cdn0.iconfinder.com/data/icons/phosphor-fill-vol-3/256/map-pin-fill-512.png", // simple icon
                 iconSize: [32, 32],
                 // 👉 Move the anchor to the centre (half width, half height)
                 iconAnchor: [16, 16],
             }));
+        }
 
 
         // Initial sizing
