@@ -5,18 +5,18 @@ import { fetchLocationsList, Location } from "../supabase";
 
 import './landing-page.css';
 
-import phoneGuyImage from './telefoon-piet.svg?no-inline'
-import mapImage from './kaart.png?no-inline'
-import phoneImage from './phone-illustration.png?no-inline'
+import phoneGuyImage from './telefoon-piet.svg' 
+import mapImage from './kaart.png' 
+import phoneImage from './phone-illustration.png' 
 
-import compasIcon from './kompas.svg?no-inline'
-import loaderIcon from './setting-line-svgrepo-com.svg?no-inline'
-import infoIcon from './info-svgrepo-com.svg?no-inline'
-import rejectedIcon from './close-round-svgrepo-com.svg?no-inline'
-import successIcon from './done-round-svgrepo-com.svg?no-inline'
+import compasIcon from './kompas.svg' 
+import loaderIcon from './setting-line-svgrepo-com.svg' 
+import infoIcon from './info-svgrepo-com.svg' 
+import rejectedIcon from './close-round-svgrepo-com.svg' 
+import successIcon from './done-round-svgrepo-com.svg' 
 
-import moreContentImage from './more-to-come.svg?no-inline'
-import endOfPageImage from './end-of-page.svg?no-inline'
+import moreContentImage from './more-to-come.svg' 
+import endOfPageImage from './end-of-page.svg' 
 
 export const LandingPage: Component = () => {
 

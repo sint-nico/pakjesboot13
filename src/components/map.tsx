@@ -7,13 +7,13 @@ import { LeafletMapWrapper } from "./leaflet-wrapper";
 import { Portal, render } from "solid-js/web";
 import { errorRedirect } from "../helpers";
 
-import redGiftIcon from './markers/gift-red.svg?no-inline'
-import redWrapperIcon from './markers/wrapper-red.svg?no-inline'
-import blueGiftIcon from './markers/gift-blue.svg?no-inline'
-import blueWrapperIcon from './markers/wrapper-blue.svg?no-inline'
-import greenGiftIcon from './markers/gift-green.svg?no-inline'
-import greenWrapperIcon from './markers/wrapper-green.svg?no-inline'
-import endMarkerIcon from './markers/end.svg?no-inline'
+import redGiftIcon from './markers/gift-red.svg' 
+import redWrapperIcon from './markers/wrapper-red.svg' 
+import blueGiftIcon from './markers/gift-blue.svg' 
+import blueWrapperIcon from './markers/wrapper-blue.svg' 
+import greenGiftIcon from './markers/gift-green.svg' 
+import greenWrapperIcon from './markers/wrapper-green.svg' 
+import endMarkerIcon from './markers/end.svg' 
 import { A } from "@solidjs/router";
 
 
@@ -31,10 +31,11 @@ function getGiftIcon(name: string | undefined, done: boolean) {
  * Don't treat this as a good example.
  */
 
-// TODO 30 or 20
-const TARGET_DISTANCE_METERS = 40;
+const TARGET_DISTANCE_METERS = 20;
 // TODO false
 const SHOW_COORDS = true;
+// TODO false
+const TEST_GAMES = true;
 
 // Helper: calculate distance in meters between two lat/lng pairs
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -352,7 +353,7 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
             <img class="location-frame-image" src={location.imageUrl} width="300" />
             <div class="location-frame-content">
                 <h3>{location.name}</h3>
-                { closeEnough() &&<A href="#" class="button location-frame-button">
+                { TEST_GAMES || closeEnough() &&<A href="#" class="button location-frame-button">
                     <span class="text">Zoek naar een aanwijzing</span>
                     <span class="status">&raquo;</span>
                 </A> }
