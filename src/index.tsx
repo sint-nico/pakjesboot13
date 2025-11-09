@@ -8,11 +8,13 @@ import { LandingPage } from './pages/landing-page'
 import { NotFoundPage } from './pages/404'
 import { Ending } from './pages/ending';
 import { Scanner } from './pages/game';
+import { MiniGame } from './pages/mini-game';
 
 export const routes = <Router base={routeBase()} root={AppRoot}>
 	<PagesReRouter>
 		<Route path="/zoeken/" component={Scanner} />
 		<Route path="/gevonden/" component={Ending} />
+		<Route path="/puzzle/:gameName" component={MiniGame} />
 		<Route path="/" component={LandingPage} />
 		<Route path="*404" component={NotFoundPage} />
 	</PagesReRouter>

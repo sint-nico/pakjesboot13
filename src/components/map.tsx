@@ -346,14 +346,14 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
         return dist;
     }, [locationContext.location, location])
 
-    const closeEnough = createMemo(() => distanceFromUser() < TARGET_DISTANCE_METERS, [distanceFromUser])
+    const closeEnough = createMemo(() => TEST_GAMES ||  distanceFromUser() < TARGET_DISTANCE_METERS, [distanceFromUser])
 
     return <>
         <div>
             <img class="location-frame-image" src={location.imageUrl} width="300" />
             <div class="location-frame-content">
                 <h3>{location.name}</h3>
-                { TEST_GAMES || closeEnough() &&<A href="#" class="button location-frame-button">
+                { closeEnough() && <A href={`/puzzle/${location.game}`} class="button location-frame-button">
                     <span class="text">Zoek naar een aanwijzing</span>
                     <span class="status">&raquo;</span>
                 </A> }
