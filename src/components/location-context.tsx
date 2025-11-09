@@ -64,6 +64,7 @@ export function LocationProvider(props: ParentProps) {
         setPositionAttempts(0)
         if (err.code === err.TIMEOUT) return;
         if (err.code === err.PERMISSION_DENIED) {
+          stopListening();
           const permissions = await getLocationPermissions()
           return setAccess(permissions?.state === 'prompt'
             ? 'idle' : 'denied')
@@ -113,7 +114,8 @@ export function LocationProvider(props: ParentProps) {
     permissions.addEventListener(
       'change',
       (ev) => {
-        if (access() === "denied" && permissionEvent(ev).currentTarget.state !== 'denied')
+        if (!!watchId && permissionEvent(ev).currentTarget.state !== 'granted') stopListening() 
+        if (access() === "denied" && permissionEvent(ev).currentTarget.state !== 'denied') 
           return setPermissions('prompt')
 
         if (!listeningRequested()) return;
