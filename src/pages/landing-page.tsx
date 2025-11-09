@@ -137,7 +137,6 @@ const LocationMatch: ParentComponent = (props) => {
 		{
 			createMemo(() => {
 				if (locationContext.access() === 'allowed') return <>					
-					<ScrollHere />
 					<p>De bel galmt luid, de Sint lacht: “Ja, ik zie je daar!” <br />
 						Met een vrolijk “ja” staat jouw plek nu helder en klaar.</p>
 					<p>Nu de locatie bekend is, gaan we vol vertrouwen eropuit, <br />
