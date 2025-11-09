@@ -52,12 +52,16 @@ export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
 				<p>Zoek de {amount} verschillen om een aanwijzing te verdienen</p>
 				<p>Je hebt {markedCount()}/{amount} gevonden.</p>
 			</> || <>
-				<p>Je hebt een aanwijzing verdiend!</p>
-				<p>Ga terug naar de kaart en zoek verder naar je volgende aanwijzing.
+				<p>
+					He hebt alle verschillen gevonden, goed gezien vriend. <br />
+					Omdat je zo je hest doet, heb je een aanwijzing verdiend!
+				</p>
+				<p>
+					Het is weer tijd om je avontuur op de kaart voort te zetten, vlug.
 				</p>
 				<button onClick={back} class="button back">
 					<span class="icon">&leftharpoonup;</span>
-					<span class="text">Ga terug</span>
+					<span class="text">Verlaat deze puzzel, en ga terug</span>
 				</button>
 			</>}
 		</div>
@@ -66,10 +70,10 @@ export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
 				<img src={originalImage} />
 				<HotSpots hotSpots={hotSpots} />
 			</div>
-			<div>
+			{markedCount() < amount  && <div>
 				<img src={alteredImage} />
 				<HotSpots hotSpots={hotSpots} />
-			</div>
+			</div>}
 		</div>
 	</div>
 }
