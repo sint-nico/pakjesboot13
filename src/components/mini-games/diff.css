@@ -36,8 +36,31 @@
   gap: 2ex;
 }
 
+#game-diff .seeker > div { 
+  position: relative;
+}
 #game-diff .seeker > div > img {
   width: 100%;
-  background: #eaeaeaff;
+  background: rgba(234, 234, 234, 1);
   border: 1px solid #7e7e7eff;
+  margin: -1px;
+  margin-top: -2px;
+}
+
+
+.hotspot {
+
+  /* TODO REMOVE */
+  background-color: rgba(0, 255, 0, 0);
+  border: 3px solid transparent;
+  border-radius: 100% 100% 100% 100%;
+  position: absolute;
+  z-index: 9;
+  aspect-ratio: 1/1;
+}
+
+.hotspot.marked {
+  border: 3px solid rgba(255, 0, 0, .7);
+  touch-action: none;
+  pointer-events: none;
 }
