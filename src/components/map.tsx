@@ -31,7 +31,9 @@ function getGiftIcon(name: string | undefined, done: boolean) {
  * Don't treat this as a good example.
  */
 
-const TARGET_DISTANCE_METERS = 30; // <-- change this to your “points”
+// TODO 30 or 20
+const TARGET_DISTANCE_METERS = 40;
+// TODO false
 const SHOW_COORDS = true;
 
 // Helper: calculate distance in meters between two lat/lng pairs
