@@ -9,6 +9,8 @@
 
 .mini-game h3 {
     text-align: center;
+    padding-top:.3ex;
+    padding-bottom:.3ex;
 }
 
 .mini-game .back-button {
