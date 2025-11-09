@@ -4,7 +4,12 @@ import { useLocation, LocationContext } from '../components/location-context';
 import { fetchLocationsList, Location } from "../supabase";
 
 import './landing-page.css';
-import kaartImage from './kaart.png?no-inline'
+import mapImage from './kaart.png?no-inline'
+import compasIcon from './kompas.svg?no-inline'
+import loaderIcon from './setting-line-svgrepo-com.svg?no-inline'
+import infoIcon from './info-svgrepo-com.svg?no-inline'
+import rejectedIcon from './close-round-svgrepo-com.svg?no-inline'
+import successIcon from './done-round-svgrepo-com.svg?no-inline'
 
 export const LandingPage: Component = () => {
 
@@ -38,7 +43,7 @@ const LocationMatch: ParentComponent = (props) => {
 			De pieten willen proberen je te lokaliseren, <br />
 			daarvoor moet je eerst de locatie‑toestemming activeren.
 		</p>
-		<div class="map" style={{ 'background-image': `url("${kaartImage}")` }}>
+		<div class="map" style={{ 'background-image': `url("${mapImage}")` }}>
 			<p>
 				Zonder hun kompas blijven ze zoeken in de koude nacht, <br />
 				dus klik snel, dan weten ze precies waar je wacht!
@@ -51,7 +56,9 @@ const LocationMatch: ParentComponent = (props) => {
 				document.getElementById('after-location')?.scrollIntoView({
 					behavior: 'smooth'
 				})
-			}} /> – een sprankelend gebaar, heel onverwacht.
+			}} /> – een mooi gebaar,
+			<br style="clear: both;" />
+			 en niet geheel onverwacht.
 		</p>
 		<p>
 			Een venster zal je vragen: "Wil ik je de locatie ontbinden?” <br />
@@ -101,9 +108,19 @@ const LocationButton: Component<LocationButtonProps> = ({ onClick }) => {
 		return true;
 	})
 
+	const statusIcon = createMemo(() => {
+		if (locationContext.access() === 'requesting') return <img class="status spin loader" src={loaderIcon} />;
+		if (locationContext.access() === 'unsupported') return <img class="status" src={rejectedIcon} />;
+		if (locationContext.access() === 'denied') return <img class="status" src={infoIcon} />;
+		if (locationContext.access() === 'allowed') return <img class="status allowed" src={successIcon} />;
+		return undefined
+	})
+
 	return <button onClick={onClick} class="location-button" disabled={disabled()}>
 
 		<span class="label">Deel mijn locatie</span>
+		<img class="icon" src={compasIcon} />
+		{statusIcon()}
 	</button>
 }
 

@@ -9,3 +9,83 @@
   text-shadow: 0 0 1px aqua,  0 0 3em black, 0 0 3px black, 0 0 3px black,
     0 0 3px black;
 }
+
+.location-button {
+  border: none;
+  background: #ffbf00ff;
+  text: white;
+  display: inline-grid;
+  border-radius: 1.2ex 1.2ex 1.2ex 1.2ex;
+  margin-left: -3ex;
+  grid-auto-flow: column; 
+  grid-template-columns: 5ex 1fr 5ex; 
+  gap: 1ex; 
+  grid-template-areas:
+    "icon text status";
+  padding: 1ex;
+  font-weight: bold;
+  float: left;
+  margin-top: 2ex;
+  margin-bottom: 2ex;
+  margin-right: 2ex;
+}
+
+.location-button:active {
+  background: #daa400ff;
+
+}
+.location-button[disabled] {
+  background: #949494ff;
+  text: black;
+}
+
+.location-button[disabled] img {
+  filter: grayscale(1);
+}
+
+.location-button span {
+  font-size: 1.2em;
+  display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+  grid-area: text;
+}
+
+
+.location-button img.icon {
+  grid-area: icon;
+  width: 5ex;
+  height: 5ex;
+}
+.location-button img.status {
+  grid-area: status;
+  width: 5ex;
+  height: 5ex;
+}
+.location-button img.status.loader {
+  opacity: .5;
+  width: 4ex;
+  height: 4ex;
+  margin: .5ex;
+}
+.location-button img.status.allowed { 
+  margin-top: -.5ex;
+}
+.spin {
+  
+  animation-name: spin;
+  animation-duration: 5000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear; 
+}
+
+@keyframes spin {
+    from {
+        transform:rotate(0deg);
+    }
+    to {
+        transform:rotate(360deg);
+    }
+}
