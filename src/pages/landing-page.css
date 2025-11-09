@@ -6,7 +6,7 @@
   padding: 3.5ex 5ex;
   filter: sepia(0.2) saturate(0.8) brightness(1.1);
   color: white;
-  text-shadow: 0 0 1px aqua,  0 0 3em black, 0 0 3px black, 0 0 3px black,
+  text-shadow: 0 0 1px aqua, 0 0 3em black, 0 0 3px black, 0 0 3px black,
     0 0 3px black;
 }
 
@@ -17,11 +17,10 @@
   display: inline-grid;
   border-radius: 1.2ex 1.2ex 1.2ex 1.2ex;
   margin-left: -3ex;
-  grid-auto-flow: column; 
-  grid-template-columns: 5ex 1fr 5ex; 
-  gap: 1ex; 
-  grid-template-areas:
-    "icon text status";
+  grid-auto-flow: column;
+  grid-template-columns: 5ex 1fr 5ex;
+  gap: 1ex;
+  grid-template-areas: "icon text status";
   padding: 1ex;
   font-weight: bold;
   float: left;
@@ -32,7 +31,6 @@
 
 .location-button:active {
   background: #daa400ff;
-
 }
 .location-button[disabled] {
   background: #949494ff;
@@ -46,13 +44,12 @@
 .location-button span {
   font-size: 1.2em;
   display: flex;
-    flex-direction: column;
-    align-content: center;
-    justify-content: center;
-    align-items: center;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
   grid-area: text;
 }
-
 
 .location-button img.icon {
   grid-area: icon;
@@ -65,27 +62,38 @@
   height: 5ex;
 }
 .location-button img.status.loader {
-  opacity: .5;
+  opacity: 0.5;
   width: 4ex;
   height: 4ex;
-  margin: .5ex;
+  margin: 0.5ex;
 }
-.location-button img.status.allowed { 
-  margin-top: -.5ex;
+.location-button img.status.allowed {
+  margin-top: -0.5ex;
 }
 .spin {
-  
   animation-name: spin;
   animation-duration: 5000ms;
   animation-iteration-count: infinite;
-  animation-timing-function: linear; 
+  animation-timing-function: linear;
 }
 
 @keyframes spin {
-    from {
-        transform:rotate(0deg);
-    }
-    to {
-        transform:rotate(360deg);
-    }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.after-button {
+  padding-top: 0.6ex;
+  display: inline-block;
+  width: calc(100% - 22ex);
+  padding-bottom: 1ex;
+}
+
+.foot-illustration {
+  width: calc(100% + 4ex);
+  margin: 0 -2ex 0 -3ex;
 }

@@ -40,3 +40,8 @@ code {
   height: 40vmin;
   pointer-events: none;
 }
+
+
+.hidden {
+  display: none;
+}

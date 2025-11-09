@@ -5,21 +5,27 @@ import { fetchLocationsList, Location } from "../supabase";
 
 import './landing-page.css';
 import mapImage from './kaart.png?no-inline'
+
 import compasIcon from './kompas.svg?no-inline'
 import loaderIcon from './setting-line-svgrepo-com.svg?no-inline'
 import infoIcon from './info-svgrepo-com.svg?no-inline'
 import rejectedIcon from './close-round-svgrepo-com.svg?no-inline'
 import successIcon from './done-round-svgrepo-com.svg?no-inline'
 
+import moreContentImage from './more-to-come.svg?no-inline'
+import endOfPageImage from './end-of-page.svg?no-inline'
+
 export const LandingPage: Component = () => {
 
 	return <>
-		<h2>Start</h2>
-		<p>Druk op start:</p>
-		<p>TODO instructies</p>
+		<h2>Gevonden!</h2>
+
+		<p>TODO gedichtje met instructies</p>
 
 		<LocationMatch>
+			<p>Hier komt nog meer gedichtje...</p>
 			<p><A href="/zoeken/">Start</A></p>
+			<EndOfPage />
 		</LocationMatch>
 		<a id="after-location" />
 	</>
@@ -56,7 +62,7 @@ const LocationMatch: ParentComponent = (props) => {
 				document.getElementById('after-location')?.scrollIntoView({
 					behavior: 'smooth'
 				})
-			}} /> – een mooi gebaar,
+			}} /> <span class="after-button">– een mooi gebaar,</span>
 			<br style="clear: both;" />
 			 en niet geheel onverwacht.
 		</p>
@@ -90,9 +96,7 @@ const LocationMatch: ParentComponent = (props) => {
 					<ScrollHere />
 				</>
 
-				return <p>
-					[Plaatje van een piet of een compas ofzo. Iets om aan te geven dat er nog iets moet gebeuren]
-				</p>
+				return <MoreContent />
 			}, [locationContext.access])()
 		}</>
 }
@@ -135,4 +139,13 @@ const ScrollHere: Component = () => {
 	})
 
 	return <a ref={setRef} />
+}
+
+const MoreContent: Component = () => {
+
+	return <img class="foot-illustration" src={moreContentImage} />
+}
+const EndOfPage: Component = () => {
+
+	return <img class="foot-illustration" src={endOfPageImage} />
 }
