@@ -3,8 +3,8 @@
   left: 0;
   right: 0;
   top: 0;
-  bottom: 0;
-  margin: -1ex 2.4ex 0 2.4ex;
+  bottom: 1ex;
+  margin: -1ex 2.4ex -1ex 2.4ex;
 }
 
 .mini-game h3 {
@@ -43,11 +43,13 @@
     justify-items: center;
     font-size: 2em;
     font-weight: bolder;
-    margin-bottom: -1ex;
+    margin-top: -.1ex;
+    margin-bottom: -.8ex;
 }
 .mini-game .big-button .text {
     text-align: center;
     font-size: .8em;
     font-style: italic;
-    margin-bottom: 1ex;
+    margin-bottom: 1.5ex;
+  font-variant: small-caps;
 }
