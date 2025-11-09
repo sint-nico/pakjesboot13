@@ -16,6 +16,7 @@
   grid-template-rows: min-content 1fr;
   gap: 0em 0em;
   margin-bottom: -0;
+  z-index:7;
 }
 
 #game-diff h3 {

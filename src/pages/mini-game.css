@@ -12,6 +12,7 @@
 }
 
 .mini-game .back-button {
+    z-index: 9;
     position: absolute;
     top: 3ex;
     display: grid;
@@ -22,7 +23,20 @@
     margin-left: -2ex;
     margin-right: 1ex;
 }
-.mini-game .back-button .icon {
+.mini-game .skip-button {
+    position: absolute;
+    z-index: 9;
+    top: 3ex;
+    right: -3ex;
+    display: grid;
+    align-content: center;
+    justify-content: center;
+    align-items: end;
+    justify-items: center;
+    margin-left: -2ex;
+    margin-right: 1ex;
+}
+.mini-game .big-button .icon {
     display: grid;
     align-content: center;
     justify-content: center;
@@ -31,7 +45,7 @@
     font-weight: bolder;
     margin-bottom: -1ex;
 }
-.mini-game .back-button .text {
+.mini-game .big-button .text {
     text-align: center;
     font-size: .8em;
     font-style: italic;

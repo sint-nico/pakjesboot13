@@ -5,9 +5,8 @@ import { DiffGame } from '../components/mini-games/diff';
 
 import "./mini-game.css"
 
-export type MiniGame = {
-	backButton: JSX.Element
-}
+// TODO should be false
+const ALLOW_SKIP = true;
 
 export const MiniGame: Component = () => {
 
@@ -22,18 +21,22 @@ export const MiniGame: Component = () => {
 		back();
 	}
 
-	const backButton = <button class="back-button" onClick={back}>
+	const backButton = <button class="big-button back-button" onClick={back}>
 		<span class="icon">&leftharpoonup;</span>
 		<span class="text">terug</span>
 	</button>;
+	const skipButton = ALLOW_SKIP && <button class="big-button skip-button" onClick={finish}>
+		<span class="icon">&leftharpoonup;</span>
+		<span class="text">SKIP</span>
+	</button>;
 
 	const game = createMemo(() => {
-		if (gameName === 'diff') return <DiffGame backButton={backButton} />
+		if (gameName === 'diff') return <DiffGame />
 		return gameName +  " NOT YET IMPLEMENTED"
 	}, [gameName])
 
 	return <div class="mini-game">
-		
+		{backButton} {skipButton}
 		{game()}
 		<WakeLock />
 		<FullScreenState mode="full" />
