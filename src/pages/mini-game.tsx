@@ -26,7 +26,6 @@ export const MiniGame: Component = () => {
 		<span class="text">terug</span>
 	</button>;
 	const skipButton = ALLOW_SKIP && <button class="big-button skip-button" onClick={finish}>
-		<span class="icon">&leftharpoonup;</span>
 		<span class="text">SKIP</span>
 	</button>;
 
