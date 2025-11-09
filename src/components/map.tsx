@@ -4,7 +4,7 @@ import "./map.css"
 import { Location, resetCache, resetGames } from '../supabase';
 import { useLocation } from './location-context';
 import { LeafletMapWrapper } from "./leaflet-wrapper";
-import { className, Portal, render } from "solid-js/web";
+import { Portal, render } from "solid-js/web";
 import { errorRedirect } from "../helpers";
 
 import redGiftIcon from './markers/gift-red.svg?no-inline'
@@ -14,6 +14,7 @@ import blueWrapperIcon from './markers/wrapper-blue.svg?no-inline'
 import greenGiftIcon from './markers/gift-green.svg?no-inline'
 import greenWrapperIcon from './markers/wrapper-green.svg?no-inline'
 import endMarkerIcon from './markers/end.svg?no-inline'
+import { A } from "@solidjs/router";
 
 
 function getGiftIcon(name: string | undefined, done: boolean) {
@@ -30,7 +31,7 @@ function getGiftIcon(name: string | undefined, done: boolean) {
  * Don't treat this as a good example.
  */
 
-const TARGET_DISTANCE_METERS = 50; // <-- change this to your “points”
+const TARGET_DISTANCE_METERS = 30; // <-- change this to your “points”
 const SHOW_COORDS = true;
 
 // Helper: calculate distance in meters between two lat/lng pairs
@@ -345,16 +346,21 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
     const closeEnough = createMemo(() => distanceFromUser() < TARGET_DISTANCE_METERS, [distanceFromUser])
 
     return <>
-        <div><img class="location-frame-image" src={location.imageUrl} width="300" />
+        <div>
+            <img class="location-frame-image" src={location.imageUrl} width="300" />
             <div class="location-frame-content">
                 <h3>{location.name}</h3>
+                { closeEnough() &&<A href="#" class="button location-frame-button">
+                    <span class="text">Zoek naar een aanwijzing</span>
+                    <span class="status">&raquo;</span>
+                </A> }
             </div>
         </div>
         {!closeEnough() && <>
-            <i>Kom dichtbij om te zoeken!</i>
+            <i>Kom dichterbij om te zoeken!</i>
         </>}
         {closeEnough() && <>
-            <b>Hier kom een knop <br /> naar een spelletje</b>
+            <i>Je bent er!</i>
         </>}
     </>
 }

@@ -46,7 +46,7 @@
   filter: grayscale(1);
 }
 
-.button span {
+.button span.text {
   font-size: 1.2em;
   display: flex;
   flex-direction: column;
@@ -61,7 +61,7 @@
   width: 5ex;
   height: 5ex;
 }
-.location-button img.status {
+.button .status {
   grid-area: status;
   width: 5ex;
   height: 5ex;

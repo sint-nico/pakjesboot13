@@ -219,9 +219,16 @@ div.debug pre {
     rgba(0, 0, 0, 1) 100%
   );
 }
+
+.location-frame i {
+  font-size: 1.3em;
+  text-align: center;
+  width: 100%;
+  display: inline-block;
+  padding-bottom: 0.5ex;
+}
 .location-frame-image {
-  
-    border-radius: 1ex 1ex 1ex 1ex;
+  border-radius: 1ex 1ex 1ex 1ex;
 }
 .location-frame-content h3 {
   margin: 0;
@@ -237,4 +244,33 @@ div.debug pre {
 .location-frame > div {
   position: relative;
   border-radius: 1ex 1ex 1ex 1ex;
+}
+
+
+a.button.location-frame-button {
+  background-color: rgba(255,255,255, .7) !important;
+  color: white;
+  width: calc(100% - 4ex);
+  margin: 1ex;  
+  border-radius: 1ex 1ex 1ex 1ex;
+    position: absolute;
+    bottom: 1ex;
+    color: black;
+    text-shadow: 0 0 2px white,0 0 2px white,0 0 4px white;
+}
+a.button.location-frame-button:active {
+  background-color: rgba(255,255,255) !important;
+}
+
+.status {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    line-height: 1em;
+    overflow: hidden;
+    margin: -1.2ex;
+    font-weight: lighter;
 }
