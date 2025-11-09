@@ -4,7 +4,7 @@ import "./map.css"
 import { Location, resetCache, resetGames } from '../supabase';
 import { useLocation } from './location-context';
 import { LeafletMapWrapper } from "./leaflet-wrapper";
-import { Portal, render } from "solid-js/web";
+import { className, Portal, render } from "solid-js/web";
 import { errorRedirect } from "../helpers";
 
 import redGiftIcon from './markers/gift-red.svg?no-inline'
@@ -271,12 +271,14 @@ const Map: Component<MapProps> = ({ locations }) => {
         leafletMap()?.on("zoom viewreset moveend", applyPixelRadius);
 
         if (!locationDone) {
-            marker.bindPopup(document.createElement('div'), {
+            const target = Object.assign(document.createElement('div'),{
+                className: 'location-frame'
+            })
+            marker.bindPopup(target, {
                 autoPan: false,
-                autoClose: false
+                autoClose: false,
             });
 
-            const target = marker.getPopup()?.getContent() as HTMLElement;
             const dispose = createRoot(disposeRoot => {
                 // Solid will render into the wrapper.
                 render(() => <MarkerFrame location={location} />, target);
@@ -340,15 +342,17 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
 
     const closeEnough = createMemo(() => distanceFromUser() < TARGET_DISTANCE_METERS, [distanceFromUser])
 
-    return <div>
+    return <>
+        <img class="location-frame-image" src={location.imageUrl} width="300" />
+        <div class="location-frame-content">
         <h3>{location.name}</h3>
-        <p>{distanceFromUser()} {closeEnough() ? 'close' : 'not close'}</p>
+        </div>
         {!closeEnough() && <><br /><i>Kom dichtbij om te zoeken!</i></>}
         {closeEnough() && <>
             <hr />
             <b>Hier kom een knop <br /> naar een spelletje</b>
         </>}
-    </div>
+    </>
 }
 
 /**

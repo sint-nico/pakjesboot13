@@ -194,3 +194,31 @@ div.debug pre {
   pointer-events: none;
   z-index: -1;
 }
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  overflow: hidden;
+  border: 3px solid white;
+  border-radius: 2ex 2ex 2ex 2ex;
+}
+
+.location-frame-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  color: white;
+background: linear-gradient(0deg,rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.25) 50%, rgba(0, 0, 0, 1) 100%);
+}
+.location-frame-content h3 {
+  margin: 0;
+  margin-left: 1ex;
+  margin-top: 1ex;
+  font-size: 2em;
+  text-shadow: 0 0 1px yellow, 0 0 3em black, 0 0 3px black, 0 0 3px black,
+    0 0 3px black;
+}
+.location-frame {
+  position: relative;
+}
