@@ -1,7 +1,7 @@
 import { Accessor, Component, createEffect, createMemo, createRoot, createSignal, getOwner, onCleanup, ParentComponent } from "solid-js";
 import L, { DivIconOptions, LatLng, Map as LeafletMap, Marker } from "leaflet";
 import "./map.css"
-import { Location, resetCache } from '../supabase';
+import { Location, resetCache, resetGames } from '../supabase';
 import { useLocation } from './location-context';
 import { LeafletMapWrapper } from "./leaflet-wrapper";
 import { Portal, render } from "solid-js/web";
@@ -213,11 +213,11 @@ const Map: Component<MapProps> = ({ locations }) => {
             setMapLocation(initialLatLong)
         }
 
-        try { 
+        try {
             map.getCenter();
             mapLoad()
-        } 
-        finally{
+        }
+        finally {
             //
         }
 
@@ -240,43 +240,52 @@ const Map: Component<MapProps> = ({ locations }) => {
         // TODO color gift when close
         // TODO Solid Component here?
 
-        if (!(marker.getIcon()?.options as DivIconOptions).html){
-            const iconUrl = getGiftIcon(location.game, false)
+        if (!(marker.getIcon()?.options as DivIconOptions).html) {
+            const target = document.createElement('div')
             marker.setIcon(L.divIcon({
-                html: `<div class="custom-div-icon">
-                <img
-                    width="32" height="32"
-                    class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive pin-img"
-                    src="${iconUrl}" />
-            </div>`,
+                html: target,
                 // iconUrl: "https://cdn0.iconfinder.com/data/icons/phosphor-fill-vol-3/256/map-pin-fill-512.png", // simple icon
                 iconSize: [32, 32],
                 // 👉 Move the anchor to the centre (half width, half height)
                 iconAnchor: [16, 16],
             }));
+
+            const dispose = createRoot(disposeRoot => {
+                // Solid will render into the wrapper.
+                render(() => <MarkerIcon location={location} />, target);
+                // Return the disposer for the caller.
+                return disposeRoot;
+                // Use the component's owner to allow access to contexts
+            }, renderOwner);
+            abortController.signal.addEventListener('abort', dispose, { once: true });
         }
 
 
         // Initial sizing
         applyPixelRadius();
 
+
+        const locationDone = localStorage[`game-done-${location.game}`] === 'true'
+
         // Re‑compute on every zoom/pan (any view change)
         leafletMap()?.on("zoom viewreset moveend", applyPixelRadius);
 
-        marker.bindPopup(document.createElement('div'), {
-            autoPan: false,
-            autoClose: false
-        });
+        if (!locationDone) {
+            marker.bindPopup(document.createElement('div'), {
+                autoPan: false,
+                autoClose: false
+            });
 
-        const target = marker.getPopup()?.getContent() as HTMLElement;
-        const dispose = createRoot(disposeRoot => {
-            // Solid will render into the wrapper.
-            render(() => <MarkerFrame location={location} />, target);
-            // Return the disposer for the caller.
-            return disposeRoot;
-            // Use the component's owner to allow access to contexts
-        }, renderOwner);
-        abortController.signal.addEventListener('abort', dispose, { once: true });
+            const target = marker.getPopup()?.getContent() as HTMLElement;
+            const dispose = createRoot(disposeRoot => {
+                // Solid will render into the wrapper.
+                render(() => <MarkerFrame location={location} />, target);
+                // Return the disposer for the caller.
+                return disposeRoot;
+                // Use the component's owner to allow access to contexts
+            }, renderOwner);
+            abortController.signal.addEventListener('abort', dispose, { once: true });
+        }
         return Object.assign(marker, { location }) as L.Marker & { location: Location };
     }
 
@@ -399,7 +408,10 @@ const MapOverlay: ParentComponent<{
             {locationLost() && <div class="notifications">Oeps we zijn je even kwijt...</div>}
         </div>
         {SHOW_COORDS && <Portal ref={stylePortal} mount={document.body}>
-            <button onClick={() => { resetCache(); errorRedirect('cache emptied'); }}>Clear cache</button>
+            <div>
+                <button onClick={() => { resetCache(); errorRedirect('cache emptied'); }}>Clear cache</button>
+                <button onClick={() => { resetGames(); }}>Reset games</button>
+            </div>
             <pre>
                 ({locationContext.location().latitude},{locationContext.location().longitude}) {status()} <br />
                 markers: {markers().length} map: {mapInitialized()}
@@ -407,4 +419,24 @@ const MapOverlay: ParentComponent<{
         </Portal>}
         {children}
     </>
+}
+
+
+
+type MarkerIconProps = {
+    location: Location
+}
+const MarkerIcon: Component<MarkerIconProps> = ({ location }) => {
+
+    const locationDone = localStorage[`game-done-${location.game}`] === 'true'
+    const iconUrl = getGiftIcon(location.game, locationDone)
+
+    return <div class={locationDone ? "custom-div-icon open" : "custom-div-icon done"}>
+        <img
+            width="32" height="32"
+            alt={location.game}
+            class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive pin-img"
+            src={iconUrl}
+        />
+    </div>
 }

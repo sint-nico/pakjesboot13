@@ -72,7 +72,20 @@ function fromGoogle(url: string) {
 export function resetCache() {
     localStorage.removeItem(CACHE_KEY)
 }
+export function resetGames() {
+    for (const key in localStorage) {
+        if (!key.startsWith('game-done-')) continue
+        localStorage.removeItem(key)
+    }
+
+    window.location.reload();
+}
 
 if (import.meta.env.DEV) {
-    (window as any).resetCache = resetCache
+    (window as any).resetCache = resetCache;
+    (window as any).resetGames = resetGames;
+    (window as any).finishGame = (gameName: string) => {
+        localStorage[`game-done-${gameName}`] = true;
+        window.location.reload();
+    }
 }
