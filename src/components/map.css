@@ -262,7 +262,7 @@ a.button.location-frame-button:active {
   background-color: rgba(255,255,255) !important;
 }
 
-.status {
+a.button.location-frame-button .status {
     display: flex;
     flex-direction: column;
     align-content: center;
