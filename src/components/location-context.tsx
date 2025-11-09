@@ -1,4 +1,4 @@
-import { Accessor, createContext, createSignal, onCleanup, onMount, ParentProps, useContext } from "solid-js";
+import { Accessor, createContext, createEffect, createSignal, onCleanup, onMount, ParentProps, useContext } from "solid-js";
 
 export type Coordinates = Pick<GeolocationCoordinates, 'latitude' | 'longitude' | 'accuracy' | 'altitude' | 'toJSON'>
 type AccessState = 'idle' | 'requesting' | 'allowed' | 'denied' | 'unsupported';
@@ -15,12 +15,18 @@ function getLocationPermissions() {
   return navigator.permissions.query({ name: 'geolocation' });
 }
 
+function getDefaultCoord(latOrLng: string) {
+  const storedLocation = localStorage.getItem('last-' + latOrLng)
+  if (storedLocation) return parseFloat(storedLocation)
+  return 0;
+}
+
 const locationContext = createContext<LocationContext>({
   access: () => "geolocation" in navigator
     ? 'idle'
     : 'unsupported' as AccessState,
   location: () => ({
-    latitude: 0, longitude: 0, accuracy: -1, altitude: 0, toJSON() {
+    latitude: getDefaultCoord('lat'), longitude: getDefaultCoord('lng'), accuracy: -1, altitude: 0, toJSON() {
       return 'NO_DATA'
     },
   } as Coordinates),
@@ -35,6 +41,14 @@ export function LocationProvider(props: ParentProps) {
   const [location, setLocation] = createSignal(locationContext.defaultValue.location());
   const [access, setAccess] = createSignal<AccessState>(locationContext.defaultValue.access());
   const [listeningRequested, setListeningRequested] = createSignal(false);
+
+  createEffect(() => {
+    const { latitude, longitude } = location()
+    if (latitude === 0 && longitude === 0) return
+
+    localStorage.setItem('last-lat', latitude.toString());
+    localStorage.setItem('last-lng', longitude.toString());
+  }, [location])
 
   function startListening() {
     try {
@@ -60,7 +74,7 @@ export function LocationProvider(props: ParentProps) {
           setLocation(locationContext.defaultValue.location());
           console.warn(err)
           return;
-        } 
+        }
         setPositionAttempts(0)
         if (err.code === err.TIMEOUT) return;
         if (err.code === err.PERMISSION_DENIED) {
@@ -80,6 +94,8 @@ export function LocationProvider(props: ParentProps) {
   }
 
   function stopListening() {
+    localStorage.removeItem('last-lat');
+    localStorage.removeItem('last-lng');
     if (!watchId) return;
     navigator.geolocation.clearWatch(watchId);
     watchId = undefined;
@@ -114,8 +130,8 @@ export function LocationProvider(props: ParentProps) {
     permissions.addEventListener(
       'change',
       (ev) => {
-        if (!!watchId && permissionEvent(ev).currentTarget.state !== 'granted') stopListening() 
-        if (access() === "denied" && permissionEvent(ev).currentTarget.state !== 'denied') 
+        if (!!watchId && permissionEvent(ev).currentTarget.state !== 'granted') stopListening()
+        if (access() === "denied" && permissionEvent(ev).currentTarget.state !== 'denied')
           return setPermissions('prompt')
 
         if (!listeningRequested()) return;
