@@ -431,7 +431,7 @@ const MarkerIcon: Component<MarkerIconProps> = ({ location }) => {
     const locationDone = localStorage[`game-done-${location.game}`] === 'true'
     const iconUrl = getGiftIcon(location.game, locationDone)
 
-    return <div class={locationDone ? "custom-div-icon open" : "custom-div-icon done"}>
+    return <div class={locationDone ? "custom-div-icon done" : "custom-div-icon open"}>
         <img
             width="32" height="32"
             alt={location.game}
