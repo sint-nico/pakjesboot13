@@ -1,0 +1,41 @@
+#game-diff {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    min-height: calc(100vh - 3ex);
+    height: calc(100% - 3ex);
+    display: grid;
+    align-content: space-between;
+    justify-content: center;
+    align-items: end;
+    justify-items: stretch;
+    grid-auto-flow: column;
+    grid-auto-rows: 1fr;
+    grid-template-rows: min-content 1fr;
+    gap: 0em 0em;
+    margin-bottom: 0;
+}
+
+#game-diff h3 {
+  margin-bottom: 0;
+}
+#game-diff .seeker {
+  background: #eaeaeaff;
+  border: 1px solid #7e7e7eff;
+  padding: 1ex;
+  margin: -2ex;
+  margin-top: 0;
+  margin-bottom: -2ex;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: space-around;
+    align-items: stretch;
+}
+
+#game-diff .seeker > div > img {
+    width: 100%;
+}
