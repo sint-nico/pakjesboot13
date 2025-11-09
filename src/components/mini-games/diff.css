@@ -20,7 +20,10 @@
 }
 
 #game-diff h3 {
-  margin-bottom: 0;
+  margin-bottom: 1ex;
+}
+#game-diff p {
+  margin-top: 0;
 }
 #game-diff .seeker {
   padding: 1ex;
@@ -63,4 +66,11 @@
   border: 3px solid rgba(255, 0, 0, .7);
   touch-action: none;
   pointer-events: none;
+}
+
+
+#game-diff .button.back {
+  width: 100%;
+  margin-left:0;
+  margin-top:0;
 }

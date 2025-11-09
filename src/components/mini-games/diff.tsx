@@ -4,6 +4,7 @@ import "./diff.css";
 
 import originalImage from './diff/original.png'
 import alteredImage from './diff/changed.png'
+import { MiniGame } from "../../pages/mini-game";
 
 const coordinates = [
 	// Book -> Phone
@@ -15,18 +16,19 @@ const coordinates = [
 	// Lantern
 	[20, 10, 15],
 	// Cat -> Gift
-	[76, 65, 15]
+	[74, 62, 22]
 ] as [x: number, y: number, size: number][]
 
-export const DiffGame: Component = () => {
+export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
 
 	const [hotSpots, setHotspots] = createSignal<HotSpot[]>(coordinates.map((coordinate, i) => ({
-		marked: false,
+		marked: localStorage[`game-diff-marked-${i}`] === 'true',
 		coordinate,
 		onClick() {
 			setHotspots(original => {
 				const newValue = [...original]			
-				newValue[i].marked = true	
+				newValue[i].marked = true;	
+				localStorage[`game-diff-marked-${i}`] = true
 				return newValue;
 			})
 		}
@@ -38,13 +40,26 @@ export const DiffGame: Component = () => {
 		return hotSpots().filter(h => h.marked).length
 	}, [ hotSpots])
 
-
+	createEffect(() => {
+		if((markedCount() < amount)) return;
+		finish();
+	}, [markedCount])
 
     return <div id="game-diff">
 		<div>
 			<h3>Zoek de verschillen</h3>
-			<p>Zoek de {amount} verschillen om een aanwijzing te verdienen</p>
-			<p>Je hebt {markedCount()}/{amount} gevonden.</p>
+			{markedCount() < amount  && <>
+				<p>Zoek de {amount} verschillen om een aanwijzing te verdienen</p>
+				<p>Je hebt {markedCount()}/{amount} gevonden.</p>
+			</> || <>
+				<p>Je hebt een aanwijzing verdiend!</p>
+				<p>Ga terug naar de kaart en zoek verder naar je volgende aanwijzing.
+				</p>
+				<button onClick={back} class="button back">
+					<span class="icon">&leftharpoonup;</span>
+					<span class="text">Ga terug</span>
+				</button>
+			</>}
 		</div>
 		<div class="seeker">
 			<div>

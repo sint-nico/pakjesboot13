@@ -74,7 +74,7 @@ export function resetCache() {
 }
 export function resetGames() {
     for (const key in localStorage) {
-        if (!key.startsWith('game-done-')) continue
+        if (!key.startsWith('game-')) continue
         localStorage.removeItem(key)
     }
 
