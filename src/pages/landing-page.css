@@ -37,7 +37,7 @@
 .button:active {
   background: #daa400ff;
 }
-.button[disabled], .button[aria-disabled]  {
+.button[disabled], .button[aria-disabled="true"]  {
   background: #949494ff !important;
   color: #404040ff !important;
 }

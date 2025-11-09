@@ -84,7 +84,7 @@ export const LandingPage: Component = () => {
 				<A 
 					href="/zoeken/" 
 					class="button start-button" 
-					aria-disabled={locationsLoading() ? 'true' : 'false'}
+					aria-disabled={locationsLoading() ? 'true' : undefined}
 					onClick={(e) => {
 						if (locationsLoading()) {
 							e.preventDefault();
