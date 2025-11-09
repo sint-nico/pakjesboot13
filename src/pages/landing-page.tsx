@@ -183,7 +183,7 @@ const LocationButton: Component<LocationButtonProps> = ({ onClick }) => {
 
 	return <button onClick={onClick} class="button location-button" disabled={disabled()}>
 
-		<span class="label">Deel mijn locatie</span>
+		<span class="text">Deel mijn locatie</span>
 		<img class="icon" src={compasIcon} />
 		{statusIcon()}
 	</button>
