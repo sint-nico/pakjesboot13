@@ -3,7 +3,7 @@ import solid from 'vite-plugin-solid'
 import preload from "vite-plugin-preload"
 import UnpluginInjectPreload from 'unplugin-inject-preload/vite'
 
-import packageJson from './package.json' assert { type: 'json' }
+import packageJson from './package.json' with { type: 'json' }
 
 
 export default gitHubSpaConfig(packageJson, {

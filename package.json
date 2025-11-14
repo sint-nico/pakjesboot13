@@ -12,20 +12,20 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.22.0",
   "dependencies": {
-    "@quick-vite/gh-pages-spa": "^7.0.1",
-    "@solidjs/router": "^0.15.3",
-    "@supabase/supabase-js": "^2.78.0",
+    "@quick-vite/gh-pages-spa": "^7.0.2",
+    "@solidjs/router": "^0.15.4",
+    "@supabase/supabase-js": "^2.81.1",
     "leaflet": "^1.9.4",
-    "solid-js": "^1.9.5"
+    "solid-js": "^1.9.10"
   },
   "devDependencies": {
-    "@types/leaflet": "^1.9.20",
-    "typescript": "^5.1.3",
+    "@types/leaflet": "^1.9.21",
+    "typescript": "^5.9.3",
     "unplugin-inject-preload": "^3.0.0",
-    "vite": "^4.5.14",
+    "vite": "^7.2.2",
     "vite-plugin-preload": "^0.4.4",
-    "vite-plugin-solid": "^2.11.8"
+    "vite-plugin-solid": "^2.11.10"
   }
 }
