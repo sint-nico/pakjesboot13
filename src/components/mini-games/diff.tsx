@@ -25,6 +25,7 @@ export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
 	const [hotSpots, setHotspots] = createSignal<HotSpot[]>(coordinates.map((coordinate, i) => ({
 		marked: localStorage[`game-diff-marked-${i}`] === 'true',
 		coordinate,
+		i,
 		onClick() {
 			setHotspots(original => {
 				const newValue = [...original]
@@ -36,6 +37,19 @@ export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
 	}) as HotSpot))
 
 	const amount = hotSpots().length;
+
+	function reset() {
+		console.log('reset')
+		if (localStorage[`game-done-diff`] === 'true') return;
+		setHotspots(() => {
+			const val = [...hotSpots()]
+			for(const hotSpot of val) {
+				localStorage[`game-diff-marked-${hotSpot.i}`] = false
+				hotSpot.marked = false
+			}
+			return val
+		})
+	}
 
 	const markedCount = createMemo(() => {
 		return hotSpots().filter(h => h.marked).length
@@ -54,11 +68,11 @@ export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
 		</div>
 		<div class="seeker">
 			<div>
-				<img src={originalImage} />
+				<img src={originalImage} onClick={reset} />
 				<HotSpots hotSpots={hotSpots} />
 			</div>
 			<div>
-				<img src={alteredImage} />
+				<img src={alteredImage} onClick={reset} />
 				<HotSpots hotSpots={hotSpots} />
 			</div>
 		</div>
@@ -83,6 +97,7 @@ export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
 
 type HotSpot = {
 	marked: boolean
+	i: number
 	coordinate: [x: number, y: number, size: number]
 	onClick(): void
 }

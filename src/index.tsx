@@ -20,7 +20,7 @@ const gameFilter: MatchFilters = {
   },
 };
 
-export const routes = <Router base={routeBase()} root={AppRoot}>
+export const routes = () => <Router base={routeBase()} root={AppRoot}>
 	<PagesReRouter>
 		<Route path="/zoeken/" component={Scanner} />
 		<Route path="/gevonden/" component={Ending} />
@@ -30,4 +30,4 @@ export const routes = <Router base={routeBase()} root={AppRoot}>
 	</PagesReRouter>
 </Router>
 
-render(() => routes, document.getElementById('root')!)
+render(routes, document.getElementById('root')!)
