@@ -1,10 +1,5 @@
 .mini-game {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 1ex;
-  margin: -1ex 2.4ex -1ex 2.4ex;
+  position: relative;
 }
 
 .mini-game h3 {

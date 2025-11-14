@@ -18,6 +18,7 @@ import successIcon from './illustrations/done-round-svgrepo-com.svg'
 import moreContentImage from './illustrations/more-to-come.svg' 
 import endOfPageImage from './illustrations/end-of-page.svg' 
 import { FullScreenState } from "../components/screen-control";
+import { ScrollHere } from "../components/scroll-here";
 
 export const LandingPage: Component = () => {
 
@@ -189,18 +190,6 @@ const LocationButton: Component<LocationButtonProps> = ({ onClick }) => {
 	</button>
 }
 
-const ScrollHere: Component = () => {
-
-	const [ref, setRef] = createSignal<HTMLAnchorElement>();
-
-	onMount(() => {
-		ref()?.scrollIntoView({
-			behavior: 'smooth'
-		})
-	})
-
-	return <a ref={setRef} />
-}
 
 const MoreContent: Component = () => {
 

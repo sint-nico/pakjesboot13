@@ -1,22 +1,14 @@
 #game-diff {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
   min-height: calc(100vh - 3ex);
-  height: calc(100% - 3ex);
-  display: grid;
-  align-content: space-between;
-  justify-content: center;
-  align-items: end;
-  justify-items: stretch;
-  grid-auto-flow: column;
-  grid-auto-rows: 1fr;
-  grid-template-rows: min-content 1fr;
+  display: flex;
+  align-content: center;
+  justify-content: space-between;
+  align-items: center;
   gap: 0em 0em;
-  margin-bottom: -0;
-  z-index:7;
+  margin-bottom: 2ex;;
+  z-index: 7;
+  flex-direction: column;
+  flex-wrap: nowrap;
 }
 
 #game-diff h3 {
@@ -27,9 +19,10 @@
 }
 #game-diff .seeker {
   padding: 1ex;
+  padding-bottom: 0;
   margin: -2ex;
   margin-top: 0;
-  margin-bottom: -2ex;
+  margin-bottom: 1ex;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
