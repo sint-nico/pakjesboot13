@@ -8,7 +8,6 @@
     "isolatedModules": true,
     "allowJs": true,
     "lib": ["ES2024.ArrayBuffer", "ES2017.TypedArrays", "ES2024", "DOM"],
-    "types": [ "solid-js/jsx-runtime", "vite/client" ],
 	  "jsx": "preserve",
 	  "jsxImportSource": "solid-js",
 
@@ -27,7 +26,7 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-	"include": ["src/**.*"],
+	"include": ["src"],
   "typeAcquisition": {
     "exclude": ["@types/node"]
   }
