@@ -19,7 +19,7 @@ import { A } from "@solidjs/router";
 
 function getGiftIcon(name: string | undefined, done: boolean) {
     if (name === 'slider') return !done ? redGiftIcon : redWrapperIcon
-    if (name === 'lockpick') return !done ? blueGiftIcon : blueWrapperIcon
+    if (name === 'simon') return !done ? blueGiftIcon : blueWrapperIcon
     if (name === 'diff') return !done ? greenGiftIcon : greenWrapperIcon
     if (name === undefined) return endMarkerIcon
 

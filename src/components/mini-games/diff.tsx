@@ -1,5 +1,6 @@
 import { Accessor, Component, createEffect, createMemo, createSignal } from "solid-js";
 
+import "./mini-game.css";
 import "./diff.css";
 
 import originalImage from './diff/original.png'
@@ -60,7 +61,7 @@ export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
 		finish();
 	}, [markedCount])
 
-	return <div id="game-diff">
+	return <div class="game" id="game-diff">
 		<div>
 			<h3>Zoek de verschillen</h3>
 			<p>Zoek de {amount} verschillen om een aanwijzing te verdienen</p>

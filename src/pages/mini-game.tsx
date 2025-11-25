@@ -4,6 +4,7 @@ import { FullScreenState, WakeLock } from "../components/screen-control";
 import { DiffGame } from '../components/mini-games/diff';
 
 import "./mini-game.css"
+import { SimonSaysGame } from "../components/mini-games/simon";
 
 // TODO should be false
 const ALLOW_SKIP = true;
@@ -38,6 +39,7 @@ export const MiniGame: Component = () => {
 
 	const game = createMemo(() => {
 		if (gameName === 'diff') return <DiffGame back={back} finish={finish} />
+		if (gameName === 'simon') return <SimonSaysGame back={back} finish={finish} />
 		return gameName +  " NOT YET IMPLEMENTED"
 	}, [gameName])
 
@@ -46,7 +48,5 @@ export const MiniGame: Component = () => {
 		{game()}
 		<WakeLock />
 		<FullScreenState mode="full" />
-		
-		{/* <button onClick={finish}>Skip</button> */}
 	</div>
 }
