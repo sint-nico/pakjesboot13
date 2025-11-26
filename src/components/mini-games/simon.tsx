@@ -1,4 +1,4 @@
-import { Accessor, Component, createEffect, createMemo, createSignal } from "solid-js";
+import { Accessor, Component, createEffect, createMemo, createSignal, onCleanup } from "solid-js";
 import { MiniGame } from "../../pages/mini-game";
 import { ScrollHere } from "../scroll-here";
 
@@ -7,6 +7,7 @@ import "./simon.css";
 
 import simonSvg from './simon/sinterklaas-simon-says.svg?raw'
 import simonTab from './simon/deur.tab.txt?raw'
+import { useAudio } from "../audio-context";
 
 type TabData = (typeof rounds)[number][number];
 type Color = 'red' | 'green' | 'blue' | 'yellow'
@@ -68,28 +69,39 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, back }) => {
 	const [svgElement, svgRef] = createSignal<HTMLDivElement>();
 	const [round, setRound] = createSignal(0);
 
-	createEffect(() => {
+	const { ctx } = useAudio();
+
+	createEffect(async () => {
 		const svg = svgElement();
 		if (!svg) return;
+		const context = ctx();
 
-		const squares: Record<Color, SVGPathElement> = {
+		const squares = {
 			red: svg.querySelector<SVGPathElement>('#red')!,
 			green: svg.querySelector<SVGPathElement>('#green')!,
 			blue: svg.querySelector<SVGPathElement>('#blue')!,
-			yellow: svg.querySelector<SVGPathElement>('#yellow')!
+			yellow: svg.querySelector<SVGPathElement>('#yellow')!, 
+			all(action: (square: SVGPathElement) => void) {
+				action(squares.red)
+				action(squares.green)
+				action(squares.blue)
+				action(squares.yellow)
+			}
 		}
 
-		squares.red.style.display = 'none';
-		squares.green.style.display = 'none';
-		squares.blue.style.display = 'none';
-		squares.yellow.style.display = 'none';
-
+		squares.all(s => s.style.display = 'none');
 		
-		const buttons: Record<Color, SVGCircleElement> = {
+		const buttons = {
 			red: svg.querySelector<SVGCircleElement>('#btn-red')!,
 			green: svg.querySelector<SVGCircleElement>('#btn-green')!,
 			blue: svg.querySelector<SVGCircleElement>('#btn-blue')!,
-			yellow: svg.querySelector<SVGCircleElement>('#btn-yellow')!
+			yellow: svg.querySelector<SVGCircleElement>('#btn-yellow')!, 
+			all(action: (button: SVGPathElement) => void) {
+				action(buttons.red)
+				action(buttons.green)
+				action(buttons.blue)
+				action(buttons.yellow)
+			}
 		}
 		const colors: Record<Color, string> = {
 			red: buttons.red.style.fill,
@@ -97,21 +109,18 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, back }) => {
 			blue: buttons.red.style.fill,
 			yellow: buttons.red.style.fill
 		}
-		buttons.red.style.fill = 'white';
-		buttons.red.style.opacity = '.5';
-		buttons.red.style.display = 'none';
-		buttons.green.style.fill = 'white';
-		buttons.green.style.opacity = '.5';
-		buttons.green.style.display = 'none';
-		buttons.blue.style.fill = 'white';
-		buttons.blue.style.opacity = '.5';
-		buttons.blue.style.display = 'none';
-		buttons.yellow.style.fill = 'white';
-		buttons.yellow.style.opacity = '.5';
-		buttons.yellow.style.display = 'none';
+		buttons.all(b => b.style.fill = 'white');
+		buttons.all(b => b.style.opacity = '.5');
+		buttons.all(b => b.style.display = 'none');
 
 		const miterBtn = svg.querySelector<SVGElement>('#miter')!;
 		miterBtn.onclick = game;
+
+		
+		if (!context) return;
+		const gain = createGain(context);
+
+		await playTone(context!, gain, 82.41);
 
 		function blink(d: number) { return new Promise(r => setTimeout(r, d)) }
 		async function game() {
@@ -128,7 +137,7 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, back }) => {
 					setRound(r => r+1)
 					for (const record of round) {
 						squares[record.color].style.display = 'unset';
-						await playTone(getNoteFrequency(record.stringName, record.fret))
+						await playTone(context!, gain, getNoteFrequency(record.stringName, record.fret))
 						squares[record.color].style.display = 'none';
 						await blink(200)
 					}
@@ -152,7 +161,7 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, back }) => {
 			}
 		}
 
-	}, [svgElement])
+	}, [svgElement, ctx])
 
 	return <div class="game" id="game-simon">
 		<div>
@@ -185,39 +194,29 @@ function getNoteFrequency(stringName: TabData['stringName'], fret: number) {
 	return baseFrequencies[stringName] * Math.pow(2, (fret + fretOffset) / 12);
 }
 
-function getContext() {
+function createGain(context: AudioContext) {
+	
+	const gain = context.createGain();
+	gain.connect(context.destination);
 
-	if (ctx) return ctx;
-	ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-	console.log('setcontext')
-	return ctx
+	return gain
 }
+function playTone(context: AudioContext, gain: GainNode, freq: number, duration = 500) {
 
-let ctx: AudioContext | undefined = undefined;
-window.addEventListener('touchstart', getContext);
-window.addEventListener('click', getContext);
-window.addEventListener('scroll', getContext);
-
-function playTone(freq: number, duration = 500) {
-
-	ctx ??= getContext();
-
-	const osc = ctx.createOscillator();
-	const gain = ctx.createGain();
-
+	const osc = context.createOscillator();
 	osc.type = "sine";
 
 	osc.connect(gain);
-	gain.connect(ctx.destination);
 
 	osc.frequency.value = freq;
 	osc.start();
+	onCleanup(() => osc.stop());
 
 	// fade out
-	gain.gain.setValueAtTime(1, ctx.currentTime);
-	gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration / 1000);
+	gain.gain.setValueAtTime(1, context.currentTime);
+	gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + duration / 1000);
 
-	osc.stop(ctx.currentTime + duration / 1000);
+	osc.stop(context.currentTime + duration / 1000);
 
 	return new Promise<void>(res => {
 		osc.onended = () => res();
