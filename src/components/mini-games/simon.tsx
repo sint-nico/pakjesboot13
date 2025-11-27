@@ -256,7 +256,6 @@ function simonSays(
 					if (roundReversed.length === 0) res()
 				}))
 
-				alert('right')
 				setRound(roundNr + 1)
 				await wait(200)
 				await goRound();
