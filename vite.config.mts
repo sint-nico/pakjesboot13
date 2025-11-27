@@ -2,17 +2,19 @@ import { gitHubSpaConfig } from "@quick-vite/gh-pages-spa/config";
 import solid from 'vite-plugin-solid'
 import preload from "vite-plugin-preload"
 import UnpluginInjectPreload from 'unplugin-inject-preload/vite'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 
 import packageJson from './package.json' with { type: 'json' }
 
 
 export default gitHubSpaConfig(packageJson, {
-    plugins: [
-        solid() as any,
-        preload({
-            mode: 'prefetch',
-        }),
-        UnpluginInjectPreload({
+  plugins: [
+    solid(),
+    basicSsl(),
+    preload({
+      mode: 'prefetch',
+    }),
+    UnpluginInjectPreload({
       files: [
         {
           entryMatch: /.*\.svg$/,
@@ -48,17 +50,17 @@ export default gitHubSpaConfig(packageJson, {
       ],
       injectTo: 'head-prepend'
     })
-    ],
-    define: {
-        'import.meta.env.VITE_BUILD_DATE': JSON.stringify(Date.now())
-    },
-    optimizeDeps: {
-        esbuildOptions: {
-            target: 'esnext'
-        }
-    },
-    build: {
-        target: 'esnext',
-        sourcemap: 'inline'
+  ],
+  define: {
+    'import.meta.env.VITE_BUILD_DATE': JSON.stringify(Date.now())
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'esnext'
     }
+  },
+  build: {
+    target: 'esnext',
+    sourcemap: 'inline'
+  }
 })

@@ -1,4 +1,4 @@
-import { Accessor, Component, createEffect, createMemo, createSignal, onCleanup } from "solid-js";
+import { Accessor, Component, createEffect, createMemo, createSignal, onCleanup, Setter } from "solid-js";
 import { MiniGame } from "../../pages/mini-game";
 import { ScrollHere } from "../scroll-here";
 
@@ -12,7 +12,6 @@ import { useAudio } from "../audio-context";
 type TabData = (typeof rounds)[number][number];
 type Color = 'red' | 'green' | 'blue' | 'yellow'
 const rounds = parseTab();
-
 
 function parseTab() {
 
@@ -64,10 +63,20 @@ function parseTabLine(lines: string[]) {
 	return result;
 }
 
+function wait(d: number) { return new Promise(r => setTimeout(r, d)) }
+
+type Squares = Record<Color, SVGPathElement> & {
+	all(action: (el: SVGPathElement) => void): void
+}
+type Buttons = Record<Color, SVGCircleElement> & {
+	all(action: (el: SVGCircleElement, color: Color) => void): void
+}
+type Colors = Record<Color, string>;
+
 export const SimonSaysGame: Component<MiniGame> = ({ finish, back }) => {
 
 	const [svgElement, svgRef] = createSignal<HTMLDivElement>();
-	const [round, setRound] = createSignal(0);
+	const [round, setRound] = createSignal(-1);
 
 	const { ctx } = useAudio();
 
@@ -80,7 +89,7 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, back }) => {
 			red: svg.querySelector<SVGPathElement>('#red')!,
 			green: svg.querySelector<SVGPathElement>('#green')!,
 			blue: svg.querySelector<SVGPathElement>('#blue')!,
-			yellow: svg.querySelector<SVGPathElement>('#yellow')!, 
+			yellow: svg.querySelector<SVGPathElement>('#yellow')!,
 			all(action: (square: SVGPathElement) => void) {
 				action(squares.red)
 				action(squares.green)
@@ -90,76 +99,37 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, back }) => {
 		}
 
 		squares.all(s => s.style.display = 'none');
-		
+
 		const buttons = {
 			red: svg.querySelector<SVGCircleElement>('#btn-red')!,
 			green: svg.querySelector<SVGCircleElement>('#btn-green')!,
 			blue: svg.querySelector<SVGCircleElement>('#btn-blue')!,
-			yellow: svg.querySelector<SVGCircleElement>('#btn-yellow')!, 
-			all(action: (button: SVGPathElement) => void) {
-				action(buttons.red)
-				action(buttons.green)
-				action(buttons.blue)
-				action(buttons.yellow)
+			yellow: svg.querySelector<SVGCircleElement>('#btn-yellow')!,
+			all(action: (button: SVGCircleElement, color: Color) => void) {
+				action(buttons.red, 'red')
+				action(buttons.green, 'green')
+				action(buttons.blue, 'blue')
+				action(buttons.yellow, 'yellow')
 			}
 		}
 		const colors: Record<Color, string> = {
-			red: buttons.red.style.fill,
-			green: buttons.red.style.fill,
-			blue: buttons.red.style.fill,
-			yellow: buttons.red.style.fill
+			red: '#f00',
+			green: '#0f0',
+			blue: '#00f',
+			yellow: '#ff0'
 		}
 		buttons.all(b => b.style.fill = 'white');
 		buttons.all(b => b.style.opacity = '.5');
 		buttons.all(b => b.style.display = 'none');
 
 		const miterBtn = svg.querySelector<SVGElement>('#miter')!;
-		miterBtn.onclick = game;
 
-		
 		if (!context) return;
+		// Play low not to load the sound
 		const gain = createGain(context);
+		await playTone(context!, gain, 20, 200, 'triangle');
 
-		await playTone(context!, gain, 82.41);
-
-		function blink(d: number) { return new Promise(r => setTimeout(r, d)) }
-		async function game() {
-			miterBtn.onclick = null;
-			let gameWon = false;
-
-			try {
-				setRound(0)
-				buttons.red.style.display = 'unset';
-				buttons.green.style.display = 'unset';
-				buttons.blue.style.display = 'unset';
-				buttons.yellow.style.display = 'unset';
-				for (const round of rounds) {
-					setRound(r => r+1)
-					for (const record of round) {
-						squares[record.color].style.display = 'unset';
-						await playTone(context!, gain, getNoteFrequency(record.stringName, record.fret))
-						squares[record.color].style.display = 'none';
-						await blink(200)
-					}
-					await blink(500)
-					buttons.red.style.fill = colors.red;
-					buttons.blue.style.fill = colors.blue;
-					buttons.green.style.fill = colors.green;
-					buttons.yellow.style.fill = colors.yellow;
-					await blink(1500)
-					buttons.red.style.fill = 'white';
-					buttons.blue.style.fill = 'white';
-					buttons.green.style.fill = 'white';
-					buttons.yellow.style.fill = 'white';
-				}
-			} finally {
-				buttons.red.style.display = 'none';
-				buttons.green.style.display = 'none';
-				buttons.blue.style.display = 'none';
-				buttons.yellow.style.display = 'none';
-				if (!gameWon) miterBtn.onclick = game;
-			}
-		}
+		simonSays(miterBtn, squares, buttons, colors, context, gain, round, setRound);
 
 	}, [svgElement, ctx])
 
@@ -167,12 +137,14 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, back }) => {
 		<div>
 			<h3>Sint zegt!</h3>
 			<p>De sint doet het voor, speel het na en verdien een aanwijzing.</p>
-			
-			{round() === 0 && <p>Klik op de mijter om te beginnen.</p>}
-			{round() !== 0 && <p>Ronde {round()}/3.</p>}
+
+			{round() === -1 && <p>Klik op de mijter om te beginnen.</p>}
+			{round() === -2 && <p>Klik op de mijter om opnieuw te proberen.</p>}
+			{round() >= 0 && round() < 4 && <p>Ronde {round() + 1}/3.</p>}
+			{round() === 4 && <p>Gelukt!.</p>}
 		</div>
 
-		<div ref={svgRef} innerHTML={simonSvg} />
+		<div ref={svgRef} class="image" innerHTML={simonSvg} />
 
 	</div>
 }
@@ -195,16 +167,16 @@ function getNoteFrequency(stringName: TabData['stringName'], fret: number) {
 }
 
 function createGain(context: AudioContext) {
-	
+
 	const gain = context.createGain();
 	gain.connect(context.destination);
 
 	return gain
 }
-function playTone(context: AudioContext, gain: GainNode, freq: number, duration = 500) {
+function playTone(context: AudioContext, gain: GainNode, freq: number, duration = 500, type: OscillatorType = "sine") {
 
 	const osc = context.createOscillator();
-	osc.type = "sine";
+	osc.type = type;
 
 	osc.connect(gain);
 
@@ -221,4 +193,82 @@ function playTone(context: AudioContext, gain: GainNode, freq: number, duration 
 	return new Promise<void>(res => {
 		osc.onended = () => res();
 	})
+}
+
+function simonSays(
+	miterBtn: SVGElement, squares: Squares, buttons: Buttons, colors: Colors,
+	context: AudioContext, gain: GainNode, getRound: Accessor<number>, setRound: Setter<number>
+) {
+
+	miterBtn.onclick = game;
+
+	async function game() {
+		miterBtn.onclick = null;
+		let roundNr = getRound();
+		if (roundNr < 0) roundNr = setRound(0)
+
+		async function goRound() {
+			roundNr = getRound();
+			buttons.all(b => b.onclick = null);
+			buttons.all(b => b.style.fill = 'white');
+			try {
+				buttons.all(b => b.style.display = 'unset');
+				const round = rounds[roundNr]
+				for (const record of round) {
+					squares[record.color].style.display = 'unset';
+					await playTone(context!, gain, getNoteFrequency(record.stringName, record.fret))
+					squares[record.color].style.display = 'none';
+					await wait(200)
+				}
+
+				buttons.red.style.fill = colors.red;
+				buttons.blue.style.fill = colors.blue;
+				buttons.green.style.fill = colors.green;
+				buttons.yellow.style.fill = colors.yellow;
+
+				console.log(colors)
+
+				const roundReversed = round.toReversed()
+				let pressed = false;
+				await new Promise<void>((res, rej) => buttons.all((b, c) => b.onclick = async () => {
+					if (pressed) return;
+					pressed = true;
+					const currentNote = roundReversed.at(-1)!;
+					const correct = c === currentNote.color
+
+					b.style.opacity = '1';
+					if (correct) await playTone(context, gain, getNoteFrequency(currentNote.stringName, currentNote.fret))
+					else {
+						await Promise.all([
+							playTone(context!, gain, 80, 150, 'sawtooth'),
+							playTone(context!, gain, 200, 150, 'sawtooth')
+						]);
+						await Promise.all([
+							playTone(context!, gain, 80, 600, 'sawtooth'),
+							playTone(context!, gain, 200, 700, 'sawtooth')
+						]);
+					}
+					b.style.opacity = '.5';
+
+					pressed = false;
+					if (!correct) return rej('wrong')
+					roundReversed.pop();
+					if (roundReversed.length === 0) res()
+				}))
+
+				alert('right')
+				setRound(roundNr + 1)
+				await wait(200)
+				await goRound();
+			} catch {
+				setRound(-2)
+				miterBtn.onclick = game;
+			} finally {
+				buttons.all(b => b.onclick = null);
+				buttons.all(b => b.style.display = 'none');
+				if (getRound() === 4) alert('Gelukt')
+			}
+		}
+		goRound();
+	}
 }
