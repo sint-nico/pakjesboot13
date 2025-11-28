@@ -77,6 +77,7 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, back }) => {
 
 	const [svgElement, svgRef] = createSignal<HTMLDivElement>();
 	const [round, setRound] = createSignal(-1);
+	const [gameOn, setGameOn] = createSignal(false);
 
 	const { ctx } = useAudio();
 
@@ -129,7 +130,7 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, back }) => {
 		const gain = createGain(context);
 		await playTone(context!, gain, 20, 200, 'triangle');
 
-		simonSays(miterBtn, squares, buttons, colors, context, gain, round, setRound);
+		simonSays(miterBtn, squares, buttons, colors, context, gain, round, setRound, setGameOn);
 
 	}, [svgElement, ctx])
 
@@ -138,9 +139,9 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, back }) => {
 			<h3>Sint zegt!</h3>
 			<p>De sint doet het voor, speel het na en verdien een aanwijzing.</p>
 
-			{round() === -1 && <p>Klik op de mijter om te beginnen.</p>}
-			{round() === -2 && <p>Klik op de mijter om opnieuw te proberen.</p>}
-			{round() >= 0 && round() < 4 && <p>Ronde {round() + 1}/3.</p>}
+			{!gameOn() && round() === -1 && <p>Klik op de mijter om te beginnen.</p>}
+			{!gameOn() && round() !== -1 && <p>Klik op de mijter om opnieuw te proberen.</p>}
+			{gameOn() && round() >= 0 && round() < 4 && <p>Ronde {round() + 1}/3.</p>}
 			{round() === 4 && <p>Gelukt!.</p>}
 		</div>
 
@@ -197,7 +198,8 @@ function playTone(context: AudioContext, gain: GainNode, freq: number, duration 
 
 function simonSays(
 	miterBtn: SVGElement, squares: Squares, buttons: Buttons, colors: Colors,
-	context: AudioContext, gain: GainNode, getRound: Accessor<number>, setRound: Setter<number>
+	context: AudioContext, gain: GainNode, getRound: Accessor<number>, setRound: Setter<number>, 
+	setGameOn: Setter<boolean>
 ) {
 
 	miterBtn.onclick = game;
@@ -205,7 +207,8 @@ function simonSays(
 	async function game() {
 		miterBtn.onclick = null;
 		let roundNr = getRound();
-		if (roundNr < 0) roundNr = setRound(0)
+		if (roundNr < 0) roundNr = setRound(0);
+		setGameOn(true);
 
 		async function goRound() {
 			roundNr = getRound();
@@ -226,8 +229,6 @@ function simonSays(
 				buttons.green.style.fill = colors.green;
 				buttons.yellow.style.fill = colors.yellow;
 
-				console.log(colors)
-
 				const roundReversed = round.toReversed()
 				let pressed = false;
 				await new Promise<void>((res, rej) => buttons.all((b, c) => b.onclick = async () => {
@@ -237,7 +238,10 @@ function simonSays(
 					const correct = c === currentNote.color
 
 					b.style.opacity = '1';
-					if (correct) await playTone(context, gain, getNoteFrequency(currentNote.stringName, currentNote.fret))
+					if (correct) {
+						playTone(context, gain, getNoteFrequency(currentNote.stringName, currentNote.fret))
+						await wait(150)
+					}
 					else {
 						await Promise.all([
 							playTone(context!, gain, 80, 150, 'sawtooth'),
@@ -257,10 +261,10 @@ function simonSays(
 				}))
 
 				setRound(roundNr + 1)
-				await wait(200)
+				await wait(600);
 				await goRound();
 			} catch {
-				setRound(-2)
+				setGameOn(false);
 				miterBtn.onclick = game;
 			} finally {
 				buttons.all(b => b.onclick = null);
