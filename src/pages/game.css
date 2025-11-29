@@ -17,6 +17,7 @@ dialog[open]#end-message {
   align-content: stretch;
   justify-content: center;
   align-items: stretch;
+  border: 0px none;
 }
 
 #end-message .button.close {
@@ -30,12 +31,27 @@ dialog[open]#end-message {
 #end-message #success {
     margin-bottom: -2ex;
 }
-#end-message div {
+
+#end-message > div div {
+    border: none;
+}
+#end-message > div {
   background: white;
-  border: 1px silver;
+  border: 1ex solid white;
   border-radius: 1ex 1ex 1ex 1ex;
   margin-top: 1ex;
   margin-bottom: 1ex;
-  padding: 2ex;
+  padding: 1ex;
+  overflow-x: hidden;
   overflow-y: scroll;
+}
+
+#end-message,
+#end-message > div {
+    -ms-overflow-style: none;  // IE 10+
+    scrollbar-width: none;  // Firefox
+}
+#end-message::-webkit-scrollbar,
+#end-message > div::-webkit-scrollbar { 
+    display: none;  // Safari and Chrome
 }
