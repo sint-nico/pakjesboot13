@@ -44,3 +44,11 @@ code {
 .hidden {
   display: none;
 }
+
+.keep-image {
+  position: absolute;
+  z-index: -9999;
+  height: 0px;
+  width: 0px;
+  overflow: hidden;
+}

@@ -6,9 +6,9 @@ import "./diff.css";
 import originalImage from './diff/original.png'
 import alteredImage from './diff/changed.png'
 import { MiniGame } from "../../pages/mini-game";
-import { ScrollHere } from "../scroll-here";
 import { ErrorCross, triggerError } from "../error";
 import { createGain, useAudio } from "../audio-context";
+import { Success } from "../success";
 
 const coordinates = [
 	// Book -> Phone
@@ -45,11 +45,11 @@ export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
 
 	function reset() {
 		const context = ctx();
-		if (context) triggerError(context,createGain(context))
+		if (context) triggerError(context, createGain(context))
 		if (localStorage[`game-done-diff`] === 'true') return;
 		setHotspots(() => {
 			const val = [...hotSpots()]
-			for(const hotSpot of val) {
+			for (const hotSpot of val) {
 				localStorage[`game-diff-marked-${hotSpot.i}`] = false
 				hotSpot.marked = false
 			}
@@ -83,22 +83,7 @@ export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
 				<HotSpots hotSpots={hotSpots} />
 			</div>
 		</div>
-		<div>
-		{markedCount() == amount && <>
-			<p>
-				He hebt alle verschillen gevonden, goed gezien vriend. <br />
-				Omdat je zo je hest doet, heb je een aanwijzing verdiend!
-			</p>
-			<p>
-				Het is weer tijd om je avontuur op de kaart voort te zetten, vlug.
-			</p>
-			<button onClick={back} class="button back">
-				<span class="icon">&leftharpoonup;</span>
-				<span class="text">Verlaat deze puzzel, en ga terug</span>
-			</button>
-			<ScrollHere />
-		</>}
-		</div>
+		<Success show={() => markedCount() == amount} back={back} />
 	</div>
 }
 
