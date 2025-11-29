@@ -1,5 +1,5 @@
 import { useParams } from "@solidjs/router";
-import { Component, createMemo, JSX } from "solid-js";
+import { Accessor, Component, createMemo, createSignal, JSX } from "solid-js";
 import { FullScreenState, WakeLock } from "../components/screen-control";
 import { DiffGame } from '../components/mini-games/diff';
 
@@ -11,6 +11,7 @@ const ALLOW_SKIP = true;
 
 export type MiniGame = {
 	finish(): void,
+	finished: Accessor<boolean>,
 	back(): void
 }
 
@@ -25,8 +26,10 @@ export const MiniGame: Component = () => {
 		if (ok) history.back();
 	}
 
+	const [finished, setFinished] = createSignal(localStorage[`game-done-${gameName}`] === 'true')
+
 	function finish() {
-		localStorage[`game-done-${gameName}`] = true;
+		localStorage[`game-done-${gameName}`] = setFinished(true);
 	}
 
 	const backButton = <button class="big-button back-button" onClick={back}>
@@ -38,8 +41,8 @@ export const MiniGame: Component = () => {
 	</button>;
 
 	const game = createMemo(() => {
-		if (gameName === 'diff') return <DiffGame back={back} finish={finish} />
-		if (gameName === 'simon') return <SimonSaysGame back={back} finish={finish} />
+		if (gameName === 'diff') return <DiffGame back={back} finish={finish} finished={finished} />
+		if (gameName === 'simon') return <SimonSaysGame back={back} finish={finish} finished={finished} />
 		return gameName +  " NOT YET IMPLEMENTED"
 	}, [gameName])
 
