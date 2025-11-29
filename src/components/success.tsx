@@ -1,4 +1,4 @@
-import { Accessor, Component, createSignal, onCleanup, onMount } from "solid-js"
+import { Accessor, Component } from "solid-js"
 import { ScrollHere } from "./scroll-here"
 import { MiniGame } from "../pages/mini-game"
 
@@ -33,7 +33,7 @@ import blueGiftIcon from './markers/gift-blue.svg'
 import greenGiftIcon from './markers/gift-green.svg' 
 import { monitorStorage } from "./storage-helper"
 
-const Display: Component = () => {
+export const SuccessDisplay: Component = () => {
 
 	const [diff, simon, slider] = monitorStorage()
 
