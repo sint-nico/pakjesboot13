@@ -137,12 +137,14 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, back }) => {
 	return <div class="game" id="game-simon">
 		<div>
 			<h3>Sint zegt!</h3>
-			<p>De sint doet het voor, speel het na en verdien een aanwijzing.</p>
+			<p>De sint doet het voor, speel het na en verdien een aanwijzing door na te spelen.</p>
+			<p>Gebruik ook <span class="sound-notice">je oren</span>, zet je volume op z'n hoogst, wat kan jou het schelen?</p>
 
-			{!gameOn() && round() === -1 && <p>Klik op de mijter om te beginnen.</p>}
-			{!gameOn() && round() !== -1 && <p>Klik op de mijter om opnieuw te proberen.</p>}
-			{gameOn() && round() >= 0 && round() < 4 && <p>Ronde {round() + 1}/3.</p>}
-			{round() === 4 && <p>Gelukt!.</p>}
+			<p>Een groene, een rode, een blauwe, een gele<span class="bad-rime">(n)</span>.</p>
+			{!gameOn() && round() === -1 && <p>Klik op de <span class="sound-notice">mijter</span> om te spelen.</p>}
+			{!gameOn() && round() !== -1 && <p>Klik op de <span class="sound-notice">mijter</span> om opnieuw te spelen.</p>}
+			{gameOn() && round() >= 0 && round() < 4 && <p>Je bent ronde {round() + 1}/3 aan het spelen.</p>}
+			{round() === 4 && <p>Gelukt! Je bent klaar met spelen.</p>}
 		</div>
 
 		<div ref={svgRef} class="image" innerHTML={simonSvg} />
@@ -211,6 +213,7 @@ function simonSays(
 		setGameOn(true);
 
 		async function goRound() {
+			miterBtn.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
 			roundNr = getRound();
 			buttons.all(b => b.onclick = null);
 			buttons.all(b => b.style.fill = 'white');

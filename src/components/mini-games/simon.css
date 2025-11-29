@@ -1,0 +1,9 @@
+#game-simon .sound-notice {
+    color: darkred;
+    text-decoration: underline;
+    font-weight: bold;
+}
+#game-simon .bad-rime {
+    color: darkgray;
+    text-decoration: italic;
+}
