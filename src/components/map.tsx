@@ -15,13 +15,13 @@ import greenGiftIcon from './markers/gift-green.svg'
 import greenWrapperIcon from './markers/wrapper-green.svg' 
 import endMarkerIcon from './markers/end.svg' 
 import { A } from "@solidjs/router";
-
+import { monitorStorage } from "./storage-helper";
 
 function getGiftIcon(name: string | undefined, done: boolean) {
     if (name === 'slider') return !done ? redGiftIcon : redWrapperIcon
     if (name === 'simon') return !done ? blueGiftIcon : blueWrapperIcon
     if (name === 'diff') return !done ? greenGiftIcon : greenWrapperIcon
-    if (name === undefined) return endMarkerIcon
+    if (!name) return endMarkerIcon
 
     return name
 }
@@ -59,7 +59,7 @@ const Map: Component<MapProps> = ({ locations }) => {
     const renderOwner = getOwner();
     let initialized = false;
 
-    const [finalVisible, setFinalVisible] = createSignal(false);
+    const [,,,finalVisible] = monitorStorage()
     const [manual, setManual] = createSignal(false);
     const nonManual = createMemo(() => !manual(), [manual]);
 
@@ -135,7 +135,11 @@ const Map: Component<MapProps> = ({ locations }) => {
                     marker.closePopup();
 
                     disableMap();
-                    setManual(true)
+                    setManual(true);
+
+                    // Prevent closing self
+                    await new Promise<void>(r => setTimeout(r, 10));
+
                     const markerPos = marker.getLatLng();
                     if (markerPos.lat !== 0 && markerPos.lng !== 0) {
                         map.setView(markerPos, map.getMaxZoom(), {
@@ -145,14 +149,22 @@ const Map: Component<MapProps> = ({ locations }) => {
                     }
 
                     // Wait for animation to finish before showing the popup
-                    await new Promise<void>(res => {
-                        const interval = setInterval(() => {
-                            if (map.getCenter().distanceTo(marker.getLatLng()) > .5) return
-                            if (map.getZoom() !== map.getMaxZoom()) return;
-                            clearInterval(interval)
-                            res()
-                        }, 100)
-                    })
+                    await Promise.race([
+                        new Promise<void>(res => {
+                            const interval = setInterval(() => {
+                                try {
+                                    if (map.getCenter().distanceTo(marker.getLatLng()) > .5) return
+                                    if (map.getZoom() !== map.getMaxZoom()) return;
+                                    clearInterval(interval)
+                                    res()
+                                } catch {
+                                    clearInterval(interval)
+                                    res()
+                                }
+                            }, 100)
+                        }),
+                        new Promise<void>(res => setTimeout(res, 300))
+                    ])
                     await new Promise<void>(res => setTimeout(res, 100));
 
                     marker.openPopup();
@@ -353,7 +365,7 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
             <img class="location-frame-image" src={location.imageUrl} width="300" />
             <div class="location-frame-content">
                 <h3>{location.name}</h3>
-                { closeEnough() && <A href={`/puzzle/${location.game}`} class="button location-frame-button">
+                { !location.final && closeEnough() && <A href={`/puzzle/${location.game}`} class="button location-frame-button">
                     <span class="text">Zoek naar een aanwijzing</span>
                     <span class="status">&raquo;</span>
                 </A> }
@@ -362,8 +374,11 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
         {!closeEnough() && <>
             <i>Kom dichterbij om te zoeken!</i>
         </>}
-        {closeEnough() && <>
+        {!location.final && closeEnough() && <>
             <i>Je bent er!</i>
+        </>}
+        {location.final && closeEnough() && <>
+            <i>Je bent nu heel dichtbij</i>
         </>}
     </>
 }

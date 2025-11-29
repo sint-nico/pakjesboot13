@@ -31,28 +31,11 @@ export const Success: Component<SuccessProps> = ({ show, back }) => {
 import redGiftIcon from './markers/gift-red.svg' 
 import blueGiftIcon from './markers/gift-blue.svg' 
 import greenGiftIcon from './markers/gift-green.svg' 
+import { monitorStorage } from "./storage-helper"
 
 const Display: Component = () => {
 
-	const [diff, setDiff] = createSignal(localStorage[`game-done-diff`] === 'true')
-	const [simon, setSimon] = createSignal(localStorage[`game-done-simon`] === 'true')
-	const [slider, setSlider] = createSignal(localStorage[`game-done-slider`] === 'true')
-
-	let tim: number | undefined;
-	onMount(() => {
-		setDiff(localStorage[`game-done-diff`] === 'true')
-		setSimon(localStorage[`game-done-simon`] === 'true')
-		setSlider(localStorage[`game-done-slider`] === 'true')
-		tim = setInterval(() => {		
-			setDiff(localStorage[`game-done-diff`] === 'true')		
-			setSimon(localStorage[`game-done-simon`] === 'true')
-			setSlider(localStorage[`game-done-slider`] === 'true')
-		}, 100);
-	})
-
-	onCleanup(() => {
-		clearInterval(tim)
-	})
+	const [diff, simon, slider] = monitorStorage()
 
 	return <ol class="clues">
 		<li class={!diff() ? 'not-done' : ''}><img src={greenGiftIcon} /></li>
