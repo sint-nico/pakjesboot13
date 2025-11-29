@@ -16,7 +16,7 @@ export const Success: Component<SuccessProps> = ({ show, back }) => {
 				He hebt alle verschillen gevonden, goed gezien vriend. <br />
 				Omdat je zo je hest doet, heb je een aanwijzing verdiend!
 			</p>
-			<Display />
+			<SuccessDisplay />
 			<p>
 				Het is weer tijd om je avontuur op de kaart voort te zetten, vlug.
 			</p>
