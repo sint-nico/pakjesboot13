@@ -7,6 +7,8 @@ import originalImage from './diff/original.png'
 import alteredImage from './diff/changed.png'
 import { MiniGame } from "../../pages/mini-game";
 import { ScrollHere } from "../scroll-here";
+import { ErrorCross, triggerError } from "../error";
+import { createGain, useAudio } from "../audio-context";
 
 const coordinates = [
 	// Book -> Phone
@@ -22,6 +24,8 @@ const coordinates = [
 ] as [x: number, y: number, size: number][]
 
 export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
+
+	const { ctx } = useAudio();
 
 	const [hotSpots, setHotspots] = createSignal<HotSpot[]>(coordinates.map((coordinate, i) => ({
 		marked: localStorage[`game-diff-marked-${i}`] === 'true',
@@ -40,7 +44,8 @@ export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
 	const amount = hotSpots().length;
 
 	function reset() {
-		console.log('reset')
+		const context = ctx();
+		if (context) triggerError(context,createGain(context))
 		if (localStorage[`game-done-diff`] === 'true') return;
 		setHotspots(() => {
 			const val = [...hotSpots()]
@@ -62,6 +67,7 @@ export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
 	}, [markedCount])
 
 	return <div class="game" id="game-diff">
+		<ErrorCross />
 		<div>
 			<h3>Zoek de verschillen</h3>
 			<p>Zoek de {amount} verschillen om een aanwijzing te verdienen</p>

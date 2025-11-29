@@ -45,3 +45,33 @@ export function AudioProvider(props: ParentProps) {
 export function useAudio() {
   return useContext(audioContext)!;
 }
+
+
+export function createGain(context: globalThis.AudioContext) {
+
+  const gain = context.createGain();
+  gain.connect(context.destination);
+
+  return gain
+}
+export function playTone(context: globalThis.AudioContext, gain: GainNode, freq: number, duration = 500, type: OscillatorType = "sine") {
+
+  const osc = context.createOscillator();
+  osc.type = type;
+
+  osc.connect(gain);
+
+  osc.frequency.value = freq;
+  osc.start();
+  onCleanup(() => osc.stop());
+
+  // fade out
+  gain.gain.setValueAtTime(1, context.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + duration / 1000);
+
+  osc.stop(context.currentTime + duration / 1000);
+
+  return new Promise<void>(res => {
+    osc.onended = () => res();
+  })
+}

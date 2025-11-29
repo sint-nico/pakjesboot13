@@ -7,7 +7,8 @@ import "./simon.css";
 
 import simonSvg from './simon/sinterklaas-simon-says.svg?raw'
 import simonTab from './simon/deur.tab.txt?raw'
-import { useAudio } from "../audio-context";
+import { createGain, playTone, useAudio } from "../audio-context";
+import { ErrorCross, triggerError } from "../error";
 
 type TabData = (typeof rounds)[number][number];
 type Color = 'red' | 'green' | 'blue' | 'yellow'
@@ -126,7 +127,7 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, back }) => {
 		const miterBtn = svg.querySelector<SVGElement>('#miter')!;
 
 		if (!context) return;
-		// Play low not to load the sound
+		// Play low note to load the sound
 		const gain = createGain(context);
 		await playTone(context!, gain, 20, 200, 'triangle');
 
@@ -135,19 +136,22 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, back }) => {
 	}, [svgElement, ctx])
 
 	return <div class="game" id="game-simon">
+		<ErrorCross />
 		<div>
 			<h3>Sint zegt!</h3>
 			<p>De sint doet het voor, speel het na en verdien een aanwijzing door na te spelen.</p>
 			<p>Gebruik ook <span class="sound-notice">je oren</span>, zet je volume op z'n hoogst, wat kan jou het schelen?</p>
 
 			<p>Een groene, een rode, een blauwe, een gele<span class="bad-rime">(n)</span>.</p>
-			{!gameOn() && round() === -1 && <p>Klik op de <span class="sound-notice">mijter</span> om te spelen.</p>}
-			{!gameOn() && round() !== -1 && <p>Klik op de <span class="sound-notice">mijter</span> om opnieuw te spelen.</p>}
-			{gameOn() && round() >= 0 && round() < 4 && <p>Je bent ronde {round() + 1}/3 aan het spelen.</p>}
-			{round() === 4 && <p>Gelukt! Je bent klaar met spelen.</p>}
+			<div class="double-height">
+				{!gameOn() && round() === -1 && <p>Klik op de <span class="sound-notice">mijter</span> om te spelen.</p>}
+				{!gameOn() && round() !== -1 && <p>Klik op de <span class="sound-notice">mijter</span> om opnieuw te spelen.</p>}
+				{gameOn() && round() >= 0 && round() < 4 && <p>Je bent ronde {round() + 1}/3 aan het spelen.</p>}
+				{round() === 4 && <p>Gelukt! Je bent klaar met spelen.</p>}
+			</div>
 		</div>
 
-		<div ref={svgRef} class="image" innerHTML={simonSvg} />
+		<div ref={svgRef} class="sint-image" innerHTML={simonSvg} />
 
 	</div>
 }
@@ -169,38 +173,9 @@ function getNoteFrequency(stringName: TabData['stringName'], fret: number) {
 	return baseFrequencies[stringName] * Math.pow(2, (fret + fretOffset) / 12);
 }
 
-function createGain(context: AudioContext) {
-
-	const gain = context.createGain();
-	gain.connect(context.destination);
-
-	return gain
-}
-function playTone(context: AudioContext, gain: GainNode, freq: number, duration = 500, type: OscillatorType = "sine") {
-
-	const osc = context.createOscillator();
-	osc.type = type;
-
-	osc.connect(gain);
-
-	osc.frequency.value = freq;
-	osc.start();
-	onCleanup(() => osc.stop());
-
-	// fade out
-	gain.gain.setValueAtTime(1, context.currentTime);
-	gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + duration / 1000);
-
-	osc.stop(context.currentTime + duration / 1000);
-
-	return new Promise<void>(res => {
-		osc.onended = () => res();
-	})
-}
-
 function simonSays(
 	miterBtn: SVGElement, squares: Squares, buttons: Buttons, colors: Colors,
-	context: AudioContext, gain: GainNode, getRound: Accessor<number>, setRound: Setter<number>, 
+	context: AudioContext, gain: GainNode, getRound: Accessor<number>, setRound: Setter<number>,
 	setGameOn: Setter<boolean>
 ) {
 
@@ -246,14 +221,7 @@ function simonSays(
 						await wait(150)
 					}
 					else {
-						await Promise.all([
-							playTone(context!, gain, 80, 150, 'sawtooth'),
-							playTone(context!, gain, 200, 150, 'sawtooth')
-						]);
-						await Promise.all([
-							playTone(context!, gain, 80, 600, 'sawtooth'),
-							playTone(context!, gain, 200, 700, 'sawtooth')
-						]);
+						await triggerError(context, gain)
 					}
 					b.style.opacity = '.5';
 

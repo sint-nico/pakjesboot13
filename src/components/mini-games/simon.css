@@ -7,3 +7,8 @@
     color: darkgray;
     text-decoration: italic;
 }
+
+#game-simon .double-height {
+    height: 3em;
+    margin-bottom: .5ex;
+}

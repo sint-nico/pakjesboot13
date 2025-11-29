@@ -1,0 +1,21 @@
+.error-display {
+  position: fixed;
+  display: flex;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 0, 0, 0.2);
+  z-index: 9999;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  font-size: 2em;
+  font-weight: bold;
+  color: red;
+  text-shadow: 0 0 black;
+  pointer-events: none;
+  touch-action: none;
+}
