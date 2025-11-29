@@ -442,7 +442,7 @@ const MapOverlay: ParentComponent<{
             <div>
                 <button onClick={() => { resetCache(); errorRedirect('cache emptied'); }}>Clear cache</button>
                 <button onClick={() => { resetGames(); }}>Reset games</button>
-                <button onClick={() => { fakeCloseEnough[1](f => !f) }}>{fakeCloseEnough[0]() ? 'Unfake close' : 'Fake close'}</button>
+                <button onClick={() => { fakeCloseEnough[1](f => !f) }}>{fakeCloseEnough[0]() ? 'Unfake prox' : 'Fake prox'}</button>
             </div>
             <pre>
                 ({locationContext.location().latitude},{locationContext.location().longitude}) {status()} <br />
