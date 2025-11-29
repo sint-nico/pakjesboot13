@@ -10,8 +10,8 @@ export const LeafletMapWrapper: Component<LeafletMapProps> = (props) => {
     
     const mapElement: HTMLDivElement = Object.assign(document.createElement('div'), {
         id: 'map',
-        style: { height: "100vh", width: "100%", position: 'unset' },
-        height: "100vh",
+        style: { height: "100dvh", width: "100%", position: 'unset' },
+        height: "100dvh",
         width: "100%",
     })
 

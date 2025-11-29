@@ -4,7 +4,7 @@ dialog[open]#end-message {
   margin: 0;
   padding: 1.2ex;
   z-index: 9999;
-  width: 100vw;
+  width: 100dvw;
   height: 100dvh;
   top: 0;
   left: 0;

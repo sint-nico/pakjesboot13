@@ -1,4 +1,4 @@
-import { Component, onCleanup, onMount, Setter } from "solid-js";
+import { Component, createSignal, onCleanup, onMount, Setter } from "solid-js";
 
 const LOG_WAKE_LOCK_ISSUES = false;
 const LOG_FULL_SCREEN_ISSUES = false;
@@ -9,17 +9,26 @@ export type FullScreenStateProps = {
 
 export const FullScreenState: Component<FullScreenStateProps> = ({ mode }) => {
 
+	const themeElement = () => document.getElementById('android-theme-color') as HTMLMetaElement;
+	const [theme, setTheme] = createSignal(themeElement()?.content)
+
     async function fsAction() {
         if (!import.meta.env.PROD) return;
+		if (!theme()) setTheme(themeElement()!.content)
         if (mode === 'normal') {
             if (!document.fullscreenElement) return;
+			if(theme()) document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')!.content = theme()!;
             await document.exitFullscreen?.().catch(LOG_FULL_SCREEN_ISSUES ? console.debug : () => { });
             console.debug('fullscreen disabled')
         } else {
             if (!!document.fullscreenElement) return;
-			await document.body.requestFullscreen({
+				themeElement().content = "#000"
+			await document.documentElement.requestFullscreen({
 				navigationUI: 'hide'
-			}).catch(console.debug)
+			}).catch((e) => {
+				if (LOG_FULL_SCREEN_ISSUES) console.debug(e)
+				if(theme()) themeElement().content = theme()
+			})
             console.debug('fullscreen enabled')
         }
     }
@@ -29,6 +38,8 @@ export const FullScreenState: Component<FullScreenStateProps> = ({ mode }) => {
 	onCleanup(async () => {
 		clearInterval(ii);
 	});
+
+	return undefined
 }
 export const WakeLock: Component = () => {
     

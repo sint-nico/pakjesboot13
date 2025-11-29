@@ -1,5 +1,5 @@
 .game {
-  min-height: calc(100vh - 3ex);
+  min-height: calc(100dvh - 3ex);
   display: flex;
   align-content: center;
   justify-content: space-between;
