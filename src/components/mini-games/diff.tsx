@@ -7,7 +7,6 @@ import originalImage from './diff/original.png'
 import alteredImage from './diff/changed.png'
 import { MiniGame } from "../../pages/mini-game";
 import { ErrorCross, triggerError } from "../error";
-import { createGain, useAudio } from "../audio-context";
 import { Success } from "../success";
 
 const coordinates = [
@@ -24,8 +23,6 @@ const coordinates = [
 ] as [x: number, y: number, size: number][]
 
 export const DiffGame: Component<MiniGame> = ({ finish, finished, back }) => {
-
-	const { ctx } = useAudio();
 
 	const [hotSpots, setHotspots] = createSignal<HotSpot[]>(coordinates.map((coordinate, i) => ({
 		marked: localStorage[`game-diff-marked-${i}`] === 'true' || finished(),
@@ -45,8 +42,7 @@ export const DiffGame: Component<MiniGame> = ({ finish, finished, back }) => {
 	const amount = hotSpots().length;
 
 	function reset() {
-		const context = ctx();
-		if (context) triggerError(context, createGain(context))
+		triggerError()
 		if (localStorage[`game-done-diff`] === 'true') return;
 		setHotspots(() => {
 			const val = [...hotSpots()]

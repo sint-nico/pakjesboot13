@@ -1,15 +1,14 @@
-import { Accessor, Component, createEffect, createMemo, createSignal, onCleanup, Setter } from "solid-js";
+import { Accessor, Component, createEffect, createSignal, Setter } from "solid-js";
 import { MiniGame } from "../../pages/mini-game";
-import { ScrollHere } from "../scroll-here";
 
 import "./mini-game.css";
 import "./simon.css";
 
 import simonSvg from './simon/sinterklaas-simon-says.svg?raw'
 import simonTab from './simon/deur.tab.txt?raw'
-import { createGain, playTone, useAudio } from "../audio-context";
 import { ErrorCross, triggerError } from "../error";
 import { Success } from "../success";
+import { useAudio, AudioContext } from "../audio-context";
 
 type TabData = (typeof rounds)[number][number];
 type Color = 'red' | 'green' | 'blue' | 'yellow'
@@ -81,7 +80,7 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, finished, back }) =
 	const [round, setRound] = createSignal(-1);
 	const [gameOn, setGameOn] = createSignal(false);
 
-	const { ctx } = useAudio();
+	const { ctx, playTone } = useAudio();
 
 	createEffect(async () => {
 		const svg = svgElement();
@@ -128,11 +127,8 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, finished, back }) =
 		const miterBtn = svg.querySelector<SVGElement>('#miter')!;
 
 		if (!context) return;
-		// Play low note to load the sound
-		const gain = createGain(context);
-		await playTone(context!, gain, 20, 200, 'triangle');
 
-		simonSays(miterBtn, squares, buttons, colors, context, gain, round, setRound, setGameOn, finish, finished);
+		simonSays(miterBtn, squares, buttons, colors, round, setRound, playTone, setGameOn, finish, finished);
 
 	}, [svgElement, ctx])
 
@@ -178,7 +174,7 @@ function getNoteFrequency(stringName: TabData['stringName'], fret: number) {
 
 function simonSays(
 	miterBtn: SVGElement, squares: Squares, buttons: Buttons, colors: Colors,
-	context: AudioContext, gain: GainNode, getRound: Accessor<number>, setRound: Setter<number>,
+	getRound: Accessor<number>, setRound: Setter<number>, playTone: AudioContext['playTone'],
 	setGameOn: Setter<boolean>, finish: MiniGame['finish'], finished: MiniGame['finished']
 ) {
 
@@ -186,13 +182,13 @@ function simonSays(
 
 	async function game() {
 		miterBtn.onclick = null;
-		if(finished()) return;
+		if (finished()) return;
 		let roundNr = getRound();
 		if (roundNr < 0) roundNr = setRound(0);
 		setGameOn(true);
 
 		async function goRound() {
-			if(finished()) return;
+			if (finished()) return;
 			if (roundNr === 3) return;
 			if (getRound() === 3) return;
 			miterBtn.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
@@ -204,7 +200,7 @@ function simonSays(
 				const round = rounds[roundNr]
 				for (const record of round) {
 					squares[record.color].style.display = 'unset';
-					await playTone(context!, gain, getNoteFrequency(record.stringName, record.fret))
+					await playTone(getNoteFrequency(record.stringName, record.fret), 500, 'sine')
 					squares[record.color].style.display = 'none';
 					await wait(200)
 				}
@@ -224,11 +220,11 @@ function simonSays(
 
 					b.style.opacity = '1';
 					if (correct) {
-						playTone(context, gain, getNoteFrequency(currentNote.stringName, currentNote.fret))
+						playTone(getNoteFrequency(currentNote.stringName, currentNote.fret), 500, 'sine')
 						await wait(150)
 					}
 					else {
-						await triggerError(context, gain)
+						await triggerError()
 					}
 					b.style.opacity = '.5';
 
@@ -250,6 +246,6 @@ function simonSays(
 				if (getRound() === 3) finish()
 			}
 		}
-		goRound();
+		await goRound();
 	}
 }

@@ -1,13 +1,13 @@
 import { Component, createSignal, onCleanup, onMount, Show } from "solid-js";
-import { playTone } from "./audio-context";
 
 import './error.css';
+import { useAudio } from "./audio-context";
 
-type Listener = (context: AudioContext, gain: GainNode) => Promise<void>;
+type Listener = () => Promise<void>;
 let listeners: Listener[] = [];
 
-export async function triggerError(context: AudioContext, gain: GainNode) {
-    await Promise.all(listeners.map(fn => fn(context, gain)));
+export async function triggerError() {
+    await Promise.all(listeners.map(fn => fn()));
 }
 
 export function onError(fn: Listener) {
@@ -20,18 +20,21 @@ export function onError(fn: Listener) {
 
 export const ErrorCross: Component = () => {
     const [visible, setVisible] = createSignal(false);
+    const { playTone } = useAudio();
 
     onMount(() => {
-        const unsub = onError(async (context, gain) => {
+
+        const unsub = onError(async () => {
             setVisible(true);
 
             await Promise.all([
-                playTone(context, gain, 80, 150, 'sawtooth'),
-                playTone(context, gain, 200, 150, 'sawtooth')
+                playTone(80, 150, 'sawtooth'),
+                playTone(200, 150, 'sawtooth'),
             ]);
+
             await Promise.all([
-                playTone(context, gain, 80, 600, 'sawtooth'),
-                playTone(context, gain, 200, 700, 'sawtooth')
+                playTone(80, 600, 'sawtooth'),
+                playTone(200, 70, 'sawtooth'),
             ]);
 
             setVisible(false);
