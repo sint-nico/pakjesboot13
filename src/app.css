@@ -63,9 +63,3 @@ code {
   width: 0px;
   overflow: hidden;
 }
-
-:fullscreen {
-  /* Prevent Android from leaving space for gesture bar */
-  padding-bottom: env(safe-area-inset-bottom);
-  margin-bottom: calc(-1 * env(safe-area-inset-bottom));
-}
