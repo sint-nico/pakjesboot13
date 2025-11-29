@@ -23,16 +23,17 @@ const coordinates = [
 	[74, 62, 22]
 ] as [x: number, y: number, size: number][]
 
-export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
+export const DiffGame: Component<MiniGame> = ({ finish, finished, back }) => {
 
 	const { ctx } = useAudio();
 
 	const [hotSpots, setHotspots] = createSignal<HotSpot[]>(coordinates.map((coordinate, i) => ({
-		marked: localStorage[`game-diff-marked-${i}`] === 'true',
+		marked: localStorage[`game-diff-marked-${i}`] === 'true' || finished(),
 		coordinate,
 		i,
 		onClick() {
 			setHotspots(original => {
+				if (finished()) return original;
 				const newValue = [...original]
 				newValue[i].marked = true;
 				localStorage[`game-diff-marked-${i}`] = true
@@ -83,7 +84,7 @@ export const DiffGame: Component<MiniGame> = ({ finish, back }) => {
 				<HotSpots hotSpots={hotSpots} />
 			</div>
 		</div>
-		<Success show={() => markedCount() == amount} back={back} />
+		<Success show={finished} back={back} />
 	</div>
 }
 
