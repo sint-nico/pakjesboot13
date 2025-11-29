@@ -1,8 +1,15 @@
 .map {
+  margin: 0;
+  padding: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    margin: 0 -2ex 0 -2ex;
+}
+.map > div {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  margin: 0 -5ex;
+  margin: 0 -3ex;
   padding: 3.5ex 5ex;
   filter: sepia(0.2) saturate(0.8) brightness(1.1);
   color: white;

@@ -5,18 +5,18 @@ import { fetchLocationsList, Location } from "../supabase";
 
 import './landing-page.css';
 
-import phoneGuyImage from './illustrations/telefoon-piet.svg' 
-import mapImage from './illustrations/kaart.png' 
-import phoneImage from './illustrations/phone-illustration.png' 
+import phoneGuyImage from './illustrations/telefoon-piet.svg'
+import mapImage from './illustrations/kaart.png'
+import phoneImage from './illustrations/phone-illustration.png'
 
-import compasIcon from './illustrations/kompas.svg' 
-import loaderIcon from './illustrations/setting-line-svgrepo-com.svg' 
-import infoIcon from './illustrations/info-svgrepo-com.svg' 
-import rejectedIcon from './illustrations/close-round-svgrepo-com.svg' 
-import successIcon from './illustrations/done-round-svgrepo-com.svg' 
+import compasIcon from './illustrations/kompas.svg'
+import loaderIcon from './illustrations/setting-line-svgrepo-com.svg'
+import infoIcon from './illustrations/info-svgrepo-com.svg'
+import rejectedIcon from './illustrations/close-round-svgrepo-com.svg'
+import successIcon from './illustrations/done-round-svgrepo-com.svg'
 
-import moreContentImage from './illustrations/more-to-come.svg' 
-import endOfPageImage from './illustrations/end-of-page.svg' 
+import moreContentImage from './illustrations/more-to-come.svg'
+import endOfPageImage from './illustrations/end-of-page.svg'
 import { FullScreenState } from "../components/screen-control";
 import { ScrollHere } from "../components/scroll-here";
 
@@ -34,7 +34,7 @@ export const LandingPage: Component = () => {
 
 	const locationsLoading = createMemo(() => {
 		if (!locations()) return true;
-		if(locations()?.length === 0) return true;
+		if (locations()?.length === 0) return true;
 
 		return false;
 	}, [locations])
@@ -83,9 +83,9 @@ export const LandingPage: Component = () => {
 				Maar nu nog even niet
 			</p>
 			<p>
-				<A 
-					href="/zoeken/" 
-					class="button start-button" 
+				<A
+					href="/zoeken/"
+					class="button start-button"
 					aria-disabled={locationsLoading() ? 'true' : undefined}
 					onClick={(e) => {
 						if (locationsLoading()) {
@@ -114,11 +114,13 @@ const LocationMatch: ParentComponent = (props) => {
 			De pieten willen proberen je te lokaliseren, <br />
 			daarvoor moet je eerst de locatie‑toestemming activeren.
 		</p>
-		<div class="map" style={{ 'background-image': `url("${mapImage}")` }}>
-			<p>
-				Zonder hun kompas blijven ze zoeken in de koude nacht, <br />
-				dus klik snel, dan weten ze precies waar je wacht!
-			</p>
+		<div class="map">
+			<div style={{ 'background-image': `url("${mapImage}")` }}>
+				<p>
+					Zonder hun kompas blijven ze zoeken in de koude nacht, <br />
+					dus klik snel, dan weten ze precies waar je wacht!
+				</p>
+			</div>
 		</div>
 		<p>“Klik hier, lieve kind, op de magische knop,” roept de Sint zacht. <br />
 			<LocationButton onClick={() => {
@@ -137,7 +139,7 @@ const LocationMatch: ParentComponent = (props) => {
 		</p>
 		{
 			createMemo(() => {
-				if (locationContext.access() === 'allowed') return <>					
+				if (locationContext.access() === 'allowed') return <>
 					<p>De bel galmt luid, de Sint lacht: “Ja, ik zie je daar!” <br />
 						Met een vrolijk “ja” staat jouw plek nu helder en klaar.</p>
 					<p>Nu de locatie bekend is, gaan we vol vertrouwen eropuit, <br />

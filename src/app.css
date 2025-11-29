@@ -1,5 +1,3 @@
-html,
-:root,
 ::backdrop,
 :fullscreen {
   background: black;
@@ -24,8 +22,12 @@ body,
   overscroll-behavior-y: none;
 }
 
-body {
+:root,
+html, body {
   background-color: white;
+
+}
+body {
   display: flex;
   flex-direction: column;
   align-items: stretch;
