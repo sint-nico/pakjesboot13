@@ -34,8 +34,7 @@ function getGiftIcon(name: string | undefined, done: boolean) {
 const TARGET_DISTANCE_METERS = 20;
 // TODO false
 const SHOW_COORDS = true;
-// TODO false
-const TEST_GAMES = true;
+let fakeCloseEnough = SHOW_COORDS && createSignal(false);
 
 // Helper: calculate distance in meters between two lat/lng pairs
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -358,7 +357,7 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
         return dist;
     }, [locationContext.location, location])
 
-    const closeEnough = createMemo(() => TEST_GAMES ||  distanceFromUser() < TARGET_DISTANCE_METERS, [distanceFromUser])
+    const closeEnough = createMemo(() => fakeCloseEnough[0]() ||  distanceFromUser() < TARGET_DISTANCE_METERS, [distanceFromUser])
 
     return <>
         <div>
@@ -443,6 +442,7 @@ const MapOverlay: ParentComponent<{
             <div>
                 <button onClick={() => { resetCache(); errorRedirect('cache emptied'); }}>Clear cache</button>
                 <button onClick={() => { resetGames(); }}>Reset games</button>
+                <button onClick={() => { fakeCloseEnough[1](f => !f) }}>{fakeCloseEnough[0]() ? 'Unfake close' : 'Fake close'}</button>
             </div>
             <pre>
                 ({locationContext.location().latitude},{locationContext.location().longitude}) {status()} <br />
