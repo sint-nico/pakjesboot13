@@ -15,7 +15,7 @@ body,
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  min-height: 100vh;
+  min-height: 100dvh;
   height: 100%;
   overscroll-behavior-y: none;
 }
@@ -32,7 +32,7 @@ body {
   justify-content: flex-start;
   font-size: calc(13px + 2vmin);
   color: black;
-  overflow-x: none;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
