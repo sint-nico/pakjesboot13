@@ -7,6 +7,8 @@ import "./mini-game.css";
 import "./slider.css";
 
 import redGiftImg from "./slider/red-gift-top.svg?url"
+import leftShoeImg from "./slider/left-shoe.svg?url"
+import rightShoeImg from "./slider/right-shoe.svg?url"
 
 export const SliderGame: Component<MiniGame> = ({ finish, finished, back }) => {
 
@@ -34,8 +36,10 @@ type Piece = {
 	y: number;
 	type: string;
 }
-const imageMap: Record<string, Accessor<JSX.Element> | undefined> = {
-	A: () => <img src={redGiftImg} width={2 * CELL} />
+const imageMap: Record<string, JSX.Element | undefined> = {
+	A: <img src={redGiftImg} width={2 * CELL} draggable={false} />,
+	G: <img src={leftShoeImg} width={1 * CELL} height={(2 * CELL) -2} draggable={false} />,
+	C: <img src={rightShoeImg} width={1 * CELL} height={(2 * CELL) -2} draggable={false} />
 }
 const klotskiBoard: Piece[] = [
 	{ id: 'A', w: 2, h: 2, x: 1, y: 0, type: 'main' },
@@ -255,13 +259,13 @@ type PieceProps = {
 	dragging: Accessor<Piece | null>
 	finished: Accessor<boolean>
 	handleDragStart(e: MouseEvent, piece: Piece): void
-	image: Accessor<JSX.Element> | undefined
+	image: JSX.Element | undefined
 }
 const PieceDisplay: Component<PieceProps> = ({ dragging, piece, finished, handleDragStart, image }) => {
 	const isDragging = () => dragging()?.id === piece.id;
 	const content = createMemo(() => {
 		if (!image) return piece.id
-		return image()
+		return image
 	}, [image])
 	const className = createMemo(
 		() => `piece ${isDragging() ? "dragging" : ""} ${image ? "" : "no-image"}`,
