@@ -7,7 +7,7 @@ import "./mini-game.css"
 import { SimonSaysGame } from "../components/mini-games/simon";
 import { SliderGame } from "../components/mini-games/slider";
 
-const SKIP_START_MS = 1000 * 50 * 7;
+const SKIP_START_MS = 1000 * 60 * 7;
 const SKIP_STEP_MS = 1000 * 60;
 
 export type MiniGame = {
@@ -34,7 +34,7 @@ export const MiniGame: Component = () => {
 	}
 
 	const [skipper, setSkipper] = createSignal(-1);
-	const allowSkip = createMemo(() => skipper() > -1, [skipper]);
+	const allowSkip = createMemo(() => !finished() && skipper() > -1, [finished, skipper]);
 	const skipOpacity = createMemo(() => (60 + (skipper() *20)) /100, [skipper]);
 
 	let tim: number | undefined;
@@ -58,8 +58,9 @@ export const MiniGame: Component = () => {
 		<span class="icon">&leftharpoonup;</span>
 		<span class="text">terug</span>
 	</button>;
-	const skipButton = <button 
+	const skipButton = !finished() && <button 
 		class="big-button skip-button" 
+		disabled={!allowSkip()}
 		style={{ display: allowSkip() ? 'grid' : 'none', opacity: skipOpacity()}} 
 		onClick={() => { finish(); }}
 	>
