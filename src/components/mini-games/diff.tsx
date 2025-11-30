@@ -1,4 +1,4 @@
-import { Accessor, Component, createEffect, createMemo, createSignal } from "solid-js";
+import { Accessor, Component, createEffect, createMemo, createReaction, createSignal } from "solid-js";
 
 import "./mini-game.css";
 import "./diff.css";
@@ -73,11 +73,11 @@ export const DiffGame: Component<MiniGame> = ({ finish, finished, back }) => {
 		<div class="seeker">
 			<div>
 				<img src={originalImage} onClick={reset} />
-				<HotSpots hotSpots={hotSpots} />
+				<HotSpots hotSpots={hotSpots} finished={finished} />
 			</div>
 			<div>
 				<img src={alteredImage} onClick={reset} />
-				<HotSpots hotSpots={hotSpots} />
+				<HotSpots hotSpots={hotSpots} finished={finished} />
 			</div>
 		</div>
 		<Success message="Je hebt alle verschillen gevonden, goed gezien vriend." show={finished} back={back} />
@@ -92,12 +92,13 @@ type HotSpot = {
 }
 type HotSpotsProps = {
 	hotSpots: Accessor<HotSpot[]>
+	finished: MiniGame['finished']
 }
-const HotSpots: Component<HotSpotsProps> = ({ hotSpots }) => {
+const HotSpots: Component<HotSpotsProps> = ({ hotSpots, finished }) => {
 	return <>{hotSpots()
 		.map(h => (
 			<div
-				class={h.marked ? "hotspot marked" : "hotspot"}
+				class={finished() || h.marked ? "hotspot marked" : "hotspot"}
 				style={{
 					left: `${h.coordinate[0]}%`,
 					top: `${h.coordinate[1]}%`,
