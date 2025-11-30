@@ -42,7 +42,7 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = () => {
 	const isSolved = createMemo(() => {
 		const mainPiece = pieces().find(p => p?.type === 'main')
 		if (!mainPiece) return false;
-		
+
 		if (mainPiece.y !== 4) return false
 		if (mainPiece.x !== 1) return false
 
@@ -110,29 +110,30 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = () => {
 			const dxCells = Math.round((ev.clientX - startX) / CELL);
 			const dyCells = Math.round((ev.clientY - startY) / CELL);
 
-			// Queen-style: horizontal or vertical, never diagonal
-			let moveX = 0,
-				moveY = 0;
+			// Queen-style: horizontal or vertical
+			let moveX = 0, moveY = 0;
 			if (Math.abs(dxCells) > Math.abs(dyCells)) moveX = dxCells;
 			else if (Math.abs(dyCells) > Math.abs(dxCells)) moveY = dyCells;
 
 			const newX = origX + moveX;
 			const newY = origY + moveY;
 
-			// Allow ghost off-board for main piece
 			let clampedX = Math.max(0, Math.min(W - p.w, newX));
 			let clampedY =
 				p.type === 'main' && clampedX === 1
 					? Math.min(newY, H - 1)
-					: Math.max(0, Math.min(H - p.h, newY)); 
+					: Math.max(0, Math.min(H - p.h, newY));
 
 			const dxAllowed = clampedX - origX;
 			const dyAllowed = clampedY - origY;
 
 			if (canMoveOne(pieces(), p.id, dxAllowed, dyAllowed)) {
+				// Update ghost only if move is valid
 				setGhost({ x: clampedX, y: clampedY, p });
-			} else setGhost(null);
+			}
+			// else do nothing → keep last valid ghost
 		};
+
 
 		const onUp = () => {
 			if (ghost()) {
@@ -159,11 +160,11 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = () => {
 
 	return (<div class="klotski">
 		<div style={{ 'margin-bottom': '12px' }}>
-        {/* <button onClick={reset}>Reset</button> */}
-        <span style={{ 'margin-left': '12px', 'font-weight': '600' }}>
-          {isSolved() ? 'Solved! 🎉' : 'Drag main piece down to exit'}
-        </span>
-      </div>
+			{/* <button onClick={reset}>Reset</button> */}
+			<span style={{ 'margin-left': '12px', 'font-weight': '600' }}>
+				{isSolved() ? 'Solved! 🎉' : 'Drag main piece down to exit'}
+			</span>
+		</div>
 		<div
 			class="klotski-board"
 			style={{
