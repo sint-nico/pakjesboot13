@@ -170,6 +170,7 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = () => {
 			style={{
 				width: `${CELL * W}px`,
 				height: `${CELL * H}px`,
+				'margin-bottom': `${CELL}px`,
 			}}
 		>
 			<div

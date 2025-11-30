@@ -1,3 +1,7 @@
+#game-slider {
+    min-height: calc(100dvh - 6ex);
+}
+
 #game-slider .klotski-board {
   position: relative;
   margin: auto;
