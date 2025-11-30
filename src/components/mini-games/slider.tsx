@@ -177,7 +177,11 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 		window.addEventListener('pointermove', onMove);
 		window.addEventListener('pointerup', onUp);
 	};
-	const reset = () => setPieces(clonePieces(initialPieces));
+	const reset = () => setPieces(pieces => pieces.map(p =>({
+		...p,
+		x: initialPieces.find(pp => p.id === pp.id)!.x,
+		y: initialPieces.find(pp => p.id === pp.id)!.y
+	})));
 
 	return (<div class="klotski"
 		style={{
