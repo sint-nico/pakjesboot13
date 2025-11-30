@@ -1,4 +1,4 @@
-import { Accessor, Component, createEffect, createMemo, createSignal } from "solid-js";
+import { Accessor, Component, createEffect, createMemo, createReaction, createSignal } from "solid-js";
 import { MiniGame } from "../../pages/mini-game";
 import { ErrorCross } from "../error";
 import { Success } from "../success";
@@ -32,7 +32,18 @@ type Piece = {
 	type: string;
 }
 
-const Klotski: Component<Omit<MiniGame, 'back'>> = () => {
+const klotskiBoard: Piece[] = [
+	{ id: 'A', w: 2, h: 2, x: 1, y: 0, type: 'main' },
+	{ id: 'B', w: 1, h: 2, x: 0, y: 0, type: 'tall' },
+	{ id: 'C', w: 1, h: 2, x: 3, y: 0, type: 'tall' },
+	{ id: 'D', w: 2, h: 1, x: 1, y: 2, type: 'wide' },
+	{ id: 'E', w: 1, h: 1, x: 0, y: 2, type: 'tiny' },
+	{ id: 'F', w: 1, h: 1, x: 3, y: 2, type: 'tiny' },
+	{ id: 'G', w: 1, h: 2, x: 0, y: 3, type: 'tall' },
+	{ id: 'H', w: 1, h: 2, x: 3, y: 3, type: 'tall' },
+]
+
+const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 
 	const [pieces, setPieces] = createSignal<Piece[]>([]);
 	let initialPieces: Piece[] = [];
@@ -40,6 +51,7 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = () => {
 	const [ghost, setGhost] = createSignal<{ x: number; y: number; p: Piece } | null>(null);
 
 	const isSolved = createMemo(() => {
+		if (finished()) return true;
 		const mainPiece = pieces().find(p => p?.type === 'main')
 		if (!mainPiece) return false;
 
@@ -49,17 +61,17 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = () => {
 		return true;
 	}, [pieces])
 
+	function getStoredBoard() {
+		try{
+			return JSON.parse(localStorage['game-slider-state'])
+		} catch {
+			return klotskiBoard
+		}
+	}
 	const clonePieces = (arr: Piece[]) => arr.map(p => ({ ...p }));
-	const makeInitial = (): Piece[] => [
-		{ id: 'A', w: 2, h: 2, x: 1, y: 0, type: 'main' },
-		{ id: 'B', w: 1, h: 2, x: 0, y: 0, type: 'tall' },
-		{ id: 'C', w: 1, h: 2, x: 3, y: 0, type: 'tall' },
-		{ id: 'D', w: 2, h: 1, x: 1, y: 2, type: 'wide' },
-		{ id: 'E', w: 1, h: 1, x: 0, y: 2, type: 'tiny' },
-		{ id: 'F', w: 1, h: 1, x: 3, y: 2, type: 'tiny' },
-		{ id: 'G', w: 1, h: 2, x: 0, y: 3, type: 'tall' },
-		{ id: 'H', w: 1, h: 2, x: 3, y: 3, type: 'tall' },
-	];
+	const makeInitial = (): Piece[] => finished()
+		? getStoredBoard()
+		: klotskiBoard;
 
 	const occupancyMap = (pcs: Piece[]) => {
 		const map: (string | null)[][] = Array.from({ length: H }, () => Array(W).fill(null));
@@ -143,6 +155,11 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = () => {
 				newPieces[idx].x = x;
 				newPieces[idx].y = y;
 				setPieces(newPieces);
+				if (isSolved()) {
+					finish()
+					localStorage['game-slider-state'] = JSON.stringify(pieces());
+				}
+
 			}
 			setDragging(null);
 			setGhost(null);
@@ -153,10 +170,6 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = () => {
 		window.addEventListener('pointermove', onMove);
 		window.addEventListener('pointerup', onUp);
 	};
-
-
-
-
 
 	return (<div class="klotski">
 		<div style={{ 'margin-bottom': '12px' }}>
@@ -197,7 +210,7 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = () => {
 							width: `${p.w * CELL}px`,
 							height: `${p.h * CELL}px`,
 						}}
-						onPointerDown={(e) => handleDragStart(e, p)}
+						onPointerDown={finished() ? undefined : (e) => handleDragStart(e, p)}
 					>
 						{p.type === 'main' ? 'MAIN' : p.id}
 					</div>
