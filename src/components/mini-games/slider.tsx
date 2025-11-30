@@ -1,10 +1,12 @@
-import { Accessor, Component, createEffect, createMemo, createReaction, createSignal } from "solid-js";
+import { Accessor, Component, createEffect, createMemo, createReaction, createSignal, JSX } from 'solid-js';
 import { MiniGame } from "../../pages/mini-game";
 import { ErrorCross } from "../error";
 import { Success } from "../success";
 
 import "./mini-game.css";
 import "./slider.css";
+
+import redGiftImg from "./slider/red-gift-top.svg?url"
 
 export const SliderGame: Component<MiniGame> = ({ finish, finished, back }) => {
 
@@ -32,7 +34,9 @@ type Piece = {
 	y: number;
 	type: string;
 }
-
+const imageMap: Record<string, Accessor<JSX.Element> | undefined> = {
+	A: () => <img src={redGiftImg} width={2 * CELL} />
+}
 const klotskiBoard: Piece[] = [
 	{ id: 'A', w: 2, h: 2, x: 1, y: 0, type: 'main' },
 	{ id: 'B', w: 1, h: 2, x: 0, y: 0, type: 'tall' },
@@ -151,11 +155,13 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 		const onUp = () => {
 			if (ghost()) {
 				const { x, y, p } = ghost()!;
-				const newPieces = clonePieces(pieces());
-				const idx = newPieces.findIndex((piece) => piece.id === p.id);
-				newPieces[idx].x = x;
-				newPieces[idx].y = y;
-				setPieces(newPieces);
+				setPieces(prev => prev.map(pp => {
+					if (pp.id !== p.id) return pp;
+					return {
+						...pp,
+						x, y
+					}
+				}));
 				if (isSolved()) {
 					finish()
 					localStorage['game-slider-state'] = JSON.stringify(pieces());
@@ -174,10 +180,10 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 	const reset = () => setPieces(clonePieces(initialPieces));
 
 	return (<div class="klotski"
-			style={{
-				width: `${CELL * W}px`,
-				height: `${(CELL * H) + CELL}px`,
-			}}>
+		style={{
+			width: `${CELL * W}px`,
+			height: `${(CELL * H) + CELL}px`,
+		}}>
 		<div
 			class="klotski-board"
 			style={{
@@ -200,21 +206,12 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 
 			{/* Pieces */}
 			{pieces().map(p => {
-				const isDragging = dragging()?.id === p.id;
-				return (
-					<div
-						class={`piece ${isDragging ? "dragging" : ""}`}
-						style={{
-							left: `${p.x * CELL}px`,
-							top: `${p.y * CELL}px`,
-							width: `${p.w * CELL}px`,
-							height: `${p.h * CELL}px`,
-						}}
-						onPointerDown={finished() ? undefined : (e) => handleDragStart(e, p)}
-					>
-						{p.type === 'main' ? 'MAIN' : p.id}
-					</div>
-				);
+				const image = imageMap[p.id]
+				return <PieceDisplay
+					dragging={dragging} finished={finished} piece={p}
+					handleDragStart={handleDragStart}
+					image={image}
+				/>
 			})}
 
 			{/* Ghost */}
@@ -230,14 +227,14 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 				/>
 			)}
 		</div>
-			
-		<button 
-			class="big-button reset" 
-			onClick={reset} 
+
+		<button
+			class="big-button reset"
+			onClick={reset}
 			disabled={finished()}
 			style={{
 				right: `0px`,
-				bottom: `${(CELL * 2) - (CELL/2)}px`,
+				bottom: `${(CELL * 2) - (CELL / 2)}px`,
 				width: `${CELL - 6}px`,
 				height: `${CELL - 6}px`,
 			}}
@@ -248,3 +245,39 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 	</div>
 	);
 };
+
+type PieceProps = {
+	piece: Piece
+	dragging: Accessor<Piece | null>
+	finished: Accessor<boolean>
+	handleDragStart(e: MouseEvent, piece: Piece): void
+	image: Accessor<JSX.Element> | undefined
+}
+const PieceDisplay: Component<PieceProps> = ({ dragging, piece, finished, handleDragStart, image }) => {
+	const isDragging = () => dragging()?.id === piece.id;
+	const content = createMemo(() => {
+		if (!image) return piece.id
+		return image()
+	}, [image])
+	const className = createMemo(
+		() => `piece ${isDragging() ? "dragging" : ""} ${image ? "" : "no-image"}`,
+		[isDragging]
+	)
+	const pos = createMemo(
+		() => ({
+			left: `${piece.x * CELL}px`,
+			top: `${piece.y * CELL}px`,
+			width: `${piece.w * CELL}px`,
+			height: `${piece.h * CELL}px`,
+		}) as JSX.CSSProperties,
+		[() => piece.x, () => piece.y]
+	)
+
+	return <div
+		class={className()}
+		style={pos()}
+		onPointerDown={finished() ? undefined : (e) => handleDragStart(e, piece)}
+	>
+		{content()}
+	</div>
+}
