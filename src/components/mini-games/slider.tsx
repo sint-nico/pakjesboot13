@@ -15,6 +15,7 @@ export const SliderGame: Component<MiniGame> = ({ finish, finished, back }) => {
 			<p>WIP</p>
 		</div>
 		<Klotski finished={finished} finish={finish} />
+		{finished() && <p>&nbsp;</p>}
 		<Success message="Je hebt de puzzel opgelost, goed geschoven vriend." show={finished} back={back} />
 	</div>
 }

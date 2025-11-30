@@ -13,6 +13,7 @@
   box-sizing: content-box;
   pointer-events: none;
   touch-action: none;
+  border-radius: 8px  8px  8px 8px;
 }
 #game-slider .exit {
   position: absolute;
@@ -26,6 +27,37 @@
   color: #2e7d32;
   z-index: 2;
   box-sizing: border-box;
+  border-radius: 0 0 8px 8px;
+}
+#game-slider .exit::before {
+  position: absolute;
+  background: transparent;
+  border-top: 3px solid #222;
+  border-right: 3px solid #222;
+  width: 8px;
+  height: 8px;
+  display: block;
+  content: '';
+  z-index: 2;
+  box-sizing: border-box;
+  border-radius: 0 8px 0 8px;
+  left:-8px;
+  top: -2px;
+}
+#game-slider .exit::after {
+  position: absolute;
+  background: tranparent;
+  border-top: 3px solid #222;
+  border-left: 3px solid #222;
+  width: 8px;
+  height: 8px;
+  display: block;
+  content: '';
+  z-index: 2;
+  box-sizing: border-box;
+  border-radius: 8px 0 8px 0;
+  right:-8px;
+  top: -2px;
 }
 
 #game-slider .piece {
@@ -61,6 +93,9 @@
   pointer-events: none;
   touch-action: none;
   z-index: 5;
+}
+#game-slider .big-button.reset[disabled] {
+    display: none;
 }
 #game-slider .big-button.reset {
     cursor-events: all;

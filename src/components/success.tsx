@@ -15,7 +15,7 @@ export const Success: Component<SuccessProps> = ({ show, back, message }) => {
 		{show() && <>
 			<p>
 				{message} <br />
-				Omdat je zo je hest doet, heb je een aanwijzing verdiend!
+				Omdat je zo je best doet, heb je een aanwijzing verdiend!
 			</p>
 			<SuccessDisplay />
 			<p>
