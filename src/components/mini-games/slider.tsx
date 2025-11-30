@@ -11,7 +11,7 @@ export const SliderGame: Component<MiniGame> = ({ finish, finished, back }) => {
 	return <div class="game" id="game-slider">
 		<ErrorCross />
 		<div>
-			<h3>Zoek de verschillen</h3>
+			<h3>Schuiven maar</h3>
 			<p>WIP</p>
 		</div>
 		<Klotski finished={finished} finish={finish} />
@@ -62,7 +62,7 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 	}, [pieces])
 
 	function getStoredBoard() {
-		try{
+		try {
 			return JSON.parse(localStorage['game-slider-state'])
 		} catch {
 			return klotskiBoard
@@ -170,14 +170,13 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 		window.addEventListener('pointermove', onMove);
 		window.addEventListener('pointerup', onUp);
 	};
+	const reset = () => setPieces(clonePieces(initialPieces));
 
-	return (<div class="klotski">
-		<div style={{ 'margin-bottom': '12px' }}>
-			{/* <button onClick={reset}>Reset</button> */}
-			<span style={{ 'margin-left': '12px', 'font-weight': '600' }}>
-				{isSolved() ? 'Solved! 🎉' : 'Drag main piece down to exit'}
-			</span>
-		</div>
+	return (<div class="klotski"
+			style={{
+				width: `${CELL * W}px`,
+				height: `${(CELL * H) + CELL}px`,
+			}}>
 		<div
 			class="klotski-board"
 			style={{
@@ -230,6 +229,21 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 				/>
 			)}
 		</div>
+			
+		<button 
+			class="big-button reset" 
+			onClick={reset} 
+			disabled={finished()}
+			style={{
+				right: `0px`,
+				bottom: `${(CELL * 2) - (CELL/2)}px`,
+				width: `${CELL - 6}px`,
+				height: `${CELL - 6}px`,
+			}}
+		>
+			<span class="icon">&circlearrowleft;</span>
+			<span class="text">Reset</span>
+		</button>
 	</div>
 	);
 };
