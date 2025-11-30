@@ -1,5 +1,5 @@
 import { useParams } from "@solidjs/router";
-import { Accessor, Component, createMemo, createSignal, JSX } from "solid-js";
+import { Accessor, Component, createMemo, createSignal, JSX, onCleanup, onMount } from "solid-js";
 import { FullScreenState, WakeLock } from "../components/screen-control";
 import { DiffGame } from '../components/mini-games/diff';
 
@@ -7,8 +7,8 @@ import "./mini-game.css"
 import { SimonSaysGame } from "../components/mini-games/simon";
 import { SliderGame } from "../components/mini-games/slider";
 
-// TODO should be false
-const ALLOW_SKIP = true;
+const SKIP_START_MS = 1000 * 50 * 7;
+const SKIP_STEP_MS = 1000 * 60;
 
 export type MiniGame = {
 	finish(): void,
@@ -33,12 +33,38 @@ export const MiniGame: Component = () => {
 		localStorage[`game-done-${gameName}`] = setFinished(true);
 	}
 
+	const [skipper, setSkipper] = createSignal(-1);
+	const allowSkip = createMemo(() => skipper() > -1, [skipper]);
+	const skipOpacity = createMemo(() => (60 + (skipper() *20)) /100, [skipper]);
+
+	let tim: number | undefined;
+	onMount(() => {
+		tim = setTimeout(() => {
+			setSkipper(0);
+			console.log('skipper', allowSkip(), skipOpacity())
+			tim = setInterval(() => {
+				if (skipper() >= 2) return clearInterval(tim);
+				setSkipper(s => s+1)
+			console.log('skipper', allowSkip(), skipOpacity())
+			}, SKIP_STEP_MS);
+		}, SKIP_START_MS)
+	})
+	onCleanup(() => {
+		clearTimeout(tim);
+		clearInterval(tim);
+	})
+
 	const backButton = <button class="big-button back-button" onClick={back}>
 		<span class="icon">&leftharpoonup;</span>
 		<span class="text">terug</span>
 	</button>;
-	const skipButton = ALLOW_SKIP && <button class="big-button skip-button" onClick={() => { finish(); }}>
-		<span class="text">SKIP</span>
+	const skipButton = <button 
+		class="big-button skip-button" 
+		style={{ display: allowSkip() ? 'grid' : 'none', opacity: skipOpacity()}} 
+		onClick={() => { finish(); }}
+	>
+		<span class="text"></span>
+		<span class="text">SKIP<br/>GAME</span>
 	</button>;
 
 	const game = createMemo(() => {
