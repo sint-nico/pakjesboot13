@@ -150,7 +150,7 @@ export const SimonSaysGame: Component<MiniGame> = ({ finish, finished, back }) =
 
 		<div ref={svgRef} class="sint-image" innerHTML={simonSvg} />
 
-		<Success show={finished} back={back} />
+		<Success message="Je bent klaar, goed gespeeld vriend." show={finished} back={back} />
 
 	</div>
 }

@@ -7,13 +7,14 @@ import './success.css'
 export type SuccessProps = {
 	show: Accessor<boolean>
 	back: MiniGame['back']
+	message: string
 }
-export const Success: Component<SuccessProps> = ({ show, back }) => {
+export const Success: Component<SuccessProps> = ({ show, back, message }) => {
 
 	return <div id="success">
 		{show() && <>
 			<p>
-				He hebt alle verschillen gevonden, goed gezien vriend. <br />
+				{message} <br />
 				Omdat je zo je hest doet, heb je een aanwijzing verdiend!
 			</p>
 			<SuccessDisplay />

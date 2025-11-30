@@ -80,7 +80,7 @@ export const DiffGame: Component<MiniGame> = ({ finish, finished, back }) => {
 				<HotSpots hotSpots={hotSpots} />
 			</div>
 		</div>
-		<Success show={finished} back={back} />
+		<Success message="Je hebt alle verschillen gevonden, goed gezien vriend." show={finished} back={back} />
 	</div>
 }
 

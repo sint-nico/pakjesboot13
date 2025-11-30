@@ -5,6 +5,7 @@ import { DiffGame } from '../components/mini-games/diff';
 
 import "./mini-game.css"
 import { SimonSaysGame } from "../components/mini-games/simon";
+import { SliderGame } from "../components/mini-games/slider";
 
 // TODO should be false
 const ALLOW_SKIP = true;
@@ -43,6 +44,7 @@ export const MiniGame: Component = () => {
 	const game = createMemo(() => {
 		if (gameName === 'diff') return <DiffGame back={back} finish={finish} finished={finished} />
 		if (gameName === 'simon') return <SimonSaysGame back={back} finish={finish} finished={finished} />
+		if (gameName === 'slider') return <SliderGame back={back} finish={finish} finished={finished} />
 		return gameName +  " NOT YET IMPLEMENTED"
 	}, [gameName])
 
