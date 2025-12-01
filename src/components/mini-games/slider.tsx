@@ -133,6 +133,8 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 		setPieces(clonePieces(initialPieces));
 	}
 	const canMoveOne = (pcs: Piece[], id: string, dx: number, dy: number): boolean => {
+		if (!imagesReady()) return false;
+		
 		const p = pcs.find(x => x.id === id);
 		if (!p) return false;
 
