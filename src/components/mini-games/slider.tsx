@@ -21,10 +21,22 @@ export const SliderGame: Component<MiniGame> = ({ finish, finished, back }) => {
 		<ErrorCross />
 		<div>
 			<h3>Schuiven maar</h3>
-			<p>WIP</p>
+			<p>
+				Wat een troep, een speelgoedkist vol tot de rand. <br />
+				Zo krijg je het cadeau nooit in je hand.
+			</p>
+			<p>
+				Schuif alles aan de kant, uit de weg voor je cadeau. <br />
+				Naar het groene "UIT" vak, als een echte pro.
+			</p>
+			<p>
+				Je mag alleen in rechte lijnen schuiven, één voor één dus maak een plan. <br />
+				Als je de hoek om wil moet je eerst loslaten voordat je weer verder kan.
+			</p>
+			<p>&nbsp;</p>
 		</div>
 		<Klotski finished={finished} finish={finish} />
-		{finished() && <p>&nbsp;</p>}
+		<p>&nbsp;</p>
 		<Success message="Je hebt de puzzel opgelost, goed geschoven vriend." show={finished} back={back} />
 	</div>
 }
@@ -167,6 +179,11 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 		if (!imagesReady()) return;
 		if (isSolved()) return;
 		if (finished()) return;
+		document.querySelector('.klotski')?.scrollIntoView({
+			behavior: 'smooth',
+			block: 'center',
+			inline: 'center'
+		})
 		setDragging(p);
 
 		const startX = e.clientX;
@@ -311,8 +328,8 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 			onClick={reset}
 			disabled={finished()}
 			style={{
-				right: `0px`,
-				bottom: `${(CELL * 2) - (CELL / 2)}px`,
+				right: `${- (CELL / 2)}px`,
+				bottom: `${- (CELL / 2)}px`,
 				width: `${CELL - 6}px`,
 				height: `${CELL - 6}px`,
 			}}

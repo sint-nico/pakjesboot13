@@ -1,6 +1,9 @@
 #game-slider {
     min-height: calc(100dvh - 6ex);
 }
+#game-slider .klotski {
+    position:relative;
+}
 #game-slider .klotski.loading {
     opacity: .7;
 }
