@@ -9,6 +9,11 @@ import "./slider.css";
 import redGiftImg from "./slider/red-gift-top.svg?url"
 import leftShoeImg from "./slider/left-shoe.svg?url"
 import rightShoeImg from "./slider/right-shoe.svg?url"
+import chocoEImg from "./slider/choco-letter-e.svg?url"
+import chocoDImg from "./slider/choco-letter-d.svg?url"
+import speculaasImg from "./slider/speculaas.svg?url"
+import pepperNutsImg from "./slider/pepernoten.svg?url"
+import chocoCoinsImg from "./slider/choco-coins.svg?url"
 
 export const SliderGame: Component<MiniGame> = ({ finish, finished, back }) => {
 
@@ -39,7 +44,12 @@ type Piece = {
 const imageMap: Record<string, JSX.Element | undefined> = {
 	A: <img src={redGiftImg} width={2 * CELL} draggable={false} />,
 	G: <img src={leftShoeImg} width={1 * CELL} height={(2 * CELL) -2} draggable={false} />,
-	C: <img src={rightShoeImg} width={1 * CELL} height={(2 * CELL) -2} draggable={false} />
+	C: <img src={rightShoeImg} width={1 * CELL} height={(2 * CELL) -2} draggable={false} />,
+	B: <img src={chocoEImg} width={1 * CELL} height={2 * CELL} draggable={false} />,
+	H: <img src={chocoDImg} width={1 * CELL} height={2 * CELL} draggable={false} />,
+	D: <img src={speculaasImg} width={2 * CELL} height={1 * CELL} draggable={false} />,
+	E: <img src={pepperNutsImg} width={1 * CELL} height={1 * CELL} draggable={false} />,
+	F: <img src={chocoCoinsImg} width={1 * CELL} height={1 * CELL} draggable={false} />,
 }
 const klotskiBoard: Piece[] = [
 	{ id: 'A', w: 2, h: 2, x: 1, y: 0, type: 'main' },
