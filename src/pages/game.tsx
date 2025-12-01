@@ -1,9 +1,9 @@
-import { Component, createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { Component, createEffect, createSignal, onMount } from "solid-js";
 import Map from '../components/map';
 import { getLocationsFromCache } from "../supabase";
 import { useLocation } from "../components/location-context";
 import { errorRedirect } from "../helpers";
-import { FullScreenState, WakeLock } from "../components/screen-control";
+import { WakeLock } from "../components/screen-control";
 import { monitorStorage } from "../components/storage-helper";
 
 import './game.css'
@@ -34,7 +34,6 @@ export const Scanner: Component = () => {
 		<Map locations={locations!} />
 		<FinalMessage />
 		<WakeLock />
-		<FullScreenState mode="full" />
 	</>
 }
 

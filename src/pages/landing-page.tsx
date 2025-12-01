@@ -17,12 +17,15 @@ import successIcon from './illustrations/done-round-svgrepo-com.svg'
 
 import moreContentImage from './illustrations/more-to-come.svg'
 import endOfPageImage from './illustrations/end-of-page.svg'
-import { FullScreenState } from "../components/screen-control";
 import { ScrollHere } from "../components/scroll-here";
+import { useFullScreen } from "../components/screen-control";
 
 export const LandingPage: Component = () => {
 
 	const [locations, setLocations] = createSignal<Location[]>()
+
+	const fs = useFullScreen();
+	onMount(() => fs.set('normal'))
 
 	createEffect(async () => {
 		if (locations() != undefined) return;
@@ -75,6 +78,10 @@ export const LandingPage: Component = () => {
 				Als je ze allemaal hebt krijg je van ons de laatste locatie, met het cadeau dat je zocht.
 			</p>
 			<p>
+				Klik op het icoontje om te inspecteren, hier kan je verder als je in de buurt gaat staan. <br />
+				Als je te ver bent kan je wel het plaatje bekijken van waar je moet naartoe gaan.
+			</p>
+			<p>
 				Je wordt onderweg nog verder uitgedaagd, maar dat zie je daar wel. <br />
 				Verzamel de pakketjes, en doe het maar snel.
 			</p>
@@ -105,7 +112,6 @@ export const LandingPage: Component = () => {
 			<EndOfPage />
 		</LocationMatch>
 		<a id="after-location" />
-		<FullScreenState mode="normal" />
 	</>
 }
 

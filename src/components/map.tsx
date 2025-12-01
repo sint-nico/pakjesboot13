@@ -1,4 +1,4 @@
-import { Accessor, Component, createEffect, createMemo, createRoot, createSignal, getOwner, onCleanup, ParentComponent } from "solid-js";
+import { Accessor, Component, createEffect, createMemo, createRoot, createSignal, getOwner, onCleanup, onMount, ParentComponent, Setter } from "solid-js";
 import L, { DivIconOptions, LatLng, Map as LeafletMap, Marker } from "leaflet";
 import "./map.css"
 import { Location, resetCache, resetGames } from '../supabase';
@@ -16,6 +16,7 @@ import greenWrapperIcon from './markers/wrapper-green.svg'
 import endMarkerIcon from './markers/end.svg' 
 import { A } from "@solidjs/router";
 import { monitorStorage } from "./storage-helper";
+import { useFullScreen } from "./screen-control";
 
 function getGiftIcon(name: string | undefined, done: boolean) {
     if (name === 'slider') return !done ? redGiftIcon : redWrapperIcon
@@ -60,6 +61,8 @@ const Map: Component<MapProps> = ({ locations }) => {
     const renderOwner = getOwner();
     let initialized = false;
 
+    const fs = useFullScreen();
+
     const [,,,finalVisible] = monitorStorage()
     const [manual, setManual] = createSignal(false);
     const nonManual = createMemo(() => !manual(), [manual]);
@@ -78,6 +81,20 @@ const Map: Component<MapProps> = ({ locations }) => {
         zIndexOffset: 80
     });
 
+    // Ugly, if finalVisible, stop fs after a few miliseconds
+    let tim: number | undefined;
+    onMount(() => {
+        fs.set('full');
+        tim = setInterval(() => {
+            if (!finalVisible()) return;
+            console.log('fv')
+            fs.set(f => f === 'normal' ? 'normal' : 'inert');
+            clearInterval(tim);
+        }, 100);
+    })
+    onCleanup(() => {
+        clearInterval(tim);
+    })
 
     function resetView() {
         disableMap();
@@ -125,7 +142,7 @@ const Map: Component<MapProps> = ({ locations }) => {
 
         const map = leafletMap()!;
 
-        if (CONSOLE_DEBUG) {
+        if (CONSOLE_DEBUG && import.meta.env.DEV) {
             map.on('dblclick', (e) => {
                 prompt("", `@${e.latlng.lat},${e.latlng.lng},${e.latlng.alt ?? 0}z`);
             })
@@ -307,7 +324,7 @@ const Map: Component<MapProps> = ({ locations }) => {
 
             const dispose = createRoot(disposeRoot => {
                 // Solid will render into the wrapper.
-                render(() => <MarkerFrame location={location} />, target);
+                render(() => <MarkerFrame location={location} finalVisible={finalVisible} />, target);
                 // Return the disposer for the caller.
                 return disposeRoot;
                 // Use the component's owner to allow access to contexts
@@ -349,10 +366,12 @@ export default Map;
 
 type MarkerFrameProps = {
     location: Location
+    finalVisible: Accessor<boolean>
 }
-const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
+const MarkerFrame: Component<MarkerFrameProps> = ({ location, finalVisible }) => {
 
     const locationContext = useLocation();
+    const fs = useFullScreen();
 
     const distanceFromUser = createMemo(() => {
         const userLocation = locationContext.location()
@@ -367,6 +386,21 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
     }, [locationContext.location, location])
 
     const closeEnough = createMemo(() => fakeCloseEnough?.[0]?.() ||  distanceFromUser() < TARGET_DISTANCE_METERS, [distanceFromUser])
+
+    // Ugly, but if you're close to the end, just exit fs
+    let tim: number | undefined;
+    onMount(() => {
+        if (!location.final) return;
+        tim = setInterval(() => {
+            if (!closeEnough() || !finalVisible()) return;
+            fs.set('normal');
+            clearInterval(tim);
+        }, 100);
+    })
+    onCleanup(() => {
+        if (!location.final) return;
+        clearInterval(tim);
+    })
 
     return <>
         <div>
@@ -443,6 +477,8 @@ const MapOverlay: ParentComponent<{
         return false;
     }
 
+    let tim: number | undefined;
+
     return <>
         <div class="map-overlay">
             {locationLost() && <div class="notifications">Oeps we zijn je even kwijt...</div>}
@@ -451,7 +487,11 @@ const MapOverlay: ParentComponent<{
             <div>
                 <button onClick={() => { resetCache(); errorRedirect('cache emptied'); }}>Clear cache</button>
                 <button onClick={() => { resetGames(); }}>Reset games</button>
-                <button onClick={() => { fakeCloseEnough?.[1]?.(f => !f) }}>{fakeCloseEnough?.[0]?.() ? 'Unfake prox' : 'Fake prox'}</button>
+                <button onClick={() => { 
+                    clearTimeout(tim)
+                    fakeCloseEnough?.[1]?.(f => !f)
+                    tim = setTimeout(()=> fakeCloseEnough?.[1]?.(false), 5000)
+                }}>{fakeCloseEnough?.[0]?.() ? 'Unfake prox' : 'Fake prox'}</button>
             </div>
             <pre>
                 ({locationContext.location().latitude},{locationContext.location().longitude}) {status()} <br />

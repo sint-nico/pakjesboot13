@@ -1,21 +1,32 @@
-import { Component, createSignal, onCleanup, onMount, Setter } from "solid-js";
+import { children, Component, createContext, createSignal, onCleanup, ParentComponent, Setter, useContext } from "solid-js";
 
 const LOG_WAKE_LOCK_ISSUES = false;
 const LOG_FULL_SCREEN_ISSUES = false;
 
-export type FullScreenStateProps = {
-    mode: 'full' | 'normal'
+export type FsState = 'full' | 'normal' | 'inert'
+export type FullScreenContext = {
+	set: Setter<FsState>
 }
 
-export const FullScreenState: Component<FullScreenStateProps> = ({ mode }) => {
+const fullScreenContext = createContext<FullScreenContext>({
+	set: () => {}
+})
+
+export const FullScreenProvider: ParentComponent = (props) => {
 
 	const themeElement = () => document.getElementById('android-theme-color') as HTMLMetaElement;
 	const [theme, setTheme] = createSignal(themeElement()?.content)
 
+	const [get, set] = createSignal<FsState>('normal');
+
     async function fsAction() {
-        if (!import.meta.env.PROD) return;
+        if (import.meta.env.DEV) return;
+		if (get() === 'inert') {
+			console.log('fullscreen inert')
+			return;
+		}
 		if (!theme()) setTheme(themeElement()!.content)
-        if (mode === 'normal') {
+        if (get() === 'normal') {
             if (!document.fullscreenElement) return;
 			if(theme()) document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')!.content = theme()!;
             await document.exitFullscreen?.().catch(LOG_FULL_SCREEN_ISSUES ? console.debug : () => { });
@@ -39,8 +50,13 @@ export const FullScreenState: Component<FullScreenStateProps> = ({ mode }) => {
 		clearInterval(ii);
 	});
 
-	return undefined
+	return <fullScreenContext.Provider value={{ set }}>
+		{children(() => props.children)()}
+	</fullScreenContext.Provider>
 }
+
+export function useFullScreen() { return useContext(fullScreenContext); };
+
 export const WakeLock: Component = () => {
     
 	let wakeLock: WakeLockSentinel | undefined | void = undefined;
