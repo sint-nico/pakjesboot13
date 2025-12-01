@@ -44,6 +44,7 @@ code {
 #root {
   background-color: white;
   margin: 0.5ex 2.4ex;
+  max-width: 50ex;
 }
 
 .logo {
