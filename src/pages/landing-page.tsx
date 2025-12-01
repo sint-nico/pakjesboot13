@@ -125,7 +125,6 @@ const LocationMatch: ParentComponent = (props) => {
 		<p>“Klik hier, lieve kind, op de magische knop,” roept de Sint zacht. <br />
 			<LocationButton onClick={() => {
 				locationContext.requestAccess();
-				// TODO on status change
 				document.getElementById('after-location')?.scrollIntoView({
 					behavior: 'smooth'
 				})

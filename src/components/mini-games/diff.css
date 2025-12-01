@@ -12,7 +12,6 @@
 
 #game-diff .hotspot {
 
-  /* TODO REMOVE */
   background-color: rgba(0, 255, 0, 0);
   border: 3px solid transparent;
   border-radius: 100% 100% 100% 100%;

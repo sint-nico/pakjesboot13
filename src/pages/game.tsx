@@ -11,8 +11,6 @@ import { SuccessDisplay } from "../components/success";
 
 export const Scanner: Component = () => {
 
-	// TODO: mini-games
-
 	const locationContext = useLocation();
 
 	onMount(() => {

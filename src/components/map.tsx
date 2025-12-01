@@ -32,9 +32,8 @@ function getGiftIcon(name: string | undefined, done: boolean) {
  */
 
 const TARGET_DISTANCE_METERS = 20;
-// TODO false
-const SHOW_COORDS = true;
-let fakeCloseEnough = SHOW_COORDS && createSignal(false);
+const SHOW_COORDS = import.meta.env.DEV;
+let fakeCloseEnough = SHOW_COORDS ? createSignal(false) : undefined;
 
 // TODO false
 const CONSOLE_DEBUG = true;
@@ -125,6 +124,12 @@ const Map: Component<MapProps> = ({ locations }) => {
     const mapLoad = () => {
 
         const map = leafletMap()!;
+
+        if (CONSOLE_DEBUG) {
+            map.on('dblclick', (e) => {
+                prompt("", `@${e.latlng.lat},${e.latlng.lng},${e.latlng.alt ?? 0}z`);
+            })
+        }
 
         markers().forEach(marker => marker.remove());
         setMarkers(locations!.map(mapMarker))
@@ -257,9 +262,6 @@ const Map: Component<MapProps> = ({ locations }) => {
             }
         }
 
-        // TODO color gift when close
-        // TODO Solid Component here?
-
         if (!(marker.getIcon()?.options as DivIconOptions).html) {
             if (CONSOLE_DEBUG) (window as any)[`go${location.game}`] = () =>{
                 leafletMap()!.setView([location.lat, location.lng]);
@@ -364,7 +366,7 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location }) => {
         return dist;
     }, [locationContext.location, location])
 
-    const closeEnough = createMemo(() => fakeCloseEnough[0]() ||  distanceFromUser() < TARGET_DISTANCE_METERS, [distanceFromUser])
+    const closeEnough = createMemo(() => fakeCloseEnough?.[0]?.() ||  distanceFromUser() < TARGET_DISTANCE_METERS, [distanceFromUser])
 
     return <>
         <div>
@@ -449,7 +451,7 @@ const MapOverlay: ParentComponent<{
             <div>
                 <button onClick={() => { resetCache(); errorRedirect('cache emptied'); }}>Clear cache</button>
                 <button onClick={() => { resetGames(); }}>Reset games</button>
-                <button onClick={() => { fakeCloseEnough[1](f => !f) }}>{fakeCloseEnough[0]() ? 'Unfake prox' : 'Fake prox'}</button>
+                <button onClick={() => { fakeCloseEnough?.[1]?.(f => !f) }}>{fakeCloseEnough?.[0]?.() ? 'Unfake prox' : 'Fake prox'}</button>
             </div>
             <pre>
                 ({locationContext.location().latitude},{locationContext.location().longitude}) {status()} <br />
