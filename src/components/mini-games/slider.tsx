@@ -134,7 +134,9 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 	}
 	const canMoveOne = (pcs: Piece[], id: string, dx: number, dy: number): boolean => {
 		if (!imagesReady()) return false;
-		
+		if (isSolved()) return false;
+		if (finished()) return false;
+
 		const p = pcs.find(x => x.id === id);
 		if (!p) return false;
 
@@ -161,8 +163,10 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 	};
 
 	const handleDragStart = (e: PointerEvent, p: Piece): void => {
-		if (!imagesReady()) return;
 		e.preventDefault();
+		if (!imagesReady()) return;
+		if (isSolved()) return;
+		if (finished()) return;
 		setDragging(p);
 
 		const startX = e.clientX;
