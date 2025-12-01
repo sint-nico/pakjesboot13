@@ -27,7 +27,7 @@ export const SliderGame: Component<MiniGame> = ({ finish, finished, back }) => {
 			</p>
 			<p>
 				Schuif alles aan de kant, uit de weg voor je cadeau. <br />
-				Naar het groene "UIT" vak, als een echte pro.
+				Naar het <span class="green">groene <span>UIT</span></span> vak, als een echte pro.
 			</p>
 			<p>
 				Je mag alleen in rechte lijnen schuiven, één voor één dus maak een plan. <br />

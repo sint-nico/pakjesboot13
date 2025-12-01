@@ -1,6 +1,16 @@
 #game-slider {
     min-height: calc(100dvh - 6ex);
 }
+#game-slider .green {
+  color: #2e7d32;
+  font-weight: bold;
+}
+#game-slider .green >span {
+  background: #4caf50;
+  font-weight: 700;
+  color: #2e7d32;
+  padding: .5ex;
+}
 #game-slider .klotski {
     position:relative;
 }

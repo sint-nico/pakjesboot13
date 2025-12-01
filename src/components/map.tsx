@@ -36,6 +36,9 @@ const TARGET_DISTANCE_METERS = 20;
 const SHOW_COORDS = true;
 let fakeCloseEnough = SHOW_COORDS && createSignal(false);
 
+// TODO false
+const CONSOLE_DEBUG = true;
+
 // Helper: calculate distance in meters between two lat/lng pairs
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
     const R = 6371e3; // earth radius in meters
@@ -258,6 +261,10 @@ const Map: Component<MapProps> = ({ locations }) => {
         // TODO Solid Component here?
 
         if (!(marker.getIcon()?.options as DivIconOptions).html) {
+            if (CONSOLE_DEBUG) (window as any)[`go${location.game}`] = () =>{
+                leafletMap()!.setView([location.lat, location.lng]);
+                setManual(true)
+            }
             const target = document.createElement('div')
             marker.setIcon(L.divIcon({
                 html: target,
