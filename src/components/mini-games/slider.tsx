@@ -41,7 +41,7 @@ type Piece = {
 	y: number;
 	type: string;
 }
-const pieceImage = (src: string, width: number, height: number) => Object.assign(document.createElement('img'),{
+const pieceImage = (src: string, width: number, height: number) => Object.assign(document.createElement('img'), {
 	src,
 	width: width * CELL,
 	height: height * CELL,
@@ -77,8 +77,8 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 	let initialPieces: Piece[] = [];
 	const [dragging, setDragging] = createSignal<Piece | null>(null);
 	const [ghost, setGhost] = createSignal<{ x: number; y: number; p: Piece } | null>(null);
-	
-	
+
+
 	const [imagesReady, setImagesReady] = createSignal(false)
 	let tim: number | undefined;
 	onMount(() => {
@@ -113,9 +113,10 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 		? getStoredBoard()
 		: klotskiBoard;
 
-	const occupancyMap = (pcs: Piece[]) => {
+	const occupancyMap = (pcs: Piece[], skipId: string) => {
 		const map: (string | null)[][] = Array.from({ length: H }, () => Array(W).fill(null));
 		for (const p of pcs) {
+			if (p.id === skipId) continue;
 			for (let dy = 0; dy < p.h; dy++) {
 				for (let dx = 0; dx < p.w; dx++) {
 					const x = p.x + dx;
@@ -127,31 +128,41 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 		return map;
 	};
 
-	const canMoveOne = (pcs: Piece[], id: string, dx: number, dy: number) => {
-		const p = pcs.find(x => x.id === id);
-		if (!p) return false;
-		const map = occupancyMap(pcs);
-		for (let yy = 0; yy < p.h; yy++) {
-			for (let xx = 0; xx < p.w; xx++) {
-				const nx = p.x + xx + dx;
-				const ny = p.y + yy + dy;
-				if (ny >= H) return p.type === 'main';
-				if (ny < 0 || nx < 0 || nx >= W) return false;
-				if (map[ny][nx] && map[ny][nx] !== id) return false;
-			}
-		}
-		return true;
-	};
-
 	if (pieces().length === 0) {
 		initialPieces = clonePieces(makeInitial());
 		setPieces(clonePieces(initialPieces));
 	}
+	const canMoveOne = (pcs: Piece[], id: string, dx: number, dy: number): boolean => {
+		const p = pcs.find(x => x.id === id);
+		if (!p) return false;
 
-	const handleDragStart = (e: PointerEvent, p: Piece) => {
+		// Occupancy map ignoring the dragging piece itself
+		const map = occupancyMap(pcs, id);
+
+		for (let yy = 0; yy < p.h; yy++) {
+			for (let xx = 0; xx < p.w; xx++) {
+				const nx = p.x + xx + dx;
+				const ny = p.y + yy + dy;
+
+				// Out-of-bounds check
+				if (ny < 0 || nx < 0 || nx >= W) return false;
+
+				// Special rule for the main piece leaving the board (if needed)
+				if (ny >= H) return p.type === 'main';
+
+				// Check if the target cell is occupied (ignoring self)
+				if (map[ny][nx]) return false;
+			}
+		}
+
+		return true;
+	};
+
+	const handleDragStart = (e: PointerEvent, p: Piece): void => {
 		if (!imagesReady()) return;
 		e.preventDefault();
 		setDragging(p);
+
 		const startX = e.clientX;
 		const startY = e.clientY;
 		const origX = p.x;
@@ -163,14 +174,20 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 			const dxCells = Math.round((ev.clientX - startX) / CELL);
 			const dyCells = Math.round((ev.clientY - startY) / CELL);
 
-			// Queen-style: horizontal or vertical
+			// Only horizontal OR vertical movement
 			let moveX = 0, moveY = 0;
 			if (Math.abs(dxCells) > Math.abs(dyCells)) moveX = dxCells;
 			else if (Math.abs(dyCells) > Math.abs(dxCells)) moveY = dyCells;
 
+			// No move yet → keep original position as ghost
+			if (moveX === 0 && moveY === 0) {
+				setGhost({ x: origX, y: origY, p });
+				return;
+			}
+
+			// Apply bounds
 			const newX = origX + moveX;
 			const newY = origY + moveY;
-
 			let clampedX = Math.max(0, Math.min(W - p.w, newX));
 			let clampedY =
 				p.type === 'main' && clampedX === 1
@@ -180,30 +197,44 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 			const dxAllowed = clampedX - origX;
 			const dyAllowed = clampedY - origY;
 
-			if (canMoveOne(pieces(), p.id, dxAllowed, dyAllowed)) {
-				// Update ghost only if move is valid
-				setGhost({ x: clampedX, y: clampedY, p });
+			// Determine maximum valid move
+			const steps = Math.max(Math.abs(dxAllowed), Math.abs(dyAllowed));
+			let bestX: number | undefined, bestY: number | undefined;
+
+			for (let i = 1; i <= steps; i++) {
+				const testX = dxAllowed === 0 ? 0 : Math.sign(dxAllowed) * i;
+				const testY = dyAllowed === 0 ? 0 : Math.sign(dyAllowed) * i;
+
+				if (canMoveOne(pieces(), p.id, testX, testY)) {
+					bestX = testX;
+					bestY = testY;
+				} else {
+					break;
+				}
 			}
-			// else do nothing → keep last valid ghost
+
+			if (bestX !== undefined || bestY !== undefined) {
+				setGhost({
+					x: origX + (bestX ?? 0),
+					y: origY + (bestY ?? 0),
+					p
+				});
+			}
 		};
 
-
-		const onUp = () => {
+		const onUp = (): void => {
 			if (ghost()) {
 				const { x, y, p } = ghost()!;
-				setPieces(prev => prev.map(pp => {
-					if (pp.id !== p.id) return pp;
-					return {
-						...pp,
-						x, y
-					}
-				}));
+				setPieces(prev =>
+					prev.map(pp => pp.id === p.id ? { ...pp, x, y } : pp)
+				);
+
 				if (isSolved()) {
-					finish()
+					finish();
 					localStorage['game-slider-state'] = JSON.stringify(pieces());
 				}
-
 			}
+
 			setDragging(null);
 			setGhost(null);
 			window.removeEventListener('pointermove', onMove);
@@ -213,7 +244,8 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 		window.addEventListener('pointermove', onMove);
 		window.addEventListener('pointerup', onUp);
 	};
-	const reset = () => setPieces(pieces => pieces.map(p =>({
+
+	const reset = () => setPieces(pieces => pieces.map(p => ({
 		...p,
 		x: initialPieces.find(pp => p.id === pp.id)!.x,
 		y: initialPieces.find(pp => p.id === pp.id)!.y
