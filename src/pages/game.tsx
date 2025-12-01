@@ -61,6 +61,10 @@ const FinalMessage: Component = () => {
 				dan kan je makkelijker zien waar het is neergelegd.
 			</p>
 			<p>
+				Voor de veiligheid is de tas op slot gezet, en vast gebonden. <br />
+				Hopelijk heb je de sleutel, verstopt in je surprise, gevonden.
+			</p>
+			<p>
 				Haal hem gauw op, dan is het maar gedaan. <br />
 				De jute zak is van jou, de zwarte tas mag je laten staan.
 			</p>

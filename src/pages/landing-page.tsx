@@ -44,43 +44,47 @@ export const LandingPage: Component = () => {
 		<img src={phoneGuyImage} class='phone-guy' />
 
 		<p>
-			TODO gedichtje met instructies<br />
-			Maar nu nog even niet
+			Je hebt de puzzel opgelost, en de boodschap ontcijferd vent.<br />
+			Maar denk maar niet dat je nu klaar bent.
 		</p>
 		<p>
-			Hier komt nog meer gedichtje... <br />
-			Maar nu nog even niet
+			Om het echt uitdagend te maken is piet aan het vibe-coden geslagen en heeft een app gebouwd. <br />
+			In het jaar van de AI, hebben ook de Sint en Pieten in ChatGPT vertrouwd.
 		</p>
 		<p>
-			Hier komt nog meer gedichtje... <br />
-			Maar nu nog even niet
+			Hopelijk zitten er niet te veel bugs in, maar wie zal het weten. <br />
+			Het is niet alsof één van ons echt aan de code heeft gezeten.
 		</p>
 		<p>
-			Hier komt nog meer gedichtje... <br />
-			Maar nu nog even niet
+			Om te beginnen hebben we wat van je nodig, dat staat hier beneden. <br />
+			Klik op de gele knop, en dan zijn wij tevreden.
 		</p>
 
 		<LocationMatch>
 			<p>
-				Hier komt nog meer gedichtje... <br />
-				Maar nu nog even niet
+				Je avontuur gaat nu digitaal verder, doe je jas maar aan. <br />
+				Voor de rest van de speurtocht, moet je naar buiten gaan.
 			</p>
 			<p>
-				Hier komt nog meer gedichtje... <br />
-				Maar nu nog even niet
-			</p>
-			<p>
-				Hier komt nog meer gedichtje... <br />
-				Maar nu nog even niet
+				Je krijgt een kaart voor je neus, met locaties gemarkeerd. <br />
+				Je mag gaan navigeren, maar kijk waar je loopt, we willen niet dat jij je bezeert.
 			</p>
 			<PhoneIllustration />
 			<p>
-				Hier komt nog meer gedichtje... <br />
-				Maar nu nog even niet
+				Verzamel de pakketjes, die bevatten hints voor het einde van de tocht. <br />
+				Als je ze allemaal hebt krijg je van ons de laatste locatie, met het cadeau dat je zocht.
 			</p>
 			<p>
-				Hier komt nog meer gedichtje... <br />
-				Maar nu nog even niet
+				Je wordt onderweg nog verder uitgedaagd, maar dat zie je daar wel. <br />
+				Verzamel de pakketjes, en doe het maar snel.
+			</p>
+			<p>
+				Iedereen de jas aan! Je hoeft niet alleen op avontuur uit. <br />
+				De rest moet meelopen van de sint. Dat is zijn besluit.
+			</p>
+			<p>
+				Wederom veel plezier, niet te veel zeuren of vloeken. <br />
+				Klik op de knop en begin met zoeken.
 			</p>
 			<p>
 				<A
