@@ -9,7 +9,7 @@
   background: #4caf50;
   font-weight: 700;
   color: #2e7d32;
-  padding: .5ex;
+  padding: .3ex .5ex .5ex .5ex;
 }
 #game-slider .klotski {
     position:relative;
