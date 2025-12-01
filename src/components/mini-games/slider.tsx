@@ -1,4 +1,4 @@
-import { Accessor, Component, createEffect, createMemo, createReaction, createSignal, JSX } from 'solid-js';
+import { Accessor, Component, createMemo, createSignal, JSX } from 'solid-js';
 import { MiniGame } from "../../pages/mini-game";
 import { ErrorCross } from "../error";
 import { Success } from "../success";
