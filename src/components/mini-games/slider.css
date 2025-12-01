@@ -1,6 +1,9 @@
 #game-slider {
     min-height: calc(100dvh - 6ex);
 }
+#game-slider .klotski.loading {
+    opacity: .7;
+}
 #game-slider .klotski-board {
     position: relative;
 }
@@ -77,10 +80,7 @@
   pointer-events: all;
   touch-action: all;
 }
-#game-slider .piece.no-image {
-  border: 2px solid #333;
-  background: #ccc;
-}
+
 #game-slider .piece.dragging {
   opacity: 0.5;
   z-index: 10;

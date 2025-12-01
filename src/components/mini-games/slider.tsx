@@ -1,4 +1,4 @@
-import { Accessor, Component, createMemo, createSignal, JSX } from 'solid-js';
+import { Accessor, Component, createMemo, createSignal, JSX, onCleanup, onMount } from 'solid-js';
 import { MiniGame } from "../../pages/mini-game";
 import { ErrorCross } from "../error";
 import { Success } from "../success";
@@ -41,15 +41,24 @@ type Piece = {
 	y: number;
 	type: string;
 }
-const imageMap: Record<string, JSX.Element | undefined> = {
-	A: <img src={redGiftImg} width={2 * CELL} draggable={false} />,
-	G: <img src={leftShoeImg} width={1 * CELL} height={(2 * CELL) -2} draggable={false} />,
-	C: <img src={rightShoeImg} width={1 * CELL} height={(2 * CELL) -2} draggable={false} />,
-	B: <img src={chocoEImg} width={1 * CELL} height={2 * CELL} draggable={false} />,
-	H: <img src={chocoDImg} width={1 * CELL} height={2 * CELL} draggable={false} />,
-	D: <img src={speculaasImg} width={2 * CELL} height={1 * CELL} draggable={false} />,
-	E: <img src={pepperNutsImg} width={1 * CELL} height={1 * CELL} draggable={false} />,
-	F: <img src={chocoCoinsImg} width={1 * CELL} height={1 * CELL} draggable={false} />,
+const pieceImage = (src: string, width: number, height: number) => Object.assign(document.createElement('img'),{
+	src,
+	width: width * CELL,
+	height: height * CELL,
+	onload(e: Event) {
+		const element = e.currentTarget as HTMLImageElement
+		element.setAttribute('loaded', '')
+	}
+})
+const imageMap: Record<string, HTMLImageElement | undefined> = {
+	A: pieceImage(redGiftImg, 2, 2),
+	G: pieceImage(leftShoeImg, 1, 2),
+	C: pieceImage(rightShoeImg, 1, 2),
+	B: pieceImage(chocoEImg, 1, 2),
+	H: pieceImage(chocoDImg, 1, 2),
+	D: pieceImage(speculaasImg, 2, 1),
+	E: pieceImage(pepperNutsImg, 1, 1),
+	F: pieceImage(chocoCoinsImg, 1, 1),
 }
 const klotskiBoard: Piece[] = [
 	{ id: 'A', w: 2, h: 2, x: 1, y: 0, type: 'main' },
@@ -68,6 +77,18 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 	let initialPieces: Piece[] = [];
 	const [dragging, setDragging] = createSignal<Piece | null>(null);
 	const [ghost, setGhost] = createSignal<{ x: number; y: number; p: Piece } | null>(null);
+	
+	
+	const [imagesReady, setImagesReady] = createSignal(false)
+	let tim: number | undefined;
+	onMount(() => {
+		tim = setInterval(() => {
+			if (Object.values(imageMap).every(i => i!.hasAttribute('loaded'))) setImagesReady(true)
+		}, 10);
+	})
+	onCleanup(() => {
+		clearTimeout(tim)
+	})
 
 	const isSolved = createMemo(() => {
 		if (finished()) return true;
@@ -128,6 +149,7 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 	}
 
 	const handleDragStart = (e: PointerEvent, p: Piece) => {
+		if (!imagesReady()) return;
 		e.preventDefault();
 		setDragging(p);
 		const startX = e.clientX;
@@ -197,7 +219,7 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 		y: initialPieces.find(pp => p.id === pp.id)!.y
 	})));
 
-	return (<div class="klotski"
+	return (<div class={`klotski${imagesReady() ? '' : ' loading'}`}
 		style={{
 			width: `${CELL * W}px`,
 			height: `${(CELL * H) + CELL}px`,
@@ -224,7 +246,7 @@ const Klotski: Component<Omit<MiniGame, 'back'>> = ({ finish, finished }) => {
 
 			{/* Pieces */}
 			{pieces().map(p => {
-				const image = imageMap[p.id]
+				const image = imageMap[p.id]!
 				return <PieceDisplay
 					dragging={dragging} finished={finished} piece={p}
 					handleDragStart={handleDragStart}
@@ -269,7 +291,7 @@ type PieceProps = {
 	dragging: Accessor<Piece | null>
 	finished: Accessor<boolean>
 	handleDragStart(e: MouseEvent, piece: Piece): void
-	image: JSX.Element | undefined
+	image: HTMLImageElement,
 }
 const PieceDisplay: Component<PieceProps> = ({ dragging, piece, finished, handleDragStart, image }) => {
 	const isDragging = () => dragging()?.id === piece.id;
@@ -277,8 +299,9 @@ const PieceDisplay: Component<PieceProps> = ({ dragging, piece, finished, handle
 		if (!image) return piece.id
 		return image
 	}, [image])
+
 	const className = createMemo(
-		() => `piece ${isDragging() ? "dragging" : ""} ${image ? "" : "no-image"}`,
+		() => `piece ${isDragging() ? "dragging" : ""}`,
 		[isDragging]
 	)
 	const pos = createMemo(
@@ -290,7 +313,6 @@ const PieceDisplay: Component<PieceProps> = ({ dragging, piece, finished, handle
 		}) as JSX.CSSProperties,
 		[() => piece.x, () => piece.y]
 	)
-
 	return <div
 		class={className()}
 		style={pos()}
