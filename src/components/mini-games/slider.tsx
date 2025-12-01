@@ -11,7 +11,7 @@ import leftShoeImg from "./slider/left-shoe.svg?url"
 import rightShoeImg from "./slider/right-shoe.svg?url"
 import chocoEImg from "./slider/choco-letter-e.svg?url"
 import chocoDImg from "./slider/choco-letter-d.svg?url"
-import speculaasImg from "./slider/speculaas.svg?url"
+import speculaasImg from "./slider/Speculaas.svg?url"
 import pepperNutsImg from "./slider/pepernoten.svg?url"
 import chocoCoinsImg from "./slider/choco-coins.svg?url"
 
