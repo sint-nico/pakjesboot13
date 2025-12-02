@@ -78,7 +78,11 @@ export function AudioProvider(props: ParentProps) {
         oscNode.triangle.start()
         oscNode.triangle.type = 'triangle'
         console.log('ctx set', audioCtx, oscNode)
-        abortController.signal.addEventListener('abort', () => ctx()?.close(), { once: true });
+        abortController.signal.addEventListener('abort', () => {
+          if (!ctx()) return;
+          if (ctx()!.state === 'closed') return;
+          ctx()!.close()
+        }, { once: true });
         abortController.signal.addEventListener('abort', () => {
           if (!osc()) return;
           Object.values(osc()!).forEach(n => n.stop())
