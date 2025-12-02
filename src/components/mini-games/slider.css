@@ -117,7 +117,8 @@
     touch-action: all;
     position: absolute;
     z-index: 999;
-}#game-slider .big-button.reset .icon { */
+}
+#game-slider .big-button.reset .icon {
     padding-top: .6ex;
     padding-bottom: .4ex;
 }

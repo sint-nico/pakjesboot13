@@ -19,25 +19,28 @@ export default gitHubSpaConfig(packageJson, {
         {
           entryMatch: /.*\.svg$/,
           attributes: {
+            'rel': 'prefetch',
             'type': 'image/svg+xml',
             'as': 'image',
-            'crossorigin': 'anonymous',
+            crossorigin: true,
           }
         },
         {
           entryMatch: /.*\.png$/,
           attributes: {
+            'rel': 'prefetch',
             'type': 'image/png',
             'as': 'image',
-            'crossorigin': 'anonymous',
+            'crossorigin': true,
           }
         },
         {
           entryMatch: /.*\.jpg$/,
           attributes: {
+            'rel': 'prefetch',
             'type': 'image/jpeg',
             'as': 'image',
-            'crossorigin': 'anonymous',
+            'crossorigin': true,
           }
         },
         {
