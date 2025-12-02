@@ -130,3 +130,16 @@
   float: right;
   width: 25%;
 }
+
+
+
+.click-hint {
+  color: #767676ff;
+  font-weight: bold;
+}
+.click-hint >span {
+  background: #767676ff;
+  font-weight: 700;
+  color: #d0d0d0ff;
+  padding: .3ex .5ex .5ex .5ex;
+}

@@ -78,7 +78,7 @@ export const LandingPage: Component = () => {
 				Als je ze allemaal hebt krijg je van ons de laatste locatie, met het cadeau dat je zocht.
 			</p>
 			<p>
-				Klik op het icoontje om te inspecteren, hier kan je verder als je in de buurt gaat staan. <br />
+				<span class="click-hint"><span>Klik</span> op het icoontje</span> om te inspecteren, hier kan je verder als je in de buurt gaat staan. <br />
 				Als je te ver bent kan je wel het plaatje bekijken van waar je moet naartoe gaan.
 			</p>
 			<p>

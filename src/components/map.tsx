@@ -7,13 +7,15 @@ import { LeafletMapWrapper } from "./leaflet-wrapper";
 import { Portal, render } from "solid-js/web";
 import { errorRedirect } from "../helpers";
 
-import redGiftIcon from './markers/gift-red.svg' 
-import redWrapperIcon from './markers/wrapper-red.svg' 
-import blueGiftIcon from './markers/gift-blue.svg' 
-import blueWrapperIcon from './markers/wrapper-blue.svg' 
-import greenGiftIcon from './markers/gift-green.svg' 
-import greenWrapperIcon from './markers/wrapper-green.svg' 
-import endMarkerIcon from './markers/end.svg' 
+import redGiftIcon from './markers/gift-red.svg'
+import redWrapperIcon from './markers/wrapper-red.svg'
+import blueGiftIcon from './markers/gift-blue.svg'
+import blueWrapperIcon from './markers/wrapper-blue.svg'
+import greenGiftIcon from './markers/gift-green.svg'
+import greenWrapperIcon from './markers/wrapper-green.svg'
+import endMarkerIcon from './markers/end.svg'
+import clickHereIcon from './markers/click-here.svg'
+
 import { A } from "@solidjs/router";
 import { monitorStorage } from "./storage-helper";
 import { useFullScreen } from "./screen-control";
@@ -63,7 +65,7 @@ const Map: Component<MapProps> = ({ locations }) => {
 
     const fs = useFullScreen();
 
-    const [,,,finalVisible] = monitorStorage()
+    const [, , , finalVisible] = monitorStorage()
     const [manual, setManual] = createSignal(false);
     const nonManual = createMemo(() => !manual(), [manual]);
 
@@ -280,7 +282,7 @@ const Map: Component<MapProps> = ({ locations }) => {
         }
 
         if (!(marker.getIcon()?.options as DivIconOptions).html) {
-            if (CONSOLE_DEBUG) (window as any)[`go${location.game}`] = () =>{
+            if (CONSOLE_DEBUG) (window as any)[`go${location.game}`] = () => {
                 leafletMap()!.setView([location.lat, location.lng]);
                 setManual(true)
             }
@@ -295,7 +297,7 @@ const Map: Component<MapProps> = ({ locations }) => {
 
             const dispose = createRoot(disposeRoot => {
                 // Solid will render into the wrapper.
-                render(() => <MarkerIcon location={location} />, target);
+                render(() => <MarkerIcon location={location} marker={marker}/>, target);
                 // Return the disposer for the caller.
                 return disposeRoot;
                 // Use the component's owner to allow access to contexts
@@ -385,7 +387,7 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location, finalVisible }) =>
         return dist;
     }, [locationContext.location, location])
 
-    const closeEnough = createMemo(() => fakeCloseEnough?.[0]?.() ||  distanceFromUser() < TARGET_DISTANCE_METERS, [distanceFromUser])
+    const closeEnough = createMemo(() => fakeCloseEnough?.[0]?.() || distanceFromUser() < TARGET_DISTANCE_METERS, [distanceFromUser])
 
     // Ugly, but if you're close to the end, just exit fs
     let tim: number | undefined;
@@ -407,10 +409,10 @@ const MarkerFrame: Component<MarkerFrameProps> = ({ location, finalVisible }) =>
             <img class="location-frame-image" src={location.imageUrl} width="300" />
             <div class="location-frame-content">
                 <h3>{location.name}</h3>
-                { !location.final && closeEnough() && <A href={`/puzzle/${location.game}`} class="button location-frame-button">
+                {!location.final && closeEnough() && <A href={`/puzzle/${location.game}`} class="button location-frame-button">
                     <span class="text">Zoek naar een aanwijzing</span>
                     <span class="status">&raquo;</span>
-                </A> }
+                </A>}
             </div>
         </div>
         {!closeEnough() && <>
@@ -487,10 +489,10 @@ const MapOverlay: ParentComponent<{
             <div>
                 <button onClick={() => { resetCache(); errorRedirect('cache emptied'); }}>Clear cache</button>
                 <button onClick={() => { resetGames(); }}>Reset games</button>
-                <button onClick={() => { 
+                <button onClick={() => {
                     clearTimeout(tim)
                     fakeCloseEnough?.[1]?.(f => !f)
-                    tim = setTimeout(()=> fakeCloseEnough?.[1]?.(false), 10_000)
+                    tim = setTimeout(() => fakeCloseEnough?.[1]?.(false), 20_000)
                 }}>{fakeCloseEnough?.[0]?.() ? 'Unfake prox' : 'Fake prox'}</button>
             </div>
             <pre>
@@ -505,14 +507,62 @@ const MapOverlay: ParentComponent<{
 
 
 type MarkerIconProps = {
-    location: Location
+    location: Location,
+    marker: Marker
 }
-const MarkerIcon: Component<MarkerIconProps> = ({ location }) => {
+const MarkerIcon: Component<MarkerIconProps> = ({ location, marker }) => {
+
+    const locationContext = useLocation();
+
+    const distanceFromUser = createMemo(() => {
+        const userLocation = locationContext.location()
+
+        const dist = haversine(
+            userLocation.latitude,
+            userLocation.longitude,
+            location.lat,
+            location.lng
+        );
+        return dist;
+    }, [locationContext.location, location])
+
+    const closeEnough = createMemo(() => fakeCloseEnough?.[0]?.() || distanceFromUser() < TARGET_DISTANCE_METERS, [distanceFromUser])
+
+    const [showHand, setShowHand] = createSignal(false);
+    let tim: number | undefined;
+    createEffect(() => {
+        if (location.final) return;
+        if (!closeEnough()) {
+            clearTimeout(tim);
+            setShowHand(false);
+            return;
+        }
+        tim = setTimeout(() => {
+            if (!closeEnough()) return;
+            setShowHand(true);
+        }, 10_000);
+    }, [closeEnough])
+
+    marker.on('popupopen', () => {
+        clearTimeout(tim);
+        setShowHand(false);
+    })
+    onCleanup(() => clearTimeout(tim))
 
     const locationDone = localStorage[`game-done-${location.game}`] === 'true'
     const iconUrl = getGiftIcon(location.game, locationDone)
 
-    return <div class={locationDone ? "custom-div-icon done" : "custom-div-icon open"}>
+    return <div
+        class={`${locationDone ? "custom-div-icon done" : "custom-div-icon open"
+            } ${closeEnough() ? 'user-close' : ''
+            }`}
+    >
+        {showHand() && <img
+            width="32"
+            alt="click-here illustration"
+            class="click-here"
+            src={clickHereIcon}
+        />}
         <img
             width="32" height="32"
             alt={location.game}
