@@ -33,7 +33,8 @@ function getGiftIcon(name: string | undefined, done: boolean) {
  */
 
 const TARGET_DISTANCE_METERS = 20;
-const SHOW_COORDS = import.meta.env.DEV;
+// TODO false
+const SHOW_COORDS = true || import.meta.env.DEV;
 let fakeCloseEnough = SHOW_COORDS ? createSignal(false) : undefined;
 
 // TODO false
@@ -490,7 +491,7 @@ const MapOverlay: ParentComponent<{
                 <button onClick={() => { 
                     clearTimeout(tim)
                     fakeCloseEnough?.[1]?.(f => !f)
-                    tim = setTimeout(()=> fakeCloseEnough?.[1]?.(false), 5000)
+                    tim = setTimeout(()=> fakeCloseEnough?.[1]?.(false), 10_000)
                 }}>{fakeCloseEnough?.[0]?.() ? 'Unfake prox' : 'Fake prox'}</button>
             </div>
             <pre>
